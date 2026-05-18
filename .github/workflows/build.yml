@@ -77,11 +77,12 @@ jobs:
           }
           EOF
 
-          # ── gradle.properties ─────────────────────────────
+          # ── gradle.properties (已追加警告屏蔽) ──────────────
           cat > gradle.properties << 'EOF'
           org.gradle.jvmargs=-Xmx2048m
           android.useAndroidX=true
           android.enableJetifier=true
+          android.suppressUnsupportedCompileSdk=34
           EOF
 
           # ── AndroidManifest.xml ───────────────────────────
@@ -148,6 +149,7 @@ jobs:
           </vector>
           EOF
 
+          mix
           cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
@@ -192,7 +194,7 @@ jobs:
           }
           EOF
 
-          # ── RootUtils.java (通过 Dumpsys 精准匹配 ID) ─────
+          # ── RootUtils.java ────────────────────────────────
           cat > app/src/main/java/com/pmahz/util/RootUtils.java << 'EOF'
           package com.pmahz.util;
           import android.util.Log;
@@ -304,7 +306,7 @@ jobs:
           }
           EOF
 
-          # ── RateAdapter.java (集成大绿勾和进场动画) ────────
+          # ── RateAdapter.java ──────────────────────────────
           cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
           package com.pmahz.adapter;
           import android.content.Context;
@@ -360,7 +362,7 @@ jobs:
           }
           EOF
 
-          # ── HomeFragment.java (高低分辨率排序与吐司重构) ────
+          # ── HomeFragment.java ─────────────────────────────
           cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
           package com.pmahz.fragment;
 
@@ -420,7 +422,6 @@ jobs:
                   }
                   
                   List<String> keys = new ArrayList<>(grouped.keySet());
-                  // 核心排序：高分辨率面积排在最前面，低分辨率在后面
                   keys.sort((a, b) -> {
                       String[] pa = a.split("x"), pb = b.split("x");
                       int resA = Integer.parseInt(pa[0]) * Integer.parseInt(pa[1]);
@@ -469,7 +470,7 @@ jobs:
           }
           EOF
 
-          # ── SettingsFragment.java (关于页跳转与日志生成) ───
+          # ── SettingsFragment.java (修复 setTextSize 格式) ───
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.content.Intent;
@@ -533,7 +534,7 @@ jobs:
                   TextView tv = new TextView(getContext());
                   tv.setText(logContent);
                   tv.setPadding(30, 30, 30, 30);
-                  tv.setTextSize(13sp);
+                  tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
                   sv.addView(tv);
 
                   new AlertDialog.Builder(getContext())
@@ -600,15 +601,8 @@ jobs:
           </LinearLayout>
           EOF
 
-          cat > app/src/main/res/layout/item_res_header.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="10dp">
-              <TextView android:id="@+id/tv_header_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="@color/text_dark"/>
-          </LinearLayout>
-          EOF
-
+          # ── fragment_settings.xml (已剔除致命多余字符) ─────
           cat > app/src/main/res/layout/fragment_settings.xml << 'EOF'
-          xml
           <?xml version="1.0" encoding="utf-8"?>
           <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp" android:background="@color/bg_main">
               <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" app:cardCornerRadius="12dp">
@@ -625,6 +619,13 @@ jobs:
                       <Button android:id="@+id/btn_generate_log" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="生成日志" android:layout_marginTop="16dp"/>
                   </LinearLayout>
               </androidx.cardview.widget.CardView>
+          </LinearLayout>
+          EOF
+
+          cat > app/src/main/res/layout/item_res_header.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="10dp">
+              <TextView android:id="@+id/tv_header_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="@color/text_dark"/>
           </LinearLayout>
           EOF
 
