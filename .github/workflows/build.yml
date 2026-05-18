@@ -18,7 +18,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 3. 构造标准 Android 项目（使用独立脚本，EOF 无缩进）
+      - name: 3. 使用独立脚本生成全部项目文件（解决所有缩进问题）
         run: |
           cat > generate.sh << 'SCRIPTEOF'
           #!/bin/bash
@@ -34,7 +34,7 @@ jobs:
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/mipmap-anydpi-v26
 
-          # ----- settings.gradle -----
+          # 下列所有 cat 命令的 EOF 必须顶格书写，不能有任何缩进！
           cat > settings.gradle << 'EOF'
           pluginManagement {
               repositories { google(); mavenCentral(); gradlePluginPortal() }
@@ -47,12 +47,10 @@ jobs:
           include ':app'
           EOF
 
-          # ----- build.gradle (Root) -----
           cat > build.gradle << 'EOF'
           plugins { id 'com.android.application' version '8.1.0' apply false }
           EOF
 
-          # ----- app/build.gradle -----
           cat > app/build.gradle << 'EOF'
           plugins { id 'com.android.application' }
           android {
@@ -62,8 +60,8 @@ jobs:
                   applicationId "com.pmahz"
                   minSdk 23
                   targetSdk 34
-                  versionCode 159
-                  versionName "1.5.9"
+                  versionCode 161
+                  versionName "1.6.1"
               }
               buildTypes { release { minifyEnabled false } }
               compileOptions {
@@ -80,19 +78,18 @@ jobs:
           }
           EOF
 
-          # ----- gradle.properties -----
           cat > gradle.properties << 'EOF'
           org.gradle.jvmargs=-Xmx2048m
           android.useAndroidX=true
           android.enableJetifier=true
           EOF
 
-          # ----- AndroidManifest.xml -----
           cat > app/src/main/AndroidManifest.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
               <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+              <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
               <application
                   android:allowBackup="true"
                   android:label="@string/app_name"
@@ -109,7 +106,6 @@ jobs:
           </manifest>
           EOF
 
-          # ----- 动画资源 -----
           cat > app/src/main/res/anim/item_animation.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <set xmlns:android="http://schemas.android.com/apk/res/android" android:duration="450">
@@ -118,7 +114,6 @@ jobs:
           </set>
           EOF
 
-          # ----- 启动图标 -----
           cat > app/src/main/res/drawable/ic_launcher_background.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="#1A1A1A"/></shape>
@@ -151,6 +146,27 @@ jobs:
           </vector>
           EOF
 
+          cat > app/src/main/res/drawable/wallpaper_gradient_1.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+              <gradient android:startColor="#FF7E5F" android:endColor="#FEB47B" android:angle="45"/>
+          </shape>
+          EOF
+
+          cat > app/src/main/res/drawable/wallpaper_gradient_2.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+              <gradient android:startColor="#6A11CB" android:endColor="#2575FC" android:angle="135"/>
+          </shape>
+          EOF
+
+          cat > app/src/main/res/drawable/wallpaper_gradient_3.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+              <gradient android:startColor="#11998E" android:endColor="#38EF7D" android:angle="225"/>
+          </shape>
+          EOF
+
           cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
@@ -161,7 +177,7 @@ jobs:
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
           EOF
 
-          # ========== Java 模型 ==========
+          # ========== Java 源码 ==========
           cat > app/src/main/java/com/pmahz/model/DisplayMode.java << 'EOF'
           package com.pmahz.model;
           public class DisplayMode {
@@ -195,7 +211,6 @@ jobs:
           }
           EOF
 
-          # ----- RootUtils.java（核心修复：索引 = id - 1）-----
           cat > app/src/main/java/com/pmahz/util/RootUtils.java << 'EOF'
           package com.pmahz.util;
           import android.util.Log;
@@ -256,15 +271,10 @@ jobs:
                   return list;
               }
 
-              /**
-               * 切换刷新率（使用 zero-based 索引）
-               * @param dumpsysModeId 从 dumpsys 解析出的原始 mode id
-               * @param targetHz      目标刷新率（用于辅助属性）
-               */
               public static boolean setRefreshRate(int dumpsysModeId, int targetHz) {
                   Process process = null; DataOutputStream os = null;
                   try {
-                      int index = dumpsysModeId - 1;  // 关键：SurfaceFlinger 参数为索引
+                      int index = dumpsysModeId - 1;  // 零基索引修复
                       process = Runtime.getRuntime().exec("su");
                       os = new DataOutputStream(process.getOutputStream());
                       os.writeBytes("service call SurfaceFlinger 1035 i32 " + index + "\n");
@@ -311,7 +321,6 @@ jobs:
           }
           EOF
 
-          # ----- RateAdapter.java -----
           cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
           package com.pmahz.adapter;
           import android.content.Context;
@@ -367,13 +376,17 @@ jobs:
           }
           EOF
 
-          # ----- HomeFragment.java（加入低分辨率）-----
           cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
           package com.pmahz.fragment;
 
           import android.content.Context;
+          import android.content.SharedPreferences;
+          import android.graphics.Bitmap;
+          import android.graphics.BitmapFactory;
+          import android.net.Uri;
           import android.os.Bundle;
           import android.view.*;
+          import android.widget.ImageView;
           import android.widget.Toast;
           import androidx.fragment.app.Fragment;
           import androidx.recyclerview.widget.*;
@@ -381,21 +394,58 @@ jobs:
           import com.pmahz.adapter.RateAdapter;
           import com.pmahz.model.DisplayMode;
           import com.pmahz.util.RootUtils;
+          import java.io.InputStream;
           import java.util.*;
 
           public class HomeFragment extends Fragment {
               private RateAdapter adapter;
               private boolean hasRoot = false;
               private List<Object> dataItems = new ArrayList<>();
+              private ImageView wallpaperView;
+              private SharedPreferences prefs;
 
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_home, c, false);
                   RecyclerView rv = v.findViewById(R.id.recycler_rates);
+                  wallpaperView = v.findViewById(R.id.wallpaper_image);
                   rv.setLayoutManager(new LinearLayoutManager(getContext()));
                   adapter = new RateAdapter(getContext(), dataItems, this::onRateSelected);
                   rv.setAdapter(adapter);
+                  prefs = requireActivity().getSharedPreferences("s", Context.MODE_PRIVATE);
+                  loadWallpaper();
                   loadData();
                   return v;
+              }
+
+              private void loadWallpaper() {
+                  int type = prefs.getInt("wallpaper_type", 0);
+                  float alpha = prefs.getFloat("wallpaper_alpha", 0.3f);
+                  wallpaperView.setAlpha(alpha);
+                  if (type == 3) {
+                      String uriStr = prefs.getString("wallpaper_uri", null);
+                      if (uriStr != null) {
+                          try {
+                              InputStream is = requireActivity().getContentResolver().openInputStream(Uri.parse(uriStr));
+                              Bitmap bitmap = BitmapFactory.decodeStream(is);
+                              wallpaperView.setImageBitmap(bitmap);
+                          } catch (Exception e) {
+                              wallpaperView.setImageResource(R.drawable.wallpaper_gradient_1);
+                          }
+                      } else {
+                          wallpaperView.setImageResource(R.drawable.wallpaper_gradient_1);
+                      }
+                  } else {
+                      int resId;
+                      if (type == 1) resId = R.drawable.wallpaper_gradient_2;
+                      else if (type == 2) resId = R.drawable.wallpaper_gradient_3;
+                      else resId = R.drawable.wallpaper_gradient_1;
+                      wallpaperView.setImageResource(resId);
+                  }
+              }
+
+              @Override public void onResume() {
+                  super.onResume();
+                  loadWallpaper();
               }
 
               private void loadData() {
@@ -438,10 +488,7 @@ jobs:
               }
 
               private List<Object> buildSortedList(List<DisplayMode> dumpedModes) {
-                  if (dumpedModes == null || dumpedModes.isEmpty()) {
-                      return fallback();
-                  }
-                  // 不再过滤，直接显示所有分辨率
+                  if (dumpedModes == null || dumpedModes.isEmpty()) return fallback();
                   Map<String, List<DisplayMode>> grouped = new LinkedHashMap<>();
                   for (DisplayMode m : dumpedModes) {
                       String k = m.getWidth() + "x" + m.getHeight();
@@ -452,13 +499,12 @@ jobs:
                       String[] pa = a.split("x"), pb = b.split("x");
                       int resA = Integer.parseInt(pa[0]) * Integer.parseInt(pa[1]);
                       int resB = Integer.parseInt(pb[0]) * Integer.parseInt(pb[1]);
-                      return Integer.compare(resB, resA); // 降序，高分辨率在前
+                      return Integer.compare(resB, resA);
                   });
                   List<Object> items = new ArrayList<>();
                   for (int i = 0; i < keys.size(); i++) {
                       List<DisplayMode> ms = grouped.get(keys.get(i));
                       ms.sort((a, b) -> Float.compare(b.getRefreshRate(), a.getRefreshRate()));
-                      // 第一个为高分辨率，其余为低分辨率
                       String label = (i == 0) ? "✨ 高分辨率  " + keys.get(i) : "🔋 低分辨率  " + keys.get(i);
                       items.add(label);
                       items.addAll(ms);
@@ -499,10 +545,12 @@ jobs:
           }
           EOF
 
-          # ----- SettingsFragment.java（作者信息新格式）-----
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
+          import android.Manifest;
           import android.content.Intent;
+          import android.content.SharedPreferences;
+          import android.content.pm.PackageManager;
           import android.graphics.Color;
           import android.net.Uri;
           import android.os.Bundle;
@@ -512,18 +560,27 @@ jobs:
           import android.text.style.ClickableSpan;
           import android.view.*;
           import android.widget.*;
+          import androidx.activity.result.ActivityResultLauncher;
+          import androidx.activity.result.contract.ActivityResultContracts;
+          import androidx.annotation.NonNull;
           import androidx.appcompat.app.AlertDialog;
+          import androidx.core.content.ContextCompat;
           import androidx.fragment.app.Fragment;
           import com.pmahz.R;
           import com.pmahz.util.RootUtils;
 
           public class SettingsFragment extends Fragment {
+              private SharedPreferences prefs;
+              private RadioGroup rgWallpaper;
+              private SeekBar sbAlpha;
+              private Button btnCustomWallpaper;
+              private ActivityResultLauncher<Intent> pickImageLauncher;
+
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_settings, c, false);
-                  TextView rootStatus = v.findViewById(R.id.tv_root_status);
-                  TextView author = v.findViewById(R.id.tv_author);
-                  Button btnGenerateLog = v.findViewById(R.id.btn_generate_log);
+                  prefs = requireActivity().getSharedPreferences("s", Context.MODE_PRIVATE);
 
+                  TextView rootStatus = v.findViewById(R.id.tv_root_status);
                   new Thread(() -> {
                       boolean ok = RootUtils.isRooted();
                       if (isAdded() && getActivity() != null) {
@@ -534,12 +591,11 @@ jobs:
                       }
                   }).start();
 
-                  // 设置文本：“酷安:爱好者ahh 前往关注”，只有“前往关注”可点击
+                  TextView author = v.findViewById(R.id.tv_author);
                   String fullText = "酷安:爱好者ahh 前往关注";
                   SpannableString spannable = new SpannableString(fullText);
                   ClickableSpan clickableSpan = new ClickableSpan() {
-                      @Override
-                      public void onClick(View widget) {
+                      @Override public void onClick(@NonNull View widget) {
                           String url = "https://www.coolapk.com/u/31452988";
                           try {
                               startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -550,12 +606,12 @@ jobs:
                       }
                   };
                   int start = fullText.indexOf("前往关注");
-                  int end = start + "前往关注".length();
-                  spannable.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                  spannable.setSpan(clickableSpan, start, start + "前往关注".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                   author.setText(spannable);
                   author.setMovementMethod(LinkMovementMethod.getInstance());
                   author.setHighlightColor(Color.TRANSPARENT);
 
+                  Button btnGenerateLog = v.findViewById(R.id.btn_generate_log);
                   btnGenerateLog.setOnClickListener(view -> {
                       Toast.makeText(getContext(), "正在提取日志...", Toast.LENGTH_SHORT).show();
                       new Thread(() -> {
@@ -565,7 +621,81 @@ jobs:
                           }
                       }).start();
                   });
+
+                  rgWallpaper = v.findViewById(R.id.rg_wallpaper);
+                  sbAlpha = v.findViewById(R.id.sb_alpha);
+                  btnCustomWallpaper = v.findViewById(R.id.btn_custom_wallpaper);
+
+                  int currentType = prefs.getInt("wallpaper_type", 0);
+                  switch (currentType) {
+                      case 1: rgWallpaper.check(R.id.rb_gradient2); break;
+                      case 2: rgWallpaper.check(R.id.rb_gradient3); break;
+                      case 3: rgWallpaper.check(R.id.rb_custom); break;
+                      default: rgWallpaper.check(R.id.rb_gradient1); break;
+                  }
+                  sbAlpha.setProgress((int)(prefs.getFloat("wallpaper_alpha", 0.3f) * 100));
+
+                  rgWallpaper.setOnCheckedChangeListener((group, checkedId) -> {
+                      int type;
+                      if (checkedId == R.id.rb_gradient2) type = 1;
+                      else if (checkedId == R.id.rb_gradient3) type = 2;
+                      else if (checkedId == R.id.rb_custom) type = 3;
+                      else type = 0;
+                      prefs.edit().putInt("wallpaper_type", type).apply();
+                      if (type == 3 && prefs.getString("wallpaper_uri", null) == null) {
+                          Toast.makeText(getContext(), "请先选择自定义图片", Toast.LENGTH_SHORT).show();
+                      }
+                  });
+
+                  sbAlpha.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                      @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                          float alpha = progress / 100f;
+                          prefs.edit().putFloat("wallpaper_alpha", alpha).apply();
+                      }
+                      @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                      @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                  });
+
+                  pickImageLauncher = registerForActivityResult(
+                          new ActivityResultContracts.StartActivityForResult(),
+                          result -> {
+                              if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
+                                  Uri uri = result.getData().getData();
+                                  if (uri != null) {
+                                      prefs.edit().putString("wallpaper_uri", uri.toString()).apply();
+                                      rgWallpaper.check(R.id.rb_custom);
+                                      Toast.makeText(getContext(), "自定义壁纸已保存", Toast.LENGTH_SHORT).show();
+                                  }
+                              }
+                          }
+                  );
+
+                  btnCustomWallpaper.setOnClickListener(view -> {
+                      if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                              != PackageManager.PERMISSION_GRANTED) {
+                          requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                      } else {
+                          openGallery();
+                      }
+                  });
+
                   return v;
+              }
+
+              private void openGallery() {
+                  Intent intent = new Intent(Intent.ACTION_PICK);
+                  intent.setType("image/*");
+                  pickImageLauncher.launch(intent);
+              }
+
+              @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+                  if (requestCode == 100) {
+                      if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                          openGallery();
+                      } else {
+                          Toast.makeText(getContext(), "需要存储权限才能选择图片", Toast.LENGTH_SHORT).show();
+                      }
+                  }
               }
 
               private void showLogDialog(String logContent) {
@@ -592,7 +722,6 @@ jobs:
           }
           EOF
 
-          # ----- MainActivity.java -----
           cat > app/src/main/java/com/pmahz/MainActivity.java << 'EOF'
           package com.pmahz;
           import android.os.Bundle;
@@ -620,7 +749,7 @@ jobs:
           }
           EOF
 
-          # ----- 布局文件 -----
+          # ========== 布局文件 ==========
           cat > app/src/main/res/layout/activity_main.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent">
@@ -631,12 +760,30 @@ jobs:
 
           cat > app/src/main/res/layout/fragment_home.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
-          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/bg_main">
-              <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp" android:background="@color/white">
-                  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="屏幕刷新率" android:textSize="26sp" android:textStyle="bold" android:textColor="@color/text_dark"/>
+          <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent" android:layout_height="match_parent">
+              <ImageView
+                  android:id="@+id/wallpaper_image"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:scaleType="centerCrop"
+                  android:alpha="0.3"/>
+              <LinearLayout
+                  android:layout_width="match_parent" android:layout_height="match_parent"
+                  android:orientation="vertical">
+                  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                      android:orientation="vertical" android:padding="20dp" android:background="#AAFFFFFF">
+                      <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                          android:text="屏幕刷新率" android:textSize="26sp" android:textStyle="bold"
+                          android:textColor="@color/text_dark"/>
+                  </LinearLayout>
+                  <androidx.recyclerview.widget.RecyclerView
+                      android:id="@+id/recycler_rates"
+                      android:layout_width="match_parent" android:layout_height="match_parent"
+                      android:padding="10dp"
+                      android:background="#00FFFFFF"/>
               </LinearLayout>
-              <androidx.recyclerview.widget.RecyclerView android:id="@+id/recycler_rates" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="10dp"/>
-          </LinearLayout>
+          </FrameLayout>
           EOF
 
           cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
@@ -681,6 +828,111 @@ jobs:
                               android:text="检测中..." android:textSize="15sp" android:layout_marginTop="8dp"/>
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
+
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="壁纸美化" android:textStyle="bold" android:textSize="18sp"/>
+                          <RadioGroup android:id="@+id/rg_wallpaper"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:layout_marginTop="8dp">
+                              <RadioButton android:id="@+id/rb_gradient1" android:text="日落渐变"/>
+                              <RadioButton android:id="@+id/rb_gradient2" android:text="极光渐变"/>
+                              <RadioButton android:id="@+id/rb_gradient3" android:text="翡翠渐变"/>
+                              <RadioButton android:id="@+id/rb_custom" android:text="自定义图片"/>
+                          </RadioGroup>
+                          <Button android:id="@+id/btn_custom_wallpaper"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:text="从相册选择图片" android:layout_marginTop="4dp"/>
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="透明度" android:layout_marginTop="12dp"/>
+                          <SeekBar android:id="@+id/sb_alpha"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:max="100" android:progress="30"/>
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="关于" android:textStyle="bold" android:textSize="18sp"/>
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="版本: 1.6.1" android:layout_marginTop="4dp"/>
+                          <TextView android:id="@+id/tv_author"
+                              android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:textColor="#1976D2"
+                              android:layout_marginTop="4dp"/>
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
+                  <Button
+                      android:id="@+id/btn_generate_log"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:text="生成日志"
+                      style="@style/Widget.MaterialComponents.Button"/>
+
+              </LinearLayout>
+          </ScrollView>
+          EOF
+
+          cat > app/src/main/res/menu/bottom_nav_menu.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <menu xmlns:android="http://schemas.android.com/apk/res/android">
+              <item android:id="@+id/nav_home" android:icon="@drawable/ic_nav_home" android:title="主页"/>
+              <item android:id="@+id/nav_settings" android:icon="@drawable/ic_nav_settings" android:title="设置"/>
+          </menu>
+          EOF
+
+          cat > app/src/main/res/values/colors.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <color name="primary">#1976D2</color><color name="primary_dark">#1565C0</color><color name="accent">#42A5F5</color>
+              <color name="white">#FFFFFFFF</color><color name="black">#FF000000</color><color name="bg_main">#F0F4FF</color>
+              <color name="text_dark">#1A1A2E</color><color name="text_muted">#888888</color>
+          </resources>
+          EOF
+
+          cat > app/src/main/res/values/strings.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources><string name="app_name">屏幕刷新率</string></resources>
+          EOF
+
+          cat > app/src/main/res/values/themes.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <style name="Theme.RefreshRate" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+                  <item name="colorPrimary">@color/primary</item>
+                  <item name="colorPrimaryDark">@color/primary_dark</item>
+                  <item name="colorAccent">@color/accent</item>
+              </style>
+          </resources>
+          EOF
+          SCRIPTEOF
+
+          chmod +x generate.sh
+          ./generate.sh
+
+      - name: 4. 用官方标准 Action 建立合规的 Gradle 包装器
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.0'
+          generate-job-summary: true
+
+      - name: 5. 编译生成 Debug APK
+        run: gradle assembleDebug
+
+      - name: 6. 提炼并分发 APK 产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: RefreshRate-v1.6.1
+          path: app/build/outputs/apk/debug/app-debug.apk                  </androidx.cardview.widget.CardView>
 
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
