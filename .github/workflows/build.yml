@@ -18,7 +18,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 3. 构造标准的 Andorid 源码目录与全量文件
+      - name: 3. 构造标准的 Android 源码目录与全量文件
         run: |
           mkdir -p app/src/main/java/com/pmahz/fragment
           mkdir -p app/src/main/java/com/pmahz/adapter
@@ -59,8 +59,8 @@ jobs:
                   applicationId "com.pmahz"
                   minSdk 23
                   targetSdk 34
-                  versionCode 10
-                  versionName "2.0"
+                  versionCode 158
+                  versionName "1.5.8"
               }
               buildTypes { release { minifyEnabled false } }
               compileOptions {
@@ -90,6 +90,7 @@ jobs:
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
               <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+              <uses-permission android:name="android.permission.READ_LOGS"/>
               <application
                   android:allowBackup="true"
                   android:label="@string/app_name"
@@ -102,8 +103,26 @@ jobs:
                           <category android:name="android.intent.category.LAUNCHER"/>
                       </intent-filter>
                   </activity>
+                  <provider
+                      android:name="androidx.core.content.FileProvider"
+                      android:authorities="com.pmahz.fileprovider"
+                      android:exported="false"
+                      android:grantUriPermissions="true">
+                      <meta-data
+                          android:name="android.support.FILE_PROVIDER_PATHS"
+                          android:resource="@xml/file_paths" />
+                  </provider>
               </application>
           </manifest>
+          EOF
+
+          # ── file_paths.xml ────────────────────────────────
+          mkdir -p app/src/main/res/xml
+          cat > app/src/main/res/xml/file_paths.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <paths>
+              <external-cache-path name="logs" path="." />
+          </paths>
           EOF
 
           # ── 动画定义 ──────────────────────────────────────
@@ -120,6 +139,511 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="#1A1A1A"/></shape>
           EOF
+
+          cat > app/src/main/res/drawable/ic_launcher_foreground.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+              <path android:fillColor="#FFFFFF" android:pathData="M16,26 Q16,20 22,20 L86,20 Q92,20 92,26 L92,82 Q92,88 86,88 L22,88 Q16,88 16,82 Z"/>
+              <path android:fillColor="#1A1A1A" android:pathData="M20,34 L88,34 L88,84 L20,84 Z"/>
+              <path android:fillColor="#FF5F57" android:pathData="M26,27 Q26,24 29,24 Q32,24 32,27 Q32,30 29,30 Q26,30 26,27 Z"/>
+              <path android:fillColor="#FEBC2E" android:pathData="M37,27 Q37,24 40,24 Q43,24 43,27 Q43,30 40,30 Q37,30 37,27 Z"/>
+              <path android:fillColor="#28C840" android:pathData="M48,27 Q48,24 51,24 Q54,24 54,27 Q54,30 51,30 Q48,30 48,27 Z"/>
+              <path android:fillColor="#FFFFFF" android:strokeColor="#FFFFFF" android:strokeWidth="2" android:pathData="M28,52 L38,59 L28,66"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M43,66 L72,66 L72,70 L43,70 Z"/>
+          </vector>
+          EOF
+
+          cat > app/src/main/res/drawable/ic_nav_home.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+              <path android:fillColor="#1976D2" android:pathData="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
+          </vector>
+          EOF
+
+          cat > app/src/main/res/drawable/ic_nav_settings.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+              <path android:fillColor="#1976D2" android:pathData="M19.14,12.94c0.04,-0.3 0.06,-0.61 0.06,-0.94c0,-0.32 -0.02,-0.64 -0.06,-0.94l2.03,-1.58c0.18,-0.14 0.23,-0.41 0.12,-0.61l-1.92,-3.32c-0.12,-0.22 -0.37,-0.29 -0.59,-0.22l-2.39,0.96c-0.5,-0.38 -1.03,-0.7 -1.62,-0.94L14.4,2.81c-0.04,-0.24 -0.24,-0.41 -0.48,-0.41h-3.84c-0.24,0 -0.43,0.17 -0.47,0.41L9.25,5.35C8.66,5.59 8.13,5.91 7.63,6.29L5.24,5.33c-0.22,-0.08 -0.47,0 -0.59,0.22L2.74,8.87c-0.12,0.21 -0.08,0.47 0.12,0.61l2.03,1.58C4.84,11.36 4.82,11.67 4.82,12c0,0.33 0.02,0.64 0.06,0.94L2.85,14.52c-0.18,0.14 -0.23,0.41 -0.12,0.61l1.92,3.32c0.12,0.22 0.37,0.29 0.59,0.22l2.39,-0.96c0.5,0.38 1.03,0.7 1.62,0.94l0.36,2.54c0.05,0.24 0.24,0.41 0.48,0.41h3.84c0.24,0 0.44,-0.17 0.47,-0.41l0.36,-2.54c0.59,-0.24 1.13,-0.56 1.62,-0.94l2.39,0.96c0.22,0.08 0.47,0 0.59,-0.22l1.92,-3.32c0.12,-0.22 0.07,-0.47 -0.12,-0.61L19.14,12.94zM12,15.6c-1.98,0 -3.6,-1.62 -3.6,-3.6s1.62,-3.6 3.6,-3.6s3.6,1.62 3.6,3.6S13.98,15.6 12,15.6z"/>
+          </vector>
+          EOF
+
+          # ── mipmap 资源 ───────────────────────────────────
+          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
+          EOF
+
+          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
+          EOF
+
+          # ── DisplayMode.java ──────────────────────────────
+          cat > app/src/main/java/com/pmahz/model/DisplayMode.java << 'EOF'
+          package com.pmahz.model;
+          public class DisplayMode {
+              private int width, height, modeId;
+              private float refreshRate;
+              public DisplayMode(int w, int h, float r, int id) {
+                  width=w; height=h; refreshRate=r; modeId=id;
+              }
+              public int getWidth(){return width;}
+              public int getHeight(){return height;}
+              public float getRefreshRate(){return refreshRate;}
+              public int getModeId(){return modeId;}
+              public String getResolutionLabel(){return width+"x"+height;}
+              public int getRateInt(){return Math.round(refreshRate);}
+              public String getRateName(){
+                  int r=getRateInt();
+                  if(r>=144)return "高刷";
+                  if(r>=120)return "极致";
+                  if(r>=90)return "极佳";
+                  if(r>=60)return "流畅";
+                  return "标准";
+              }
+              public String getRateDesc(){
+                  int r=getRateInt();
+                  if(r>=170)return "超极限帧率，极致顺滑体验";
+                  if(r>=144)return "臻享视界，完美观感";
+                  if(r>=120)return "画面流畅动人，舒适体验";
+                  if(r>=90)return "提高刷新率，极致体验";
+                  if(r>=60)return "较高刷新率，画面流畅";
+                  return "常规刷新率，延长续航";
+              }
+          }
+          EOF
+
+          # ── RootUtils.java ────────────────────────────────
+          cat > app/src/main/java/com/pmahz/util/RootUtils.java << 'EOF'
+          package com.pmahz.util;
+          import android.util.Log;
+          import java.io.*;
+
+          public class RootUtils {
+              private static final String TAG = "RootUtils";
+              
+              public static boolean isRooted() {
+                  Process p = null; DataOutputStream os = null; BufferedReader r = null;
+                  try {
+                      p = Runtime.getRuntime().exec("su");
+                      os = new DataOutputStream(p.getOutputStream());
+                      os.writeBytes("echo RootOK\nexit\n"); os.flush();
+                      r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                      return "RootOK".equals(r.readLine());
+                  } catch (Exception e) { return false;
+                  } finally {
+                      try { if(os != null) os.close(); } catch(Exception ignored){}
+                      try { if(r != null) r.close(); } catch(Exception ignored){}
+                      try { if(p != null) p.destroy(); } catch(Exception ignored){}
+                  }
+              }
+              
+              public static boolean setRefreshRate(int modeId, int targetHz) {
+                  Process p = null; DataOutputStream os = null;
+                  int finalModeId = modeId;
+                  
+                  if (finalModeId == -1) {
+                      if (targetHz == 60) finalModeId = 2;
+                      else if (targetHz == 90) finalModeId = 3;
+                      else if (targetHz == 120) finalModeId = 1;
+                      else if (targetHz == 144) finalModeId = 4;
+                      else if (targetHz == 170) finalModeId = 5; 
+                      else if (targetHz == 175) finalModeId = 6; 
+                      else if (targetHz == 177) finalModeId = 7; 
+                      else finalModeId = 1;
+                  }
+                  try {
+                      p = Runtime.getRuntime().exec("su");
+                      os = new DataOutputStream(p.getOutputStream());
+                      
+                      os.writeBytes("service call SurfaceFlinger 1035 i32 " + finalModeId + "\n");
+                      String rateStr = targetHz + ".0";
+                      os.writeBytes("settings put system peak_refresh_rate " + rateStr + "\n");
+                      os.writeBytes("settings put system min_refresh_rate " + rateStr + "\n");
+                      os.writeBytes("settings put system user_refresh_rate " + targetHz + "\n");
+                      os.writeBytes("settings put secure miui_refresh_rate " + targetHz + "\n");
+                      
+                      os.writeBytes("exit\n"); os.flush(); 
+                      int code = p.waitFor();
+                      Log.d(TAG, "setRefreshRate targetHz=" + targetHz + " exitCode=" + code);
+                      return code == 0;
+                  } catch (Exception e) {
+                      Log.e(TAG, "setRefreshRate failed: " + e.getMessage());
+                      return false;
+                  } finally {
+                      try { if(os != null) os.close(); } catch(Exception ignored){}
+                      try { if(p != null) p.destroy(); } catch(Exception ignored){}
+                  }
+              }
+          }
+          EOF
+
+          # ── RateAdapter.java ──────────────────────────────
+          cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
+          package com.pmahz.adapter;
+          import android.content.Context;
+          import android.graphics.Color;
+          import android.view.*;
+          import android.view.animation.AnimationUtils;
+          import android.widget.TextView;
+          import androidx.cardview.widget.CardView;
+          import androidx.recyclerview.widget.RecyclerView;
+          import com.pmahz.R;
+          import com.pmahz.model.DisplayMode;
+          import java.util.List;
+
+          public class RateAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+              public static final int TYPE_HEADER = 0, TYPE_RATE = 1;
+              public interface OnRateClick { void onClick(DisplayMode m); }
+              private List<Object> items; private Context ctx; private OnRateClick listener; private DisplayMode current;
+              public RateAdapter(Context c, List<Object> i, OnRateClick l) { ctx=c; items=i; listener=l; }
+              public void update(List<Object> i) { items=i; notifyDataSetChanged(); }
+              public void setCurrent(DisplayMode m) { current=m; notifyDataSetChanged(); }
+              @Override public int getItemViewType(int p) { return items.get(p) instanceof String ? TYPE_HEADER : TYPE_RATE; }
+              @Override public int getItemCount() { return items==null ? 0 : items.size(); }
+              @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup p, int t) {
+                  LayoutInflater inf = LayoutInflater.from(ctx);
+                  if (t == TYPE_HEADER) return new HVH(inf.inflate(R.layout.item_res_header, p, false));
+                  return new RVH(inf.inflate(R.layout.item_rate_card, p, false));
+              }
+              @Override public void onBindViewHolder(RecyclerView.ViewHolder h, int pos) {
+                  h.itemView.startAnimation(AnimationUtils.loadAnimation(ctx, R.anim.item_animation));
+                  if (getItemViewType(pos) == TYPE_HEADER) {
+                      ((HVH) h).title.setText((String) items.get(pos));
+                  } else {
+                      DisplayMode m = (DisplayMode) items.get(pos); RVH r = (RVH) h;
+                      r.name.setText(m.getRateName()); r.hz.setText(m.getRateInt() + " Hz"); r.desc.setText(m.getRateDesc());
+                      r.card.setCardBackgroundColor(colorFor(m.getRateInt()));
+                      
+                      boolean act = current != null && current.getRateInt() == m.getRateInt();
+                      r.card.setCardElevation(act ? 14f : 5f);
+                      r.active.setVisibility(act ? View.VISIBLE : View.GONE);
+                      r.card.setOnClickListener(v -> { if (listener != null) listener.onClick(m); });
+                  }
+              }
+              private int colorFor(int hz) {
+                  if (hz >= 165) return Color.parseColor("#7B1FA2");
+                  if (hz >= 144) return Color.parseColor("#1E88E5");
+                  if (hz >= 120) return Color.parseColor("#2196F3");
+                  if (hz >= 90)  return Color.parseColor("#00ACC1");
+                  return Color.parseColor("#00897B");
+              }
+              static class HVH extends RecyclerView.ViewHolder { TextView title; HVH(View v) { super(v); title = v.findViewById(R.id.tv_header_title); } }
+              static class RVH extends RecyclerView.ViewHolder {
+                  CardView card; TextView name, hz, desc, active;
+                  RVH(View v) { super(v); card=v.findViewById(R.id.card_rate); name=v.findViewById(R.id.tv_rate_name); hz=v.findViewById(R.id.tv_rate_hz); desc=v.findViewById(R.id.tv_rate_desc); active=v.findViewById(R.id.tv_rate_active); }
+              }
+          }
+          EOF
+
+          # ── HomeFragment.java ─────────────────────────────
+          cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
+          package com.pmahz.fragment;
+          import android.content.Context;
+          import android.hardware.display.DisplayManager;
+          import android.os.Bundle;
+          import android.view.*;
+          import androidx.fragment.app.Fragment;
+          import androidx.recyclerview.widget.*;
+          import android.widget.Toast;
+          import com.pmahz.R;
+          import com.pmahz.adapter.RateAdapter;
+          import com.pmahz.model.DisplayMode;
+          import com.pmahz.util.RootUtils;
+          import java.util.*;
+
+          public class HomeFragment extends Fragment {
+              private RateAdapter adapter;
+              private boolean hasRootPermission = false;
+
+              @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
+                  View v = inf.inflate(R.layout.fragment_home, c, false);
+                  RecyclerView rv = v.findViewById(R.id.recycler_rates);
+                  rv.setLayoutManager(new LinearLayoutManager(getContext()));
+                  
+                  checkRootStatus();
+                  List<Object> items = buildList();
+                  adapter = new RateAdapter(getContext(), items, this::apply);
+                  rv.setAdapter(adapter);
+                  return v;
+              }
+
+              private void checkRootStatus() {
+                  new Thread(() -> { hasRootPermission = RootUtils.isRooted(); }).start();
+              }
+
+              private List<Object> buildList() {
+                  DisplayManager dm = (DisplayManager) requireActivity().getSystemService(Context.DISPLAY_SERVICE);
+                  android.view.Display d = dm.getDisplay(android.view.Display.DEFAULT_DISPLAY);
+                  android.view.Display.Mode[] modes = d.getSupportedModes();
+                  Map<String, List<DisplayMode>> grouped = new LinkedHashMap<>();
+                  
+                  for (android.view.Display.Mode m : modes) {
+                      String k = m.getPhysicalWidth() + "x" + m.getPhysicalHeight();
+                      grouped.computeIfAbsent(k, x -> new ArrayList<>())
+                             .add(new DisplayMode(m.getPhysicalWidth(), m.getPhysicalHeight(), m.getRefreshRate(), m.getModeId()));
+                  }
+                  
+                  List<String> keys = new ArrayList<>(grouped.keySet());
+                  keys.sort((a, b) -> {
+                      String[] pa = a.split("x"), pb = b.split("x");
+                      int resA = Integer.parseInt(pa[0]) * Integer.parseInt(pa[1]);
+                      int resB = Integer.parseInt(pb[0]) * Integer.parseInt(pb[1]);
+                      return Integer.compare(resB, resA);
+                  });
+                  
+                  if (keys.isEmpty()) return fallback();
+                  List<Object> items = new ArrayList<>();
+                  for (int i = 0; i < keys.size(); i++) {
+                      List<DisplayMode> ms = grouped.get(keys.get(i));
+                      ms.sort((a, b) -> Float.compare(b.getRefreshRate(), a.getRefreshRate()));
+                      String label = keys.size() == 1
+                          ? ms.get(0).getResolutionLabel() + " | 检测到多档硬件帧率"
+                          : i == 0 ? "[高分辨率] " + ms.get(0).getResolutionLabel()
+                                   : "[低分辨率] " + ms.get(0).getResolutionLabel();
+                      items.add(label);
+                      items.addAll(ms);
+                  }
+                  return items;
+              }
+
+              private List<Object> fallback() {
+                  int[] rs = {60, 90, 120, 144, 170, 175, 177};
+                  List<Object> l = new ArrayList<>();
+                  l.add("1272x2772 | 已自动探测全域档位");
+                  for (int r : rs) l.add(new DisplayMode(1272, 2772, r, -1));
+                  return l;
+              }
+
+              private void apply(DisplayMode m) {
+                  if (!hasRootPermission) {
+                      Toast.makeText(getContext(), "未获取root权限", Toast.LENGTH_SHORT).show();
+                      return;
+                  }
+                  new Thread(() -> {
+                      boolean ok = RootUtils.setRefreshRate(m.getModeId(), m.getRateInt());
+                      requireActivity().runOnUiThread(() -> {
+                          if (ok) {
+                              adapter.setCurrent(m);
+                              Toast.makeText(getContext(), "已成功应用 " + m.getRateInt() + " Hz", Toast.LENGTH_SHORT).show();
+                          } else {
+                              Toast.makeText(getContext(), "指令下发未成功，请检查根权限", Toast.LENGTH_LONG).show();
+                          }
+                      });
+                  }).start();
+              }
+          }
+          EOF
+
+          # ── SettingsFragment.java ─────────────────────────
+          cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
+          package com.pmahz.fragment;
+          import android.content.Intent;
+          import android.graphics.Color;
+          import android.net.Uri;
+          import android.os.Bundle;
+          import android.view.*;
+          import android.widget.*;
+          import androidx.core.content.FileProvider;
+          import androidx.fragment.app.Fragment;
+          import com.pmahz.R;
+          import com.pmahz.util.RootUtils;
+          import java.io.*;
+
+          public class SettingsFragment extends Fragment {
+              @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
+                  View v = inf.inflate(R.layout.fragment_settings, c, false);
+                  TextView status = v.findViewById(R.id.tv_root_status);
+                  TextView authorClick = v.findViewById(R.id.tv_author_about);
+                  Button btnLog = v.findViewById(R.id.btn_generate_log);
+                  
+                  new Thread(() -> {
+                      boolean ok = RootUtils.isRooted();
+                      if (isAdded() && getActivity() != null) {
+                          getActivity().runOnUiThread(() -> {
+                              status.setText(ok ? "已获取高级超级用户 Root 权限" : "没有获取 Root 权限");
+                              status.setTextColor(Color.parseColor(ok ? "#2ECC71" : "#E74C3C"));
+                          });
+                      }
+                  }).start();
+
+                  authorClick.setOnClickListener(x -> openCoolapk());
+                  btnLog.setOnClickListener(x -> generateSystemLog());
+                  return v;
+              }
+
+              private void openCoolapk() {
+                  String url = "https://www.coolapk.com/u/31452988";
+                  try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)).setPackage("com.coolapk.market")); }
+                  catch (Exception e) { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); }
+              }
+
+              private void generateSystemLog() {
+                  new Thread(() -> {
+                      try {
+                          File logFile = new File(requireContext().getExternalCacheDir(), "refresh_rate_log.txt");
+                          Process process = Runtime.getRuntime().exec("logcat -d");
+                          BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                          StringBuilder log = new StringBuilder();
+                          String line;
+                          int count = 0;
+                          while ((line = bufferedReader.readLine()) != null && count < 200) { 
+                              log.append(line).append("\n");
+                              count++;
+                          }
+                          FileWriter writer = new FileWriter(logFile);
+                          writer.write(log.toString());
+                          writer.close();
+
+                          requireActivity().runOnUiThread(() -> {
+                              Toast.makeText(getContext(), "运行日志已生成至缓存目录下", Toast.LENGTH_LONG).show();
+                              try {
+                                  Uri uri = FileProvider.getUriForFile(requireContext(), "com.pmahz.fileprovider", logFile);
+                                  Intent intent = new Intent(Intent.ACTION_SEND);
+                                  intent.setType("text/plain");
+                                  intent.putExtra(Intent.EXTRA_STREAM, uri);
+                                  intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                  startActivity(Intent.createChooser(intent, "分享或保存运行日志"));
+                              } catch (Exception e) {
+                                  Toast.makeText(getContext(), "日志分享拉取失败", Toast.LENGTH_SHORT).show();
+                              }
+                          });
+                      } catch (IOException e) {
+                          requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "日志捕获失败", Toast.LENGTH_SHORT).show());
+                      }
+                  }).start();
+              }
+          }
+          EOF
+
+          # ── MainActivity.java ─────────────────────────────
+          cat > app/src/main/java/com/pmahz/MainActivity.java << 'EOF'
+          package com.pmahz;
+          import android.os.Bundle;
+          import androidx.appcompat.app.AppCompatActivity;
+          import com.google.android.material.bottomnavigation.BottomNavigationView;
+          import com.pmahz.fragment.HomeFragment;
+          import com.pmahz.fragment.SettingsFragment;
+          public class MainActivity extends AppCompatActivity {
+              @Override protected void onCreate(Bundle s) {
+                  super.onCreate(s); setContentView(R.layout.activity_main);
+                  BottomNavigationView nav = findViewById(R.id.bottom_navigation);
+                  if (s == null) getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+                  nav.setOnItemSelectedListener(item -> {
+                      if (item.getItemId() == R.id.nav_home) { getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit(); return true; }
+                      if (item.getItemId() == R.id.nav_settings) { getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SettingsFragment()).commit(); return true; }
+                      return false;
+                  });
+              }
+          }
+          EOF
+
+          # ── 布局 XML ──────────────────────────────────────
+          cat > app/src/main/res/layout/activity_main.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent">
+              <FrameLayout android:id="@+id/fragment_container" android:layout_width="0dp" android:layout_height="0dp" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toTopOf="@id/bottom_navigation" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
+              <com.google.android.material.bottomnavigation.BottomNavigationView android:id="@+id/bottom_navigation" android:layout_width="0dp" android:layout_height="wrap_content" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:menu="@menu/bottom_nav_menu" android:background="@color/white"/>
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+
+          cat > app/src/main/res/layout/fragment_home.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/bg_main">
+              <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp" android:background="@color/white">
+                  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="屏幕刷新率" android:textSize="26sp" android:textStyle="bold" android:textColor="@color/text_dark"/>
+              </LinearLayout>
+              <androidx.recyclerview.widget.RecyclerView android:id="@+id/recycler_rates" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="10dp"/>
+          </LinearLayout>
+          EOF
+
+          cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="6dp" android:orientation="vertical">
+              <androidx.cardview.widget.CardView android:id="@+id/card_rate" android:layout_width="match_parent" android:layout_height="100dp" app:cardCornerRadius="16dp">
+                  <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent" android:padding="16dp">
+                      <TextView android:id="@+id/tv_rate_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF"/>
+                      <TextView android:id="@+id/tv_rate_hz" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="30sp" android:textStyle="bold" android:textColor="#FFFFFF" android:layout_below="@id/tv_rate_name"/>
+                      <TextView android:id="@+id/tv_rate_desc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EEEEEE" android:layout_alignParentBottom="true"/>
+                      <TextView android:id="@+id/tv_rate_active" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="生效" android:textColor="#00FF00" android:layout_alignParentEnd="true" android:visibility="gone"/>
+                  </RelativeLayout>
+              </androidx.cardview.widget.CardView>
+          </LinearLayout>
+          EOF
+
+          cat > app/src/main/res/layout/item_res_header.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="10dp">
+              <TextView android:id="@+id/tv_header_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="@color/text_dark"/>
+          </LinearLayout>
+          EOF
+
+          cat > app/src/main/res/layout/fragment_settings.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp" android:background="@color/bg_main">
+              <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" app:cardCornerRadius="12dp">
+                  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                      <TextView android:id="@+id/tv_root_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="检测中..." android:textSize="16sp" android:textStyle="bold"/>
+                  </LinearLayout>
+              </androidx.cardview.widget.CardView>
+              <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="12dp">
+                  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                      <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="应用版本: 1.5.8" android:textSize="14sp" android:textColor="@color/text_muted" android:layout_marginBottom="8dp"/>
+                      <TextView android:id="@+id/tv_author_about" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="开发者 酷安:爱好者ahh (前往关注)" android:textSize="15sp" android:textStyle="bold" android:textColor="#1976D2" android:padding="6dp" android:background="?android:attr/selectableItemBackground" android:clickable="true" android:focusable="true"/>
+                      <Button android:id="@+id/btn_generate_log" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="生成日志" android:layout_marginTop="16dp" app:backgroundTint="#455A64"/>
+                  </LinearLayout>
+              </androidx.cardview.widget.CardView>
+          </LinearLayout>
+          EOF
+
+          # ── 菜单与资源值 ────────────────────────────────────
+          cat > app/src/main/res/menu/bottom_nav_menu.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <menu xmlns:android="http://schemas.android.com/apk/res/android">
+              <item android:id="@+id/nav_home" android:icon="@drawable/ic_nav_home" android:title="主页"/>
+              <item android:id="@+id/nav_settings" android:icon="@drawable/ic_nav_settings" android:title="设置"/>
+          </menu>
+          EOF
+
+          cat > app/src/main/res/values/colors.xml << 'EOF'
+          xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <color name="primary">#1976D2</color><color name="primary_dark">#1565C0</color><color name="accent">#42A5F5</color>
+              <color name="white">#FFFFFFFF</color><color name="black">#FF000000</color><color name="bg_main">#F0F4FF</color>
+              <color name="text_dark">#1A1A2E</color><color name="text_muted">#888888</color>
+          </resources>
+          EOF
+
+          cat > app/src/main/res/values/strings.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources><string name="app_name">屏幕刷新率</string></resources>
+          EOF
+
+          cat > app/src/main/res/values/themes.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <style name="Theme.RefreshRate" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+                  <item name="colorPrimary">@color/primary</item>
+                  <item name="colorPrimaryDark">@color/primary_dark</item>
+                  <item name="colorAccent">@color/accent</item>
+              </style>
+          </resources>
+          EOF
+
+      - name: 4. 用官方标准 Action 建立合规的 Gradle 包装器
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.0'
+          generate-job-summary: true
+
+      - name: 5. 编译生成 Debug APK
+        run: gradle assembleDebug
+
+      - name: 6. 提炼并分发 APK 产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: RefreshRate-Standard-v1.5.8
+          path: app/build/outputs/apk/debug/app-debug.apk
 
           cat > app/src/main/res/drawable/ic_launcher_foreground.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
