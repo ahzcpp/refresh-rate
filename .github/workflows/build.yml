@@ -560,7 +560,7 @@ jobs:
           }
           EOF
 
-          # ----- SettingsFragment.java -----
+          # ----- SettingsFragment.java（增加卡片/文字透明度）-----
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -583,6 +583,7 @@ jobs:
           import androidx.activity.result.contract.ActivityResultContracts;
           import androidx.annotation.NonNull;
           import androidx.appcompat.app.AlertDialog;
+          import androidx.cardview.widget.CardView;
           import androidx.core.content.ContextCompat;
           import androidx.fragment.app.Fragment;
           import com.pmahz.R;
@@ -591,12 +592,14 @@ jobs:
           public class SettingsFragment extends Fragment {
               private SharedPreferences prefs;
               private RadioGroup rgWallpaper;
-              private SeekBar sbAlpha, sbCardAlpha;
+              private SeekBar sbAlpha, sbCardAlpha, sbSettingCardAlpha, sbSettingTextAlpha;
               private Button btnCustomWallpaper;
               private ActivityResultLauncher<Intent> pickImageLauncher;
+              private View rootView;
 
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_settings, c, false);
+                  rootView = v;
                   prefs = requireActivity().getSharedPreferences("s", Context.MODE_PRIVATE);
 
                   TextView rootStatus = v.findViewById(R.id.tv_root_status);
@@ -644,6 +647,8 @@ jobs:
                   rgWallpaper = v.findViewById(R.id.rg_wallpaper);
                   sbAlpha = v.findViewById(R.id.sb_alpha);
                   sbCardAlpha = v.findViewById(R.id.sb_card_alpha);
+                  sbSettingCardAlpha = v.findViewById(R.id.sb_setting_card_alpha);
+                  sbSettingTextAlpha = v.findViewById(R.id.sb_setting_text_alpha);
                   btnCustomWallpaper = v.findViewById(R.id.btn_custom_wallpaper);
 
                   int currentType = prefs.getInt("wallpaper_type", 0);
@@ -655,6 +660,8 @@ jobs:
                   }
                   sbAlpha.setProgress((int)(prefs.getFloat("wallpaper_alpha", 0.3f) * 100));
                   sbCardAlpha.setProgress(prefs.getInt("card_alpha", 0));
+                  sbSettingCardAlpha.setProgress(prefs.getInt("setting_card_alpha", 0));
+                  sbSettingTextAlpha.setProgress(prefs.getInt("setting_text_alpha", 0));
 
                   rgWallpaper.setOnCheckedChangeListener((group, checkedId) -> {
                       int type;
@@ -684,6 +691,24 @@ jobs:
                       @Override public void onStopTrackingTouch(SeekBar seekBar) {}
                   });
 
+                  SeekBar.OnSeekBarChangeListener settingTransparencyListener = new SeekBar.OnSeekBarChangeListener() {
+                      @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                          applySettingTransparency();
+                      }
+                      @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                      @Override public void onStopTrackingTouch(SeekBar seekBar) {
+                          prefs.edit()
+                              .putInt("setting_card_alpha", sbSettingCardAlpha.getProgress())
+                              .putInt("setting_text_alpha", sbSettingTextAlpha.getProgress())
+                              .apply();
+                      }
+                  };
+                  sbSettingCardAlpha.setOnSeekBarChangeListener(settingTransparencyListener);
+                  sbSettingTextAlpha.setOnSeekBarChangeListener(settingTransparencyListener);
+
+                  // 初始应用
+                  applySettingTransparency();
+
                   pickImageLauncher = registerForActivityResult(
                           new ActivityResultContracts.StartActivityForResult(),
                           result -> {
@@ -708,6 +733,28 @@ jobs:
                   });
 
                   return v;
+              }
+
+              private void applySettingTransparency() {
+                  if (rootView == null) return;
+                  int cardAlpha = 255 - (int)(sbSettingCardAlpha.getProgress() / 100f * 255);
+                  int textAlpha = 255 - (int)(sbSettingTextAlpha.getProgress() / 100f * 255);
+                  applyAlphaToViewGroup((ViewGroup) rootView, cardAlpha, textAlpha);
+              }
+
+              private void applyAlphaToViewGroup(ViewGroup parent, int cardAlpha, int textAlpha) {
+                  for (int i = 0; i < parent.getChildCount(); i++) {
+                      View child = parent.getChildAt(i);
+                      if (child instanceof CardView) {
+                          ((CardView) child).setCardBackgroundColor(
+                                  Color.argb(cardAlpha, 255, 255, 255));
+                      } else if (child instanceof TextView) {
+                          child.setAlpha(textAlpha / 255f);
+                      }
+                      if (child instanceof ViewGroup) {
+                          applyAlphaToViewGroup((ViewGroup) child, cardAlpha, textAlpha);
+                      }
+                  }
               }
 
               private void openGallery() {
@@ -763,15 +810,20 @@ jobs:
           }
           EOF
 
-          # ----- MainActivity.java -----
+          # ----- MainActivity.java（同步控制标题栏和底栏透明度）-----
           cat > app/src/main/java/com/pmahz/MainActivity.java << 'EOF'
           package com.pmahz;
           import android.content.SharedPreferences;
           import android.graphics.Bitmap;
           import android.graphics.BitmapFactory;
+          import android.graphics.Color;
+          import android.graphics.drawable.ColorDrawable;
           import android.net.Uri;
           import android.os.Bundle;
+          import android.view.View;
           import android.widget.ImageView;
+          import android.widget.LinearLayout;
+          import android.widget.TextView;
           import androidx.appcompat.app.AppCompatActivity;
           import androidx.fragment.app.Fragment;
           import androidx.fragment.app.FragmentTransaction;
@@ -782,22 +834,27 @@ jobs:
 
           public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
               private ImageView wallpaperView;
+              private LinearLayout titleBar;
+              private TextView titleText;
+              private BottomNavigationView bottomNav;
               private SharedPreferences prefs;
 
               @Override protected void onCreate(Bundle s) {
                   super.onCreate(s);
                   setContentView(R.layout.activity_main);
                   wallpaperView = findViewById(R.id.global_wallpaper);
+                  titleBar = findViewById(R.id.home_title_bar);
+                  titleText = findViewById(R.id.home_title_text);
+                  bottomNav = findViewById(R.id.bottom_navigation);
 
                   prefs = getSharedPreferences("s", MODE_PRIVATE);
                   prefs.registerOnSharedPreferenceChangeListener(this);
-                  applyWallpaper();
+                  applyWallpaperAndUI();
 
-                  BottomNavigationView nav = findViewById(R.id.bottom_navigation);
                   if (s == null) {
                       loadFragment(new HomeFragment(), false);
                   }
-                  nav.setOnItemSelectedListener(item -> {
+                  bottomNav.setOnItemSelectedListener(item -> {
                       if (item.getItemId() == R.id.nav_home) {
                           loadFragment(new HomeFragment(), false);
                           return true;
@@ -820,11 +877,21 @@ jobs:
                   ft.replace(R.id.fragment_container, fragment).commit();
               }
 
-              private void applyWallpaper() {
+              private void applyWallpaperAndUI() {
                   int type = prefs.getInt("wallpaper_type", 0);
-                  float alpha = prefs.getFloat("wallpaper_alpha", 0.3f);
-                  wallpaperView.setAlpha(alpha);
+                  float wallpaperAlpha = prefs.getFloat("wallpaper_alpha", 0.3f);
+                  wallpaperView.setAlpha(wallpaperAlpha);
 
+                  // 标题栏透明度：壁纸透明度越高，标题栏越透明（alpha = 1 - wallpaperAlpha）
+                  float titleAlpha = 1f - wallpaperAlpha;
+                  titleBar.setAlpha(titleAlpha);
+                  titleText.setAlpha(titleAlpha);  // 文字跟随标题栏透明
+
+                  // 底部导航栏背景透明度跟随标题栏，但图标和文字保持不透明
+                  bottomNav.getBackground().setAlpha((int)(titleAlpha * 255));
+                  // 图标和文字颜色保持不变（已在xml中设置）
+
+                  // 壁纸图片加载
                   if (type == 3) {
                       String uriStr = prefs.getString("wallpaper_uri", null);
                       if (uriStr != null) {
@@ -849,7 +916,7 @@ jobs:
 
               @Override public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                   if (key.startsWith("wallpaper_")) {
-                      applyWallpaper();
+                      applyWallpaperAndUI();
                   }
               }
 
@@ -860,7 +927,7 @@ jobs:
           }
           EOF
 
-          # ========== 布局文件（全屏透明美化） ==========
+          # ========== 布局文件（增加id以便代码控制透明度）==========
           cat > app/src/main/res/layout/activity_main.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -893,7 +960,9 @@ jobs:
                   app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:menu="@menu/bottom_nav_menu"
-                  android:background="#AAFFFFFF"/>
+                  android:background="#AAFFFFFF"
+                  app:itemIconTint="#1976D2"
+                  app:itemTextColor="#1976D2"/>
           </androidx.constraintlayout.widget.ConstraintLayout>
           EOF
 
@@ -903,10 +972,14 @@ jobs:
               android:layout_width="match_parent" android:layout_height="match_parent"
               android:orientation="vertical"
               android:background="@android:color/transparent">
-              <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+              <LinearLayout
+                  android:id="@+id/home_title_bar"
+                  android:layout_width="match_parent" android:layout_height="wrap_content"
                   android:orientation="vertical" android:padding="20dp"
                   android:background="#88FFFFFF">
-                  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  <TextView
+                      android:id="@+id/home_title_text"
+                      android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:text="屏幕刷新率" android:textSize="26sp" android:textStyle="bold"
                       android:textColor="@color/text_dark"/>
               </LinearLayout>
@@ -1027,6 +1100,30 @@ jobs:
                               android:text="档位透明度" android:layout_marginTop="12dp"
                               android:textColor="@color/text_dark"/>
                           <SeekBar android:id="@+id/sb_card_alpha"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:max="100" android:progress="0"/>
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp"
+                      app:cardBackgroundColor="#AAFFFFFF">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="设置页美化" android:textStyle="bold" android:textSize="18sp"
+                              android:textColor="@color/text_dark"/>
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="卡片透明度" android:layout_marginTop="12dp"
+                              android:textColor="@color/text_dark"/>
+                          <SeekBar android:id="@+id/sb_setting_card_alpha"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:max="100" android:progress="0"/>
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="文字透明度" android:layout_marginTop="12dp"
+                              android:textColor="@color/text_dark"/>
+                          <SeekBar android:id="@+id/sb_setting_text_alpha"
                               android:layout_width="match_parent" android:layout_height="wrap_content"
                               android:max="100" android:progress="0"/>
                       </LinearLayout>
