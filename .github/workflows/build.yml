@@ -18,8 +18,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 3. 构造标准的 Andorid 源码目录与全量文件
+      - name: 3. 构造标准 Android 项目（脚本中所有 EOF 顶格，无缩进问题）
         run: |
+          cat > generate.sh << 'SCRIPTEOF'
+          #!/bin/bash
+          set -e
           mkdir -p app/src/main/java/com/pmahz/fragment
           mkdir -p app/src/main/java/com/pmahz/adapter
           mkdir -p app/src/main/java/com/pmahz/model
@@ -31,7 +34,7 @@ jobs:
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/mipmap-anydpi-v26
 
-          # ── settings.gradle ───────────────────────────────
+          # 以下所有 cat 命令的 EOF 均顶格，可安全使用
           cat > settings.gradle << 'EOF'
           pluginManagement {
               repositories { google(); mavenCentral(); gradlePluginPortal() }
@@ -44,12 +47,10 @@ jobs:
           include ':app'
           EOF
 
-          # ── build.gradle (Root) ───────────────────────────
           cat > build.gradle << 'EOF'
           plugins { id 'com.android.application' version '8.1.0' apply false }
           EOF
 
-          # ── app/build.gradle ──────────────────────────────
           cat > app/build.gradle << 'EOF'
           plugins { id 'com.android.application' }
           android {
@@ -59,7 +60,7 @@ jobs:
                   applicationId "com.pmahz"
                   minSdk 23
                   targetSdk 34
-                  versionCode 15
+                  versionCode 158
                   versionName "1.5.8"
               }
               buildTypes { release { minifyEnabled false } }
@@ -77,15 +78,12 @@ jobs:
           }
           EOF
 
-          # ── gradle.properties ─────────────────────────────
           cat > gradle.properties << 'EOF'
           org.gradle.jvmargs=-Xmx2048m
           android.useAndroidX=true
           android.enableJetifier=true
-          android.suppressUnsupportedCompileSdk=34
           EOF
 
-          # ── AndroidManifest.xml ───────────────────────────
           cat > app/src/main/AndroidManifest.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -107,16 +105,16 @@ jobs:
           </manifest>
           EOF
 
-          # ── 动画定义 ──────────────────────────────────────
+          # 动画
           cat > app/src/main/res/anim/item_animation.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
-          <set xmlns:android="http://schemas.android.com/apk/res/android" android:duration="400">
-              <translate android:fromYDelta="15%" android:toYDelta="0" android:interpolator="@android:anim/decelerate_interpolator"/>
+          <set xmlns:android="http://schemas.android.com/apk/res/android" android:duration="450">
+              <translate android:fromYDelta="20%" android:toYDelta="0" android:interpolator="@android:anim/decelerate_interpolator"/>
               <alpha android:fromAlpha="0.0" android:toAlpha="1.0" android:interpolator="@android:anim/decelerate_interpolator"/>
           </set>
           EOF
 
-          # ── 图标与资源 ─────────────────────────────────────
+          # 图标资源
           cat > app/src/main/res/drawable/ic_launcher_background.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="#1A1A1A"/></shape>
@@ -142,7 +140,6 @@ jobs:
           </vector>
           EOF
 
-          # ── ic_nav_settings.xml (已剔除导致闪退的错误括号) ──
           cat > app/src/main/res/drawable/ic_nav_settings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
@@ -160,7 +157,7 @@ jobs:
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
           EOF
 
-          # ── DisplayMode.java ──────────────────────────────
+          # ========== Java 源码 ==========
           cat > app/src/main/java/com/pmahz/model/DisplayMode.java << 'EOF'
           package com.pmahz.model;
           public class DisplayMode {
@@ -194,7 +191,6 @@ jobs:
           }
           EOF
 
-          # ── RootUtils.java ────────────────────────────────
           cat > app/src/main/java/com/pmahz/util/RootUtils.java << 'EOF'
           package com.pmahz.util;
           import android.util.Log;
@@ -267,10 +263,10 @@ jobs:
                       os.writeBytes("settings put system min_refresh_rate " + targetHz + ".0\n");
                       os.writeBytes("settings put system user_refresh_rate " + targetHz + "\n");
                       os.writeBytes("settings put secure miui_refresh_rate " + targetHz + "\n");
-                      os.writeBytes("exit\n"); os.flush(); 
+                      os.writeBytes("exit\n"); os.flush();
                       process.waitFor();
                       return true;
-                  } catch (Exception e) { 
+                  } catch (Exception e) {
                       return false;
                   } finally {
                       try { if(os != null) os.close(); } catch(Exception ignored){}
@@ -306,7 +302,6 @@ jobs:
           }
           EOF
 
-          # ── RateAdapter.java ──────────────────────────────
           cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
           package com.pmahz.adapter;
           import android.content.Context;
@@ -362,16 +357,15 @@ jobs:
           }
           EOF
 
-          # ── HomeFragment.java ─────────────────────────────
           cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
           package com.pmahz.fragment;
 
           import android.content.Context;
           import android.os.Bundle;
           import android.view.*;
+          import android.widget.Toast;
           import androidx.fragment.app.Fragment;
           import androidx.recyclerview.widget.*;
-          import android.widget.Toast;
           import com.pmahz.R;
           import com.pmahz.adapter.RateAdapter;
           import com.pmahz.model.DisplayMode;
@@ -380,611 +374,74 @@ jobs:
 
           public class HomeFragment extends Fragment {
               private RateAdapter adapter;
-              private boolean hasRootPermission = false;
+              private boolean hasRoot = false;
+              private List<Object> dataItems = new ArrayList<>();
 
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_home, c, false);
                   RecyclerView rv = v.findViewById(R.id.recycler_rates);
                   rv.setLayoutManager(new LinearLayoutManager(getContext()));
-                  
-                  checkRootStatusAndLoadData(rv);
+                  adapter = new RateAdapter(getContext(), dataItems, this::onRateSelected);
+                  rv.setAdapter(adapter);
+                  loadData();
                   return v;
               }
 
-              private void checkRootStatusAndLoadData(RecyclerView rv) {
+              private void loadData() {
                   new Thread(() -> {
-                      hasRootPermission = RootUtils.isRooted();
-                      List<DisplayMode> rawModes = null;
-                      if (hasRootPermission) {
-                          rawModes = RootUtils.getDisplayModesFromDumpsys();
+                      hasRoot = RootUtils.isRooted();
+                      List<DisplayMode> modes;
+                      if (hasRoot) {
+                          modes = RootUtils.getDisplayModesFromDumpsys();
+                          if (modes.isEmpty()) hasRoot = false;
+                      } else {
+                          modes = new ArrayList<>();
                       }
-                      
-                      final List<DisplayMode> finalModes = rawModes;
+                      if (!hasRoot) {
+                          modes = getFallbackFromDisplayManager();
+                      }
+                      List<Object> built = buildSortedList(modes);
                       if (getActivity() != null) {
                           getActivity().runOnUiThread(() -> {
-                              List<Object> items = buildSortedList(finalModes);
-                              adapter = new RateAdapter(getContext(), items, this::apply);
-                              rv.setAdapter(adapter);
+                              dataItems.clear();
+                              dataItems.addAll(built);
+                              adapter.notifyDataSetChanged();
                           });
                       }
                   }).start();
               }
 
-              private List<Object> buildSortedList(List<DisplayMode> dumpedModes) {
-                  if (dumpedModes == null || dumpedModes.isEmpty()) {
-                      return fallback();
-                  }
-                  
-                  Map<String, List<DisplayMode>> grouped = new LinkedHashMap<>();
-                  for (DisplayMode m : dumpedModes) {
-                      String k = m.getWidth() + "x" + m.getHeight();
-                      grouped.computeIfAbsent(k, x -> new ArrayList<>()).add(m);
-                  }
-                  
-                  List<String> keys = new ArrayList<>(grouped.keySet());
-                  keys.sort((a, b) -> {
-                      String[] pa = a.split("x"), pb = b.split("x");
-                      int resA = Integer.parseInt(pa[0]) * Integer.parseInt(pa[1]);
-                      int resB = Integer.parseInt(pb[0]) * Integer.parseInt(pb[1]);
-                      return Integer.compare(resB, resA); 
-                  });
-                  
-                  List<Object> items = new ArrayList<>();
-                  for (int i = 0; i < keys.size(); i++) {
-                      List<DisplayMode> ms = grouped.get(keys.get(i));
-                      ms.sort((a, b) -> Float.compare(b.getRefreshRate(), a.getRefreshRate()));
-                      String label = i == 0 ? "✨ 高分辨率  " + keys.get(i) : "🔋 低分辨率  " + keys.get(i);
-                      items.add(label);
-                      items.addAll(ms);
-                  }
-                  return items;
-              }
-
-              private List<Object> fallback() {
-                  int[] rs = {60, 90, 120, 144, 165, 170, 175, 177};
-                  List<Object> l = new ArrayList<>();
-                  l.add("✨ 高分辨率 1272x2772 (免Root探测模拟)");
-                  for (int r : rs) l.add(new DisplayMode(1272, 2772, r, -1));
-                  return l;
-              }
-
-              private void apply(DisplayMode m) {
-                  if (!hasRootPermission) {
-                      Toast.makeText(getContext(), "未获取root权限", Toast.LENGTH_SHORT).show();
-                      return;
-                  }
-                  new Thread(() -> {
-                      boolean ok = RootUtils.setRefreshRate(m.getModeId(), m.getRateInt());
-                      if (getActivity() != null) {
-                          getActivity().runOnUiThread(() -> {
-                              if (ok) {
-                                  adapter.setCurrent(m);
-                                  Toast.makeText(getContext(), "已成功应用 " + m.getRateInt() + " Hz", Toast.LENGTH_SHORT).show();
-                              } else {
-                                  Toast.makeText(getContext(), "指令下发未成功，请检查根权限", Toast.LENGTH_LONG).show();
-                              }
-                          });
-                      }
-                  }).start();
-              }
-          }
-          EOF
-
-          # ── SettingsFragment.java ─────────────────────────
-          cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
-          package com.pmahz.fragment;
-          import android.content.Intent;
-          import android.graphics.Color;
-          import android.net.Uri;
-          import android.os.Bundle;
-          import android.view.*;
-          import android.widget.*;
-          import androidx.appcompat.app.AlertDialog;
-          import androidx.fragment.app.Fragment;
-          import com.pmahz.R;
-          import com.pmahz.util.RootUtils;
-
-          public class SettingsFragment extends Fragment {
-              @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
-                  View v = inf.inflate(R.layout.fragment_settings, c, false);
-                  TextView status = v.findViewById(R.id.tv_root_status);
-                  LinearLayout clickDev = v.findViewById(R.id.layout_click_developer);
-                  Button btnLog = v.findViewById(R.id.btn_generate_log);
-                  
-                  new Thread(() -> {
-                      boolean ok = RootUtils.isRooted();
-                      if (isAdded() && getActivity() != null) {
-                          getActivity().runOnUiThread(() -> {
-                              status.setText(ok ? "高级超级用户 Root 权限已就绪" : "没有获取超级用户 Root 权限");
-                              status.setTextColor(Color.parseColor(ok ? "#2ECC71" : "#E74C3C"));
-                          });
-                      }
-                  }).start();
-
-                  View.OnClickListener coolapkClick = x -> {
-                      String url = "https://www.coolapk.com/u/31452988";
-                      try { 
-                          Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                          it.setPackage("com.coolapk.market");
-                          startActivity(it);
-                      } catch (Exception e) { 
-                          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); 
-                      }
-                  };
-
-                  clickDev.setOnClickListener(coolapkClick);
-
-                  btnLog.setOnClickListener(x -> {
-                      Toast.makeText(getContext(), "正在提取日志...", Toast.LENGTH_SHORT).show();
-                      new Thread(() -> {
-                          String logs = RootUtils.generateRuntimeLog();
-                          if (getActivity() != null) {
-                              getActivity().runOnUiThread(() -> {
-                                  showLogDialog(logs);
-                              });
-                          }
-                      }).start();
-                  });
-                  return v;
-              }
-
-              private void showLogDialog(String logContent) {
-                  if (getContext() == null) return;
-                  ScrollView sv = new ScrollView(getContext());
-                  TextView tv = new TextView(getContext());
-                  tv.setText(logContent);
-                  tv.setPadding(30, 30, 30, 30);
-                  tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
-                  sv.addView(tv);
-
-                  new AlertDialog.Builder(getContext())
-                      .setTitle("系统档位日志提取")
-                      .setView(sv)
-                      .setPositiveButton("确 定", null)
-                      .show();
-              }
-          }
-          EOF
-
-          # ── MainActivity.java ─────────────────────────────
-          cat > app/src/main/java/com/pmahz/MainActivity.java << 'EOF'
-          package com.pmahz;
-          import android.os.Bundle;
-          import androidx.appcompat.app.AppCompatActivity;
-          import com.google.android.material.bottomnavigation.BottomNavigationView;
-          import com.pmahz.fragment.HomeFragment;
-          import com.pmahz.fragment.SettingsFragment;
-          public class MainActivity extends AppCompatActivity {
-              @Override protected void onCreate(Bundle s) {
-                  super.onCreate(s); setContentView(R.layout.activity_main);
-                  BottomNavigationView nav = findViewById(R.id.bottom_navigation);
-                  if (s == null) getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-                  nav.setOnItemSelectedListener(item -> {
-                      if (item.getItemId() == R.id.nav_home) { getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit(); return true; }
-                      if (item.getItemId() == R.id.nav_settings) { getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SettingsFragment()).commit(); return true; }
-                      return false;
-                  });
-              }
-          }
-          EOF
-
-          # ── 布局 XML ──────────────────────────────────────
-          cat > app/src/main/res/layout/activity_main.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent">
-              <FrameLayout android:id="@+id/fragment_container" android:layout_width="0dp" android:layout_height="0dp" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toTopOf="@id/bottom_navigation" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
-              <com.google.android.material.bottomnavigation.BottomNavigationView android:id="@+id/bottom_navigation" android:layout_width="0dp" android:layout_height="wrap_content" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:menu="@menu/bottom_nav_menu" android:background="@color/white"/>
-          </androidx.constraintlayout.widget.ConstraintLayout>
-          EOF
-
-          cat > app/src/main/res/layout/fragment_home.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/bg_main">
-              <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp" android:background="@color/white">
-                  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="屏幕刷新率" android:textSize="26sp" android:textStyle="bold" android:textColor="@color/text_dark"/>
-              </LinearLayout>
-              <androidx.recyclerview.widget.RecyclerView android:id="@+id/recycler_rates" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="10dp"/>
-          </LinearLayout>
-          EOF
-
-          cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="6dp" android:orientation="vertical">
-              <androidx.cardview.widget.CardView android:id="@+id/card_rate" android:layout_width="match_parent" android:layout_height="100dp" app:cardCornerRadius="16dp">
-                  <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent" android:padding="16dp">
-                      <TextView android:id="@+id/tv_rate_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF"/>
-                      <TextView android:id="@+id/tv_rate_hz" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="30sp" android:textStyle="bold" android:textColor="#FFFFFF" android:layout_below="@id/tv_rate_name"/>
-                      <TextView android:id="@+id/tv_rate_desc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EEEEEE" android:layout_alignParentBottom="true"/>
-                      <TextView android:id="@+id/tv_rate_active" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="✔ 生效" android:textSize="16sp" android:textStyle="bold" android:textColor="#00FF00" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:visibility="gone"/>
-                  </RelativeLayout>
-              </androidx.cardview.widget.CardView>
-          </LinearLayout>
-          EOF
-
-          cat > app/src/main/res/layout/fragment_settings.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp" android:background="@color/bg_main">
-              <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" app:cardCornerRadius="12dp">
-                  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-                      <TextView android:id="@+id/tv_root_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="环境检测中..." android:textSize="16sp" android:textStyle="bold"/>
-                  </LinearLayout>
-              </androidx.cardview.widget.CardView>
-              <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="12dp">
-                  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-                      <LinearLayout android:id="@+id/layout_click_developer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true" android:padding="4dp">
-                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="开发者 酷安:爱好者ahh (前往关注)" android:textSize="15sp" android:textStyle="bold" android:textColor="@color/primary"/>
-                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="软件当前版本：1.5.8" android:textSize="13sp" android:textColor="@color/text_muted" android:layout_marginTop="4dp"/>
-                      </LinearLayout>
-                      <Button android:id="@+id/btn_generate_log" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="生成日志" android:layout_marginTop="16dp"/>
-                  </LinearLayout>
-              </androidx.cardview.widget.CardView>
-          </LinearLayout>
-          EOF
-
-          cat > app/src/main/res/layout/item_res_header.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="10dp">
-              <TextView android:id="@+id/tv_header_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="@color/text_dark"/>
-          </LinearLayout>
-          EOF
-
-          # ── 菜单与资源值 ────────────────────────────────────
-          cat > app/src/main/res/menu/bottom_nav_menu.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <menu xmlns:android="http://schemas.android.com/apk/res/android">
-              <item android:id="@+id/nav_home" android:icon="@drawable/ic_nav_home" android:title="主页"/>
-              <item android:id="@+id/nav_settings" android:icon="@drawable/ic_nav_settings" android:title="设置"/>
-          </menu>
-          EOF
-
-          cat > app/src/main/res/values/colors.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <color name="primary">#1976D2</color><color name="primary_dark">#1565C0</color><color name="accent">#42A5F5</color>
-              <color name="white">#FFFFFFFF</color><color name="black">#FF000000</color><color name="bg_main">#F0F4FF</color>
-              <color name="text_dark">#1A1A2E</color><color name="text_muted">#888888</color>
-          </resources>
-          EOF
-
-          cat > app/src/main/res/values/strings.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources><string name="app_name">屏幕刷新率</string></resources>
-          EOF
-
-          cat > app/src/main/res/values/themes.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <style name="Theme.RefreshRate" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-                  <item name="colorPrimary">@color/primary</item>
-                  <item name="colorPrimaryDark">@color/primary_dark</item>
-                  <item name="colorAccent">@color/accent</item>
-              </style>
-          </resources>
-          EOF
-
-      - name: 4. 用官方标准 Action 建立合规原生封装器
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.0'
-          generate-job-summary: true
-
-      - name: 5. 编译生成 Debug APK
-        run: gradle assembleDebug
-
-      - name: 6. 提炼并分发 APK 产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: RefreshRate-Standard-v1.5.8
-          path: app/build/outputs/apk/debug/app-debug.apk
-          <shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="#1A1A1A"/></shape>
-          EOF
-
-          cat > app/src/main/res/drawable/ic_launcher_foreground.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
-              <path android:fillColor="#FFFFFF" android:pathData="M16,26 Q16,20 22,20 L86,20 Q92,20 92,26 L92,82 Q92,88 86,88 L22,88 Q16,88 16,82 Z"/>
-              <path android:fillColor="#1A1A1A" android:pathData="M20,34 L88,34 L88,84 L20,84 Z"/>
-              <path android:fillColor="#FF5F57" android:pathData="M26,27 Q26,24 29,24 Q32,24 32,27 Q32,30 29,30 Q26,30 26,27 Z"/>
-              <path android:fillColor="#FEBC2E" android:pathData="M37,27 Q37,24 40,24 Q43,24 43,27 Q43,30 40,30 Q37,30 37,27 Z"/>
-              <path android:fillColor="#28C840" android:pathData="M48,27 Q48,24 51,24 Q54,24 54,27 Q54,30 51,30 Q48,30 48,27 Z"/>
-              <path android:fillColor="#FFFFFF" android:strokeColor="#FFFFFF" android:strokeWidth="2" android:pathData="M28,52 L38,59 L28,66"/>
-              <path android:fillColor="#FFFFFF" android:pathData="M43,66 L72,66 L72,70 L43,70 Z"/>
-          </vector>
-          EOF
-
-          cat > app/src/main/res/drawable/ic_nav_home.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
-              <path android:fillColor="#1976D2" android:pathData="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
-          </vector>
-          EOF
-
-          cat > app/src/main/res/drawable/ic_nav_settings.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
-              <path android:fillColor="#1976D2" android:pathData="M19.14,12.94c0.04,-0.3 0.06,-0.61 0.06,-0.94c0,-0.32 -0.02,-0.64 -0.06,-0.94l2.03,-1.58c0.18,-0.14 0.23,-0.41 0.12,-0.61l-1.92,-3.32c-0.12,-0.22 -0.37,-0.29 -0.59,-0.22l-2.39,0.96c-0.5,-0.38 -1.03,-0.7 -1.62,-0.94L14.4,2.81c-0.04,-0.24 -0.24,-0.41 -0.48,-0.41h-3.84c-0.24,0 -0.43,0.17 -0.47,0.41L9.25,5.35C8.66,5.59 8.13,5.91 7.63,6.29L5.24,5.33c-0.22,-0.08 -0.47,0 -0.59,0.22L2.74,8.87c-0.12,0.21 -0.08,0.47 0.12,0.61l2.03,1.58C4.84,11.36 4.82,11.67 4.82,12c0,0.33 0.02,0.64 0.06,0.94L2.85,14.52c-0.18,0.14 -0.23,0.41 -0.12,0.61l1.92,3.32c0.12,0.22 0.37,0.29 0.59,0.22l2.39,-0.96c0.5,0.38 1.03,0.7 1.62,0.94l0.36,2.54c0.05,0.24 0.24,0.41 0.48,0.41h3.84c(0.24,0 0.44,-0.17 0.47,-0.41l0.36,-2.54c0.59,-0.24 1.13,-0.56 1.62,-0.94l2.39,0.96c0.22,0.08 0.47,0 0.59,-0.22l1.92,-3.32c0.12,-0.22 0.07,-0.47 -0.12,-0.61L19.14,12.94zM12,15.6c-1.98,0 -3.6,-1.62 -3.6,-3.6s1.62,-3.6 3.6,-3.6s3.6,1.62 3.6,3.6S13.98,15.6 12,15.6z"/>
-          </vector>
-          EOF
-
-          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
-          EOF
-
-          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
-          EOF
-
-          # ── DisplayMode.java ──────────────────────────────
-          cat > app/src/main/java/com/pmahz/model/DisplayMode.java << 'EOF'
-          package com.pmahz.model;
-          public class DisplayMode {
-              private int width, height, modeId;
-              private float refreshRate;
-              public DisplayMode(int w, int h, float r, int id) {
-                  width=w; height=h; refreshRate=r; modeId=id;
-              }
-              public int getWidth(){return width;}
-              public int getHeight(){return height;}
-              public float getRefreshRate(){return refreshRate;}
-              public int getModeId(){return modeId;}
-              public String getResolutionLabel(){return width+"x"+height;}
-              public int getRateInt(){return Math.round(refreshRate);}
-              public String getRateName(){
-                  int r=getRateInt();
-                  if(r>=144)return "高刷";
-                  if(r>=120)return "极致";
-                  if(r>=90)return "极佳";
-                  if(r>=60)return "流畅";
-                  return "标准";
-              }
-              public String getRateDesc(){
-                  int r=getRateInt();
-                  if(r>=144)return "臻享视界，完美观感";
-                  if(r>=120)return "画面流畅动人，舒适体验";
-                  if(r>=90)return "提高刷新率，极致体验";
-                  if(r>=60)return "较高刷新率，画面流畅";
-                  return "常规刷新率，延长续航";
-              }
-          }
-          EOF
-
-          # ── RootUtils.java ────────────────────────────────
-          cat > app/src/main/java/com/pmahz/util/RootUtils.java << 'EOF'
-          package com.pmahz.util;
-          import android.util.Log;
-          import com.pmahz.model.DisplayMode;
-          import java.io.*;
-          import java.util.ArrayList;
-          import java.util.List;
-          import java.util.regex.Matcher;
-          import java.util.regex.Pattern;
-
-          public class RootUtils {
-              private static final String TAG = "RootUtils";
-
-              public static boolean isRooted() {
-                  Process p = null; DataOutputStream os = null; BufferedReader r = null;
-                  try {
-                      p = Runtime.getRuntime().exec("su");
-                      os = new DataOutputStream(p.getOutputStream());
-                      os.writeBytes("echo RootOK\nexit\n"); os.flush();
-                      r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                      return "RootOK".equals(r.readLine());
-                  } catch (Exception e) { return false;
-                  } finally {
-                      try { if(os != null) os.close(); } catch(Exception ignored){}
-                      try { if(r != null) r.close(); } catch(Exception ignored){}
-                      try { if(p != null) p.destroy(); } catch(Exception ignored){}
-                  }
-              }
-
-              public static List<DisplayMode> getDisplayModesFromDumpsys() {
+              private List<DisplayMode> getFallbackFromDisplayManager() {
                   List<DisplayMode> list = new ArrayList<>();
-                  Process p = null; DataOutputStream os = null; BufferedReader r = null;
                   try {
-                      p = Runtime.getRuntime().exec("su");
-                      os = new DataOutputStream(p.getOutputStream());
-                      os.writeBytes("dumpsys display | grep 'DisplayModeRecord'\nexit\n");
-                      os.flush();
-                      r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                      String line;
-                      Pattern pattern = Pattern.compile("id=(\\d+),\\s*width=(\\d+),\\s*height=(\\d+),\\s*fps=([\\d.]+)");
-                      while ((line = r.readLine()) != null) {
-                          Matcher m = pattern.matcher(line);
-                          if (m.find()) {
-                              int id = Integer.parseInt(m.group(1));
-                              int w = Integer.parseInt(m.group(2));
-                              int h = Integer.parseInt(m.group(3));
-                              float fps = Float.parseFloat(m.group(4));
-                              list.add(new DisplayMode(w, h, fps, id));
-                          }
+                      android.hardware.display.DisplayManager dm = (android.hardware.display.DisplayManager)
+                              requireActivity().getSystemService(Context.DISPLAY_SERVICE);
+                      android.view.Display d = dm.getDisplay(android.view.Display.DEFAULT_DISPLAY);
+                      android.view.Display.Mode[] modes = d.getSupportedModes();
+                      for (android.view.Display.Mode m : modes) {
+                          list.add(new DisplayMode(m.getPhysicalWidth(), m.getPhysicalHeight(),
+                                  m.getRefreshRate(), m.getModeId()));
                       }
-                  } catch (Exception e) {
-                      Log.e(TAG, "解析dumpsys失败", e);
-                  } finally {
-                      try { if(os != null) os.close(); } catch(Exception ignored){}
-                      try { if(r != null) r.close(); } catch(Exception ignored){}
-                      try { if(p != null) p.destroy(); } catch(Exception ignored){}
-                  }
+                  } catch (Exception ignored) {}
                   return list;
               }
 
-              public static boolean setRefreshRate(int finalModeId, int targetHz) {
-                  Process process = null; DataOutputStream os = null;
-                  try {
-                      process = Runtime.getRuntime().exec("su");
-                      os = new DataOutputStream(process.getOutputStream());
-                      if (finalModeId != -1) {
-                          os.writeBytes("service call SurfaceFlinger 1035 i32 " + finalModeId + "\n");
-                      }
-                      os.writeBytes("settings put system peak_refresh_rate " + targetHz + ".0\n");
-                      os.writeBytes("settings put system min_refresh_rate " + targetHz + ".0\n");
-                      os.writeBytes("settings put system user_refresh_rate " + targetHz + "\n");
-                      os.writeBytes("settings put secure miui_refresh_rate " + targetHz + "\n");
-                      os.writeBytes("exit\n"); os.flush(); 
-                      process.waitFor();
-                      return true;
-                  } catch (Exception e) { 
-                      return false;
-                  } finally {
-                      try { if(os != null) os.close(); } catch(Exception ignored){}
-                      try { if(process != null) process.destroy(); } catch(Exception ignored){}
-                  }
-              }
-
-              public static String generateRuntimeLog() {
-                  StringBuilder sb = new StringBuilder();
-                  sb.append("=== 屏幕刷新率工具 运行调试日志 ===\n");
-                  sb.append("Root状态: ").append(isRooted() ? "已获取授权" : "未获取授权").append("\n\n");
-                  sb.append("=== 系统的 DisplayModeRecord 原始数据 ===\n");
-                  Process p = null; DataOutputStream os = null; BufferedReader r = null;
-                  try {
-                      p = Runtime.getRuntime().exec("su");
-                      os = new DataOutputStream(p.getOutputStream());
-                      os.writeBytes("dumpsys display | grep 'DisplayModeRecord'\nexit\n");
-                      os.flush();
-                      r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                      String line;
-                      while ((line = r.readLine()) != null) {
-                          sb.append(line.trim()).append("\n");
-                      }
-                  } catch (Exception e) {
-                      sb.append("提取系统错误: ").append(e.getMessage());
-                  } finally {
-                      try { if(os != null) os.close(); } catch(Exception ignored){}
-                      try { if(r != null) r.close(); } catch(Exception ignored){}
-                      try { if(p != null) p.destroy(); } catch(Exception ignored){}
-                  }
-                  return sb.toString();
-              }
-          }
-          EOF
-
-          # ── RateAdapter.java ──────────────────────────────
-          cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
-          package com.pmahz.adapter;
-          import android.content.Context;
-          import android.graphics.Color;
-          import android.view.*;
-          import android.view.animation.AnimationUtils;
-          import android.widget.TextView;
-          import androidx.cardview.widget.CardView;
-          import androidx.recyclerview.widget.RecyclerView;
-          import com.pmahz.R;
-          import com.pmahz.model.DisplayMode;
-          import java.util.List;
-
-          public class RateAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-              public static final int TYPE_HEADER = 0, TYPE_RATE = 1;
-              public interface OnRateClick { void onClick(DisplayMode m); }
-              private List<Object> items; private Context ctx; private OnRateClick listener; private DisplayMode current;
-              public RateAdapter(Context c, List<Object> i, OnRateClick l) { ctx=c; items=i; listener=l; }
-              public void update(List<Object> i) { items=i; notifyDataSetChanged(); }
-              public void setCurrent(DisplayMode m) { current=m; notifyDataSetChanged(); }
-              @Override public int getItemViewType(int p) { return items.get(p) instanceof String ? TYPE_HEADER : TYPE_RATE; }
-              @Override public int getItemCount() { return items==null ? 0 : items.size(); }
-              @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup p, int t) {
-                  LayoutInflater inf = LayoutInflater.from(ctx);
-                  if (t == TYPE_HEADER) return new HVH(inf.inflate(R.layout.item_res_header, p, false));
-                  return new RVH(inf.inflate(R.layout.item_rate_card, p, false));
-              }
-              @Override public void onBindViewHolder(RecyclerView.ViewHolder h, int pos) {
-                  h.itemView.startAnimation(AnimationUtils.loadAnimation(ctx, R.anim.item_animation));
-                  if (getItemViewType(pos) == TYPE_HEADER) {
-                      ((HVH) h).title.setText((String) items.get(pos));
-                  } else {
-                      DisplayMode m = (DisplayMode) items.get(pos); RVH r = (RVH) h;
-                      r.name.setText(m.getRateName()); r.hz.setText(m.getRateInt() + " Hz"); r.desc.setText(m.getRateDesc());
-                      r.card.setCardBackgroundColor(colorFor(m.getRateInt()));
-                      boolean act = current != null && current.getModeId() == m.getModeId() && current.getRateInt() == m.getRateInt();
-                      r.active.setVisibility(act ? View.VISIBLE : View.GONE);
-                      r.card.setOnClickListener(v -> { if (listener != null) listener.onClick(m); });
-                  }
-              }
-              private int colorFor(int hz) {
-                  if (hz >= 170) return Color.parseColor("#1565C0");
-                  if (hz >= 144) return Color.parseColor("#1E88E5");
-                  if (hz >= 120) return Color.parseColor("#2196F3");
-                  if (hz >= 90)  return Color.parseColor("#00ACC1");
-                  return Color.parseColor("#00897B");
-              }
-              static class HVH extends RecyclerView.ViewHolder { TextView title; HVH(View v) { super(v); title = v.findViewById(R.id.tv_header_title); } }
-              static class RVH extends RecyclerView.ViewHolder {
-                  CardView card; TextView name, hz, desc, active;
-                  RVH(View v) { super(v); card=v.findViewById(R.id.card_rate); name=v.findViewById(R.id.tv_rate_name); hz=v.findViewById(R.id.tv_rate_hz); desc=v.findViewById(R.id.tv_rate_desc); active=v.findViewById(R.id.tv_rate_active); }
-              }
-          }
-          EOF
-
-          # ── HomeFragment.java ─────────────────────────────
-          cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
-          package com.pmahz.fragment;
-
-          import android.content.Context;
-          import android.os.Bundle;
-          import android.view.*;
-          import androidx.fragment.app.Fragment;
-          import androidx.recyclerview.widget.*;
-          import android.widget.Toast;
-          import com.pmahz.R;
-          import com.pmahz.adapter.RateAdapter;
-          import com.pmahz.model.DisplayMode;
-          import com.pmahz.util.RootUtils;
-          import java.util.*;
-
-          public class HomeFragment extends Fragment {
-              private RateAdapter adapter;
-              private boolean hasRootPermission = false;
-
-              @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
-                  View v = inf.inflate(R.layout.fragment_home, c, false);
-                  RecyclerView rv = v.findViewById(R.id.recycler_rates);
-                  rv.setLayoutManager(new LinearLayoutManager(getContext()));
-                  
-                  checkRootStatusAndLoadData(rv);
-                  return v;
-              }
-
-              private void checkRootStatusAndLoadData(RecyclerView rv) {
-                  new Thread(() -> {
-                      hasRootPermission = RootUtils.isRooted();
-                      List<DisplayMode> rawModes = null;
-                      if (hasRootPermission) {
-                          rawModes = RootUtils.getDisplayModesFromDumpsys();
-                      }
-                      
-                      final List<DisplayMode> finalModes = rawModes;
-                      if (getActivity() != null) {
-                          getActivity().runOnUiThread(() -> {
-                              List<Object> items = buildSortedList(finalModes);
-                              adapter = new RateAdapter(getContext(), items, this::apply);
-                              rv.setAdapter(adapter);
-                          });
-                      }
-                  }).start();
-              }
-
               private List<Object> buildSortedList(List<DisplayMode> dumpedModes) {
                   if (dumpedModes == null || dumpedModes.isEmpty()) {
                       return fallback();
                   }
-                  
                   Map<String, List<DisplayMode>> grouped = new LinkedHashMap<>();
                   for (DisplayMode m : dumpedModes) {
                       String k = m.getWidth() + "x" + m.getHeight();
                       grouped.computeIfAbsent(k, x -> new ArrayList<>()).add(m);
                   }
-                  
                   List<String> keys = new ArrayList<>(grouped.keySet());
                   keys.sort((a, b) -> {
                       String[] pa = a.split("x"), pb = b.split("x");
                       int resA = Integer.parseInt(pa[0]) * Integer.parseInt(pa[1]);
                       int resB = Integer.parseInt(pb[0]) * Integer.parseInt(pb[1]);
-                      return Integer.compare(resB, resA); 
+                      return Integer.compare(resB, resA);
                   });
-                  
                   List<Object> items = new ArrayList<>();
                   for (int i = 0; i < keys.size(); i++) {
                       List<DisplayMode> ms = grouped.get(keys.get(i));
@@ -1004,20 +461,20 @@ jobs:
                   return l;
               }
 
-              private void apply(DisplayMode m) {
-                  if (!hasRootPermission) {
+              private void onRateSelected(DisplayMode mode) {
+                  if (!hasRoot) {
                       Toast.makeText(getContext(), "未获取root权限", Toast.LENGTH_SHORT).show();
                       return;
                   }
                   new Thread(() -> {
-                      boolean ok = RootUtils.setRefreshRate(m.getModeId(), m.getRateInt());
+                      boolean ok = RootUtils.setRefreshRate(mode.getModeId(), mode.getRateInt());
                       if (getActivity() != null) {
                           getActivity().runOnUiThread(() -> {
                               if (ok) {
-                                  adapter.setCurrent(m);
-                                  Toast.makeText(getContext(), "已成功应用 " + m.getRateInt() + " Hz", Toast.LENGTH_SHORT).show();
+                                  adapter.setCurrent(mode);
+                                  Toast.makeText(getContext(), "已切换至 " + mode.getRateInt() + " Hz", Toast.LENGTH_SHORT).show();
                               } else {
-                                  Toast.makeText(getContext(), "指令下发未成功，请检查根权限", Toast.LENGTH_LONG).show();
+                                  Toast.makeText(getContext(), "切换失败，请检查 Root 授权", Toast.LENGTH_SHORT).show();
                               }
                           });
                       }
@@ -1026,12 +483,12 @@ jobs:
           }
           EOF
 
-          # ── SettingsFragment.java ─────────────────────────
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.content.Intent;
           import android.graphics.Color;
           import android.net.Uri;
+          import android.os.Build;
           import android.os.Bundle;
           import android.view.*;
           import android.widget.*;
@@ -1043,41 +500,36 @@ jobs:
           public class SettingsFragment extends Fragment {
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_settings, c, false);
-                  TextView status = v.findViewById(R.id.tv_root_status);
-                  LinearLayout clickDev = v.findViewById(R.id.layout_click_developer);
-                  Button btnLog = v.findViewById(R.id.btn_generate_log);
-                  
+                  TextView rootStatus = v.findViewById(R.id.tv_root_status);
+                  TextView author = v.findViewById(R.id.tv_author);
+                  Button btnGenerateLog = v.findViewById(R.id.btn_generate_log);
+
                   new Thread(() -> {
                       boolean ok = RootUtils.isRooted();
                       if (isAdded() && getActivity() != null) {
                           getActivity().runOnUiThread(() -> {
-                              status.setText(ok ? "高级超级用户 Root 权限已就绪" : "没有获取超级用户 Root 权限");
-                              status.setTextColor(Color.parseColor(ok ? "#2ECC71" : "#E74C3C"));
+                              rootStatus.setText(ok ? "已获取 Root 权限" : "未获取 Root 权限");
+                              rootStatus.setTextColor(ok ? 0xFF2ECC71 : 0xFFE74C3C);
                           });
                       }
                   }).start();
 
-                  View.OnClickListener coolapkClick = x -> {
+                  author.setOnClickListener(view -> {
                       String url = "https://www.coolapk.com/u/31452988";
-                      try { 
-                          Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                          it.setPackage("com.coolapk.market");
-                          startActivity(it);
-                      } catch (Exception e) { 
-                          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); 
+                      try {
+                          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                  .setPackage("com.coolapk.market"));
+                      } catch (Exception e) {
+                          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                       }
-                  };
+                  });
 
-                  clickDev.setOnClickListener(coolapkClick);
-
-                  btnLog.setOnClickListener(x -> {
+                  btnGenerateLog.setOnClickListener(view -> {
                       Toast.makeText(getContext(), "正在提取日志...", Toast.LENGTH_SHORT).show();
                       new Thread(() -> {
-                          String logs = RootUtils.generateRuntimeLog();
+                          String log = RootUtils.generateRuntimeLog();
                           if (getActivity() != null) {
-                              getActivity().runOnUiThread(() -> {
-                                  showLogDialog(logs);
-                              });
+                              getActivity().runOnUiThread(() -> showLogDialog(log));
                           }
                       }).start();
                   });
@@ -1090,19 +542,24 @@ jobs:
                   TextView tv = new TextView(getContext());
                   tv.setText(logContent);
                   tv.setPadding(30, 30, 30, 30);
-                  tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+                  tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+                  tv.setTextColor(Color.BLACK);
                   sv.addView(tv);
-
                   new AlertDialog.Builder(getContext())
-                      .setTitle("系统档位日志提取")
-                      .setView(sv)
-                      .setPositiveButton("确 定", null)
-                      .show();
+                          .setTitle("运行日志")
+                          .setView(sv)
+                          .setPositiveButton("关闭", null)
+                          .setNeutralButton("分享", (d, w) -> {
+                              Intent share = new Intent(Intent.ACTION_SEND);
+                              share.setType("text/plain");
+                              share.putExtra(Intent.EXTRA_TEXT, logContent);
+                              startActivity(Intent.createChooser(share, "分享日志"));
+                          })
+                          .show();
               }
           }
           EOF
 
-          # ── MainActivity.java ─────────────────────────────
           cat > app/src/main/java/com/pmahz/MainActivity.java << 'EOF'
           package com.pmahz;
           import android.os.Bundle;
@@ -1116,15 +573,21 @@ jobs:
                   BottomNavigationView nav = findViewById(R.id.bottom_navigation);
                   if (s == null) getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
                   nav.setOnItemSelectedListener(item -> {
-                      if (item.getItemId() == R.id.nav_home) { getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit(); return true; }
-                      if (item.getItemId() == R.id.nav_settings) { getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SettingsFragment()).commit(); return true; }
+                      if (item.getItemId() == R.id.nav_home) {
+                          getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+                          return true;
+                      }
+                      if (item.getItemId() == R.id.nav_settings) {
+                          getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SettingsFragment()).commit();
+                          return true;
+                      }
                       return false;
                   });
               }
           }
           EOF
 
-          # ── 布局 XML ──────────────────────────────────────
+          # 布局文件
           cat > app/src/main/res/layout/activity_main.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent">
@@ -1151,28 +614,8 @@ jobs:
                       <TextView android:id="@+id/tv_rate_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF"/>
                       <TextView android:id="@+id/tv_rate_hz" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="30sp" android:textStyle="bold" android:textColor="#FFFFFF" android:layout_below="@id/tv_rate_name"/>
                       <TextView android:id="@+id/tv_rate_desc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EEEEEE" android:layout_alignParentBottom="true"/>
-                      <TextView android:id="@+id/tv_rate_active" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="✔ 生效" android:textSize="16sp" android:textStyle="bold" android:textColor="#00FF00" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:visibility="gone"/>
+                      <TextView android:id="@+id/tv_rate_active" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="✓" android:textSize="22sp" android:textColor="#00FF00" android:layout_alignParentEnd="true" android:visibility="gone"/>
                   </RelativeLayout>
-              </androidx.cardview.widget.CardView>
-          </LinearLayout>
-          EOF
-
-          cat > app/src/main/res/layout/fragment_settings.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp" android:background="@color/bg_main">
-              <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" app:cardCornerRadius="12dp">
-                  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-                      <TextView android:id="@+id/tv_root_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="环境检测中..." android:textSize="16sp" android:textStyle="bold"/>
-                  </LinearLayout>
-              </androidx.cardview.widget.CardView>
-              <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="12dp">
-                  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-                      <LinearLayout android:id="@+id/layout_click_developer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true" android:padding="4dp">
-                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="开发者 酷安:爱好者ahh (前往关注)" android:textSize="15sp" android:textStyle="bold" android:textColor="@color/primary"/>
-                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="软件当前版本：1.5.8" android:textSize="13sp" android:textColor="@color/text_muted" android:layout_marginTop="4dp"/>
-                      </LinearLayout>
-                      <Button android:id="@+id/btn_generate_log" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="生成日志" android:layout_marginTop="16dp"/>
-                  </LinearLayout>
               </androidx.cardview.widget.CardView>
           </LinearLayout>
           EOF
@@ -1184,7 +627,59 @@ jobs:
           </LinearLayout>
           EOF
 
-          # ── 菜单与资源值 ────────────────────────────────────
+          cat > app/src/main/res/layout/fragment_settings.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent" android:layout_height="match_parent"
+              android:background="@color/bg_main">
+              <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:orientation="vertical" android:padding="16dp">
+
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="Root 状态" android:textStyle="bold" android:textSize="18sp"/>
+                          <TextView android:id="@+id/tv_root_status"
+                              android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="检测中..." android:textSize="15sp" android:layout_marginTop="8dp"/>
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="关于" android:textStyle="bold" android:textSize="18sp"/>
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="版本: 1.5.8" android:layout_marginTop="4dp"/>
+                          <TextView android:id="@+id/tv_author"
+                              android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="开发者 酷安:爱好者ahh (前往关注)"
+                              android:textColor="#1976D2"
+                              android:clickable="true"
+                              android:focusable="true"
+                              android:layout_marginTop="4dp"/>
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
+                  <Button
+                      android:id="@+id/btn_generate_log"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:text="生成日志"
+                      style="@style/Widget.MaterialComponents.Button"/>
+
+              </LinearLayout>
+          </ScrollView>
+          EOF
+
+          # 菜单与颜色
           cat > app/src/main/res/menu/bottom_nav_menu.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <menu xmlns:android="http://schemas.android.com/apk/res/android">
@@ -1217,6 +712,10 @@ jobs:
               </style>
           </resources>
           EOF
+          SCRIPTEOF
+
+          chmod +x generate.sh
+          ./generate.sh
 
       - name: 4. 用官方标准 Action 建立合规的 Gradle 包装器
         uses: gradle/actions/setup-gradle@v4
@@ -1230,5 +729,5 @@ jobs:
       - name: 6. 提炼并分发 APK 产物
         uses: actions/upload-artifact@v4
         with:
-          name: RefreshRate-Standard-v1.5.8
+          name: RefreshRate-v1.5.8
           path: app/build/outputs/apk/debug/app-debug.apk
