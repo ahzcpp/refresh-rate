@@ -18,7 +18,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 3. 生成完整项目（多语言含繁体）
+      - name: 3. 生成完整项目（优化图标与语言弹窗）
         run: |
           cat > generate.sh << 'SCRIPTEOF'
           #!/bin/bash
@@ -152,17 +152,12 @@ jobs:
           </set>
           EOF
 
-          # ----- 图标资源（地球图标）-----
+          # ----- 图标资源 -----
           cat > app/src/main/res/drawable/ic_language_earth.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <vector xmlns:android="http://schemas.android.com/apk/res/android"
-              android:width="24dp"
-              android:height="24dp"
-              android:viewportWidth="24"
-              android:viewportHeight="24">
-              <path
-                  android:fillColor="#1976D2"
-                  android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM12,4c0.44,0 0.86,0.04 1.27,0.12 -0.29,0.56 -0.51,1.16 -0.64,1.8 -0.24,-0.07 -0.49,-0.12 -0.75,-0.17V4zM9.34,4.14c0.23,0.56 0.4,1.18 0.48,1.84 -0.53,0.14 -1.04,0.34 -1.52,0.59 -0.1,-0.68 -0.1,-1.39 0.04,-2.06 0.32,-0.16 0.66,-0.29 1,-0.37zM7.36,5.68c0.57,0.34 1.17,0.62 1.81,0.81 -0.08,0.65 -0.08,1.31 0.01,1.96 -0.59,0.29 -1.13,0.67 -1.6,1.11 -0.47,-0.72 -0.8,-1.53 -0.94,-2.39 0.22,-0.5 0.46,-1 0.72,-1.49zM5.85,8.12c0.62,0.56 1.32,1.03 2.08,1.39 -0.11,0.66 -0.14,1.33 -0.08,2 -0.63,0.15 -1.23,0.36 -1.8,0.63 -0.21,-0.64 -0.35,-1.31 -0.4,-2 0.06,-0.68 0.13,-1.36 0.2,-2.02zM5,12c0,-0.28 0.02,-0.55 0.05,-0.82 0.65,0.25 1.33,0.44 2.02,0.56 0.04,0.68 0.16,1.35 0.34,2 -0.55,0.23 -1.07,0.51 -1.56,0.84C5.43,13.83 5.15,12.94 5,12zM7.83,15.21c0.58,0.22 1.18,0.4 1.79,0.52 -0.08,0.68 -0.08,1.37 -0.01,2.06 -0.57,0.33 -1.09,0.74 -1.54,1.21 -0.35,-0.58 -0.63,-1.2 -0.82,-1.86 0.19,-0.61 0.38,-1.25 0.58,-1.93zM11,19.95c-0.44,-0.02 -0.86,-0.08 -1.27,-0.17 0.3,-0.57 0.52,-1.18 0.65,-1.83 0.23,0.07 0.47,0.12 0.72,0.16L11,19.95zM13,19.88v-1.71c0.26,-0.03 0.52,-0.07 0.77,-0.14 0.14,0.67 0.37,1.3 0.68,1.88 -0.47,0.09 -0.95,0.14 -1.45,0.14V19.88zM15.23,18.52c-0.38,-0.51 -0.7,-1.07 -0.94,-1.67 0.6,-0.28 1.16,-0.65 1.65,-1.1 0.42,0.73 0.72,1.54 0.86,2.39 -0.49,0.18 -1.01,0.31 -1.57,0.38zM18.15,15.88c-0.61,-0.56 -1.3,-1.04 -2.05,-1.41 0.12,-0.67 0.15,-1.36 0.09,-2.04 0.62,-0.15 1.22,-0.37 1.78,-0.64 0.2,0.65 0.33,1.32 0.38,2.01 -0.07,0.7 -0.14,1.4 -0.2,2.08zM19,12c0,0.28 -0.02,0.55 -0.05,0.82 -0.64,-0.25 -1.31,-0.45 -1.99,-0.57 -0.04,-0.7 -0.16,-1.4 -0.36,-2.07 0.57,-0.24 1.12,-0.54 1.63,-0.89 0.45,0.75 0.77,1.57 0.95,2.44 0,-0.06 0,-0.11 0,-0.17h0.17zM16.27,8.84c-0.58,-0.22 -1.18,-0.4 -1.79,-0.52 0.08,-0.68 0.08,-1.37 0.01,-2.06 0.57,-0.33 1.09,-0.74 1.54,-1.21 0.35,0.58 0.63,1.2 0.82,1.86 -0.19,0.61 -0.38,1.25 -0.58,1.93z"/>
+              android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+              <path android:fillColor="#1976D2" android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM12,4c0.44,0 0.86,0.04 1.27,0.12 -0.29,0.56 -0.51,1.16 -0.64,1.8 -0.24,-0.07 -0.49,-0.12 -0.75,-0.17V4zM9.34,4.14c0.23,0.56 0.4,1.18 0.48,1.84 -0.53,0.14 -1.04,0.34 -1.52,0.59 -0.1,-0.68 -0.1,-1.39 0.04,-2.06 0.32,-0.16 0.66,-0.29 1,-0.37zM7.36,5.68c0.57,0.34 1.17,0.62 1.81,0.81 -0.08,0.65 -0.08,1.31 0.01,1.96 -0.59,0.29 -1.13,0.67 -1.6,1.11 -0.47,-0.72 -0.8,-1.53 -0.94,-2.39 0.22,-0.5 0.46,-1 0.72,-1.49zM5.85,8.12c0.62,0.56 1.32,1.03 2.08,1.39 -0.11,0.66 -0.14,1.33 -0.08,2 -0.63,0.15 -1.23,0.36 -1.8,0.63 -0.21,-0.64 -0.35,-1.31 -0.4,-2 0.06,-0.68 0.13,-1.36 0.2,-2.02zM5,12c0,-0.28 0.02,-0.55 0.05,-0.82 0.65,0.25 1.33,0.44 2.02,0.56 0.04,0.68 0.16,1.35 0.34,2 -0.55,0.23 -1.07,0.51 -1.56,0.84C5.43,13.83 5.15,12.94 5,12zM7.83,15.21c0.58,0.22 1.18,0.4 1.79,0.52 -0.08,0.68 -0.08,1.37 -0.01,2.06 -0.57,0.33 -1.09,0.74 -1.54,1.21 -0.35,-0.58 -0.63,-1.2 -0.82,-1.86 0.19,-0.61 0.38,-1.25 0.58,-1.93zM11,19.95c-0.44,-0.02 -0.86,-0.08 -1.27,-0.17 0.3,-0.57 0.52,-1.18 0.65,-1.83 0.23,0.07 0.47,0.12 0.72,0.16L11,19.95zM13,19.88v-1.71c0.26,-0.03 0.52,-0.07 0.77,-0.14 0.14,0.67 0.37,1.3 0.68,1.88 -0.47,0.09 -0.95,0.14 -1.45,0.14V19.88zM15.23,18.52c-0.38,-0.51 -0.7,-1.07 -0.94,-1.67 0.6,-0.28 1.16,-0.65 1.65,-1.1 0.42,0.73 0.72,1.54 0.86,2.39 -0.49,0.18 -1.01,0.31 -1.57,0.38zM18.15,15.88c-0.61,-0.56 -1.3,-1.04 -2.05,-1.41 0.12,-0.67 0.15,-1.36 0.09,-2.04 0.62,-0.15 1.22,-0.37 1.78,-0.64 0.2,0.65 0.33,1.32 0.38,2.01 -0.07,0.7 -0.14,1.4 -0.2,2.08zM19,12c0,0.28 -0.02,0.55 -0.05,0.82 -0.64,-0.25 -1.31,-0.45 -1.99,-0.57 -0.04,-0.7 -0.16,-1.4 -0.36,-2.07 0.57,-0.24 1.12,-0.54 1.63,-0.89 0.45,0.75 0.77,1.57 0.95,2.44 0,-0.06 0,-0.11 0,-0.17h0.17zM16.27,8.84c-0.58,-0.22 -1.18,-0.4 -1.79,-0.52 0.08,-0.68 0.08,-1.37 0.01,-2.06 0.57,-0.33 1.09,-0.74 1.54,-1.21 0.35,0.58 0.63,1.2 0.82,1.86 -0.19,0.61 -0.38,1.25 -0.58,1.93z"/>
           </vector>
           EOF
 
@@ -244,7 +239,7 @@ jobs:
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
           EOF
 
-          # ========== 字符串资源 (中文、英文、日文、维吾尔语、繁体) ==========
+          # ========== 字符串资源 (所有语言含繁体) ==========
           cat > app/src/main/res/values/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -561,7 +556,7 @@ jobs:
           </resources>
           EOF
 
-          # ========== Java 工具类：语言设置 ==========
+          # ========== Java 工具类 ==========
           cat > app/src/main/java/com/pmahz/util/LanguageUtils.java << 'EOF'
           package com.pmahz.util;
 
@@ -768,7 +763,7 @@ jobs:
           }
           EOF
 
-          # ----- RateAdapter.java (使用 MaterialCardView 边框) -----
+          # ----- RateAdapter.java -----
           cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
           package com.pmahz.adapter;
 
@@ -836,7 +831,7 @@ jobs:
           }
           EOF
 
-          # ----- HomeFragment.java (语言对话框增加繁体) -----
+          # ----- HomeFragment.java (使用 PopupWindow 切换语言) -----
           cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
           package com.pmahz.fragment;
 
@@ -844,10 +839,7 @@ jobs:
           import android.content.SharedPreferences;
           import android.os.Bundle;
           import android.view.*;
-          import android.widget.ImageView;
-          import android.widget.TextView;
-          import android.widget.Toast;
-          import androidx.appcompat.app.AlertDialog;
+          import android.widget.*;
           import androidx.fragment.app.Fragment;
           import androidx.recyclerview.widget.*;
           import com.pmahz.R;
@@ -866,6 +858,7 @@ jobs:
               private View titleBar;
               private TextView titleText;
               private ImageView btnLanguage;
+              private PopupWindow languagePopup;
 
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_home, c, false);
@@ -875,7 +868,7 @@ jobs:
                   btnLanguage = v.findViewById(R.id.btn_language_switch);
 
                   titleText.setText(R.string.home_title);
-                  btnLanguage.setOnClickListener(view -> showLanguageDialog());
+                  btnLanguage.setOnClickListener(view -> showLanguagePopup());
 
                   recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                   adapter = new RateAdapter(getContext(), dataItems, this::onRateSelected);
@@ -889,7 +882,11 @@ jobs:
                   return v;
               }
 
-              private void showLanguageDialog() {
+              private void showLanguagePopup() {
+                  if (languagePopup != null && languagePopup.isShowing()) {
+                      languagePopup.dismiss();
+                  }
+
                   String[] languages = {
                       getString(R.string.language_zh),
                       getString(R.string.language_zh_tw),
@@ -900,25 +897,31 @@ jobs:
                   String[] langCodes = {LanguageUtils.LANG_ZH, LanguageUtils.LANG_ZH_TW, LanguageUtils.LANG_EN, LanguageUtils.LANG_JA, LanguageUtils.LANG_UG};
                   String currentLang = LanguageUtils.getCurrentLang(getContext());
 
-                  int checkedItem = 0;
+                  ListView listView = new ListView(getContext());
+                  ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, languages);
+                  listView.setAdapter(adapter);
+                  listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
                   for (int i = 0; i < langCodes.length; i++) {
                       if (langCodes[i].equals(currentLang)) {
-                          checkedItem = i;
+                          listView.setItemChecked(i, true);
                           break;
                       }
                   }
+                  listView.setOnItemClickListener((parent, view, position, id) -> {
+                      String selectedLang = langCodes[position];
+                      if (!selectedLang.equals(LanguageUtils.getCurrentLang(getContext()))) {
+                          LanguageUtils.setLanguageAndRecreate(requireActivity(), selectedLang);
+                      }
+                      languagePopup.dismiss();
+                  });
 
-                  new AlertDialog.Builder(getContext())
-                      .setTitle(R.string.language_dialog_title)
-                      .setSingleChoiceItems(languages, checkedItem, (dialog, which) -> {
-                          String selectedLang = langCodes[which];
-                          if (!selectedLang.equals(LanguageUtils.getCurrentLang(getContext()))) {
-                              LanguageUtils.setLanguageAndRecreate(requireActivity(), selectedLang);
-                          }
-                          dialog.dismiss();
-                      })
-                      .setNegativeButton(android.R.string.cancel, null)
-                      .show();
+                  languagePopup = new PopupWindow(listView,
+                          LinearLayout.LayoutParams.WRAP_CONTENT,
+                          LinearLayout.LayoutParams.WRAP_CONTENT,
+                          true);
+                  languagePopup.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.WHITE));
+                  languagePopup.setElevation(8);
+                  languagePopup.showAsDropDown(btnLanguage, 0, 8);
               }
 
               private void updateUI() {
@@ -926,7 +929,9 @@ jobs:
                   float titleAlpha = 1f - wallpaperAlpha;
                   titleBar.setAlpha(titleAlpha);
                   titleText.setAlpha(titleAlpha);
-                  btnLanguage.setAlpha(1f);
+                  // 地球图标透明度：壁纸透明度拉满时，图标保持30%可见
+                  float iconAlpha = 1f - wallpaperAlpha * 0.7f;
+                  btnLanguage.setAlpha(iconAlpha);
                   int cardAlpha = prefs.getInt("card_alpha", 0);
                   float cardAlphaF = 1f - (cardAlpha / 100f);
                   recyclerView.setAlpha(cardAlphaF);
@@ -941,6 +946,10 @@ jobs:
               @Override public void onDestroyView() {
                   super.onDestroyView();
                   prefs.unregisterOnSharedPreferenceChangeListener(this);
+                  if (languagePopup != null) {
+                      languagePopup.dismiss();
+                      languagePopup = null;
+                  }
               }
 
               private void loadData() {
@@ -1489,7 +1498,6 @@ jobs:
           </LinearLayout>
           EOF
 
-          # item_rate_card.xml 使用 MaterialCardView
           cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -1533,7 +1541,6 @@ jobs:
           </LinearLayout>
           EOF
 
-          # fragment_settings.xml 保持不变
           cat > app/src/main/res/layout/fragment_settings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -1706,5 +1713,5 @@ jobs:
       - name: 6. 提炼并分发 APK 产物
         uses: actions/upload-artifact@v4
         with:
-          name: RefreshRate-v1.5.8-Traditional
+          name: RefreshRate-v1.5.8-IconFix
           path: app/build/outputs/apk/debug/app-debug.apk
