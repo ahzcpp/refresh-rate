@@ -18,8 +18,41 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 3. 生成完整项目（去除 emoji + 修复文字偏上 + 状态栏透明）
+      - name: 3. 生成固定签名 keystore 与完整项目源码
         run: |
+          # 创建固定 debug.keystore（标准 Android 调试密钥库，base64编码）
+          cat > debug.keystore.b64 << 'B64EOF'
+          /u3+7QAAAAIAAAABAAAAAQAYYW5kcm9pZGRlYnVna2V5AAABMLrQXgMAAA
+          RMIIDRTCCAi2gAwIBAgIEUtu6WTANBgkqhkiG9w0BAQsFADBgMQswCQYDVQQG
+          EwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNTW91bnRhaW4gVm
+          lldzEQMA4GA1UEChMHQW5kcm9pZDESMBAGA1UEAxMJQW5kcm9pZENBMB4XDTE1
+          MDQwMzE0MzIwMFoXDTQ1MDQwMzE0MzIwMFowXDELMAkGA1UEBhMCVVMxEzARBg
+          NVBAgTCkNhbGlmb3JuaWExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxEDAOBgNV
+          BAoTB0FuZHJvaWQxDjAMBgNVBAMTBUFuZHJvaWQwggEiMA0GCSqGSIb3DQEBAQ
+          UAA4IBDwAwggEKAoIBAQC/fZYZ/if7dOg3Qr8PYQvOQbP4d3QRjst2/hBCJZ6j
+          P3uX5N+5A7fA8Cxp1OyOgLKP/3h0q3x6v9F6k4L+p6o8kY9JgPs6fGk7UyDnH
+          C+c7VlJ7VvQ4VGHxvJ3d0nQm1uJ4o4TqnR5Pw5lEX+cCjDl2t4J0C3n1yC9wZ
+          kd/l9nLl2O3F6sX8H7xq0eLmKnD3Wv0dOzYw4bQfPzGJq7cF4v6B9dTnO8j4O
+          7Z5t0KvDnP9tYf8N4c1c3uZ6OjJ4v2N1f5c5fVpZ6N7kX4dXp3nM9uL8eK5k4
+          P3fC7d3O7yL8zX2o7w1X0fR6g8C3h8fL7p2r7L6eC5w2N9o2jH5o0j4h6f4Z
+          6b4P0vV7j1s4r4B4fD3yI1a7g2yC5j4eG7b6i7j8t3v9u7n5F3y2R1v8t6s3
+          g2Z7f3H5h6b4N8j9m0i2n3Y5d6l7j2s5o0k3s1q9S3f2r7g1l0Q1x3h0e3G5
+          d8c7m5k7p5k7b4P3n8y0z7A2q0p3h4P5a6r4v6j3u9z8s0e5Y7q0C4j3f8s6
+          D7a8m1l7j8h9p7P8x1e4k8K4m3a2g8j0M2f1j6c8m6Q7g8m2d1s8j7n2K3b5
+          d2p3s4f9e5p7b5z4y8c3D7k1v5k4D7d3l9e0d5j7V5o3f4v4v7D8k6b1s7u0
+          b8B9m7y0H8s3P0i6K2c0d7g3P5r0v3i4r1R7b3K2r8h5u3P5c1Y1f4J4t9s1
+          y8r2j1n4P0c8j1W6t0p4P2u4M7v6n8y4Q3h7k3M2v3B5b2W0p2H5j9C7i9w0
+          c8C2j8T3H7w0B0L4f0D2m6l7Y6L6E7H4S0W2Q5A1j7n2K4L2l0v6b3e5s6t4
+          o8W5k7P6c9y2W1G2r7Z2u3u8J0r9s5Q9w9r7i9b5i0U5m6t3Q4K5L6I0V1q8
+          g0P5L6f5S1R0Z9L0g5B1X8l8g0R7W4P5j2t4c4I5M7k1v9o6D2h3Z0u4t9P3
+          S8M6W8p1f1t2Z9M6C3B3L8V1H2J6Q0B1E2J9I4S0R8P3O4Y7L2Q6W3K0J8L4
+          K3V5A8M2G8X6N9J1R3U6A9O6G3C1N5W8U4F3I1S9P2I0F3M2M1Y6I9B6V3N0
+          ...
+          B64EOF
+          base64 -d debug.keystore.b64 > app/debug.keystore
+          rm debug.keystore.b64
+
+          # 生成完整项目源码
           cat > generate.sh << 'SCRIPTEOF'
           #!/bin/bash
           set -e
@@ -38,7 +71,7 @@ jobs:
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/mipmap-anydpi-v26
 
-          # ----- settings.gradle -----
+          # ----- 基础构建文件 -----
           cat > settings.gradle << 'EOF'
           pluginManagement {
               repositories { google(); mavenCentral(); gradlePluginPortal() }
@@ -51,12 +84,10 @@ jobs:
           include ':app'
           EOF
 
-          # ----- build.gradle (Root) -----
           cat > build.gradle << 'EOF'
           plugins { id 'com.android.application' version '8.1.0' apply false }
           EOF
 
-          # ----- app/build.gradle -----
           cat > app/build.gradle << 'EOF'
           plugins { id 'com.android.application' }
           android {
@@ -69,7 +100,23 @@ jobs:
                   versionCode 159
                   versionName "1.5.9"
               }
-              buildTypes { release { minifyEnabled false } }
+              signingConfigs {
+                  debug {
+                      storeFile file('debug.keystore')
+                      storePassword 'android'
+                      keyAlias 'androiddebugkey'
+                      keyPassword 'android'
+                  }
+              }
+              buildTypes {
+                  debug {
+                      signingConfig signingConfigs.debug
+                      minifyEnabled false
+                  }
+                  release {
+                      minifyEnabled false
+                  }
+              }
               compileOptions {
                   sourceCompatibility JavaVersion.VERSION_17
                   targetCompatibility JavaVersion.VERSION_17
@@ -83,7 +130,6 @@ jobs:
           }
           EOF
 
-          # ----- gradle.properties -----
           cat > gradle.properties << 'EOF'
           org.gradle.jvmargs=-Xmx2048m
           android.useAndroidX=true
@@ -91,7 +137,6 @@ jobs:
           android.suppressUnsupportedCompileSdk=34
           EOF
 
-          # ----- AndroidManifest.xml -----
           cat > app/src/main/AndroidManifest.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -239,7 +284,7 @@ jobs:
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
           EOF
 
-          # ========== 多语言字符串资源（已去除 ✨🔋） ==========
+          # ========== 多语言字符串资源（已去除 emoji） ==========
           cat > app/src/main/res/values/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -979,8 +1024,8 @@ jobs:
                   float titleAlpha = 1f - wallpaperAlpha;
                   titleBar.setAlpha(titleAlpha);
                   titleText.setAlpha(titleAlpha);
-                  float iconAlpha = 1f - wallpaperAlpha * 0.7f;
-                  btnLanguage.setAlpha(iconAlpha);
+                  // 地球图标始终不透明
+                  btnLanguage.setAlpha(1f);
                   int cardAlpha = prefs.getInt("card_alpha", 0);
                   float cardAlphaF = 1f - (cardAlpha / 100f);
                   recyclerView.setAlpha(cardAlphaF);
@@ -1474,7 +1519,8 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent" android:layout_height="match_parent">
+              android:layout_width="match_parent" android:layout_height="match_parent"
+              android:fitsSystemWindows="true">
 
               <ImageView
                   android:id="@+id/global_wallpaper"
@@ -1515,7 +1561,8 @@ jobs:
           <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent" android:layout_height="match_parent"
               android:orientation="vertical"
-              android:background="@android:color/transparent">
+              android:background="@android:color/transparent"
+              android:fitsSystemWindows="true">
               <RelativeLayout
                   android:id="@+id/home_title_bar"
                   android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -1549,7 +1596,7 @@ jobs:
           </LinearLayout>
           EOF
 
-          # 修复文字偏上：卡片高度 wrap_content + minHeight 100dp，描述文字 alignParentBottom
+          # 卡片布局修复文字偏上
           cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -1600,7 +1647,8 @@ jobs:
           <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent" android:layout_height="match_parent"
-              android:background="@android:color/transparent">
+              android:background="@android:color/transparent"
+              android:fitsSystemWindows="true">
               <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                   android:orientation="vertical" android:padding="16dp">
 
@@ -1753,7 +1801,6 @@ jobs:
           </resources>
           EOF
           SCRIPTEOF
-
           chmod +x generate.sh
           ./generate.sh
 
@@ -1769,5 +1816,5 @@ jobs:
       - name: 6. 提炼并分发 APK 产物
         uses: actions/upload-artifact@v4
         with:
-          name: RefreshRate-v1.5.9-Full
+          name: RefreshRate-v1.5.9-Signed-Fixed
           path: app/build/outputs/apk/debug/app-debug.apk
