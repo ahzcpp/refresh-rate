@@ -18,9 +18,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 3. 生成固定签名 keystore 与完整项目源码
+      - name: 3. 生成固定签名与完整项目（v1.6.0 全功能版）
         run: |
-          # 先建 app 目录，再生成 keystore
+          # 创建固定 debug.keystore
           mkdir -p app
           keytool -genkeypair \
             -alias androiddebugkey \
@@ -33,7 +33,7 @@ jobs:
             -keysize 2048 \
             -validity 10000
 
-          # 生成完整项目源码
+          # 生成完整源码
           cat > generate.sh << 'SCRIPTEOF'
           #!/bin/bash
           set -e
@@ -52,7 +52,7 @@ jobs:
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/mipmap-anydpi-v26
 
-          # ----- 基础构建文件 -----
+          # ----- settings.gradle -----
           cat > settings.gradle << 'EOF'
           pluginManagement {
               repositories { google(); mavenCentral(); gradlePluginPortal() }
@@ -65,10 +65,12 @@ jobs:
           include ':app'
           EOF
 
+          # ----- build.gradle (Root) -----
           cat > build.gradle << 'EOF'
           plugins { id 'com.android.application' version '8.1.0' apply false }
           EOF
 
+          # ----- app/build.gradle -----
           cat > app/build.gradle << 'EOF'
           plugins { id 'com.android.application' }
           android {
@@ -78,8 +80,8 @@ jobs:
                   applicationId "com.pmahz"
                   minSdk 23
                   targetSdk 34
-                  versionCode 159
-                  versionName "1.5.9"
+                  versionCode 160
+                  versionName "1.6.0"
               }
               signingConfigs {
                   debug {
@@ -111,6 +113,7 @@ jobs:
           }
           EOF
 
+          # ----- gradle.properties -----
           cat > gradle.properties << 'EOF'
           org.gradle.jvmargs=-Xmx2048m
           android.useAndroidX=true
@@ -118,6 +121,7 @@ jobs:
           android.suppressUnsupportedCompileSdk=34
           EOF
 
+          # ----- AndroidManifest.xml -----
           cat > app/src/main/AndroidManifest.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -187,6 +191,37 @@ jobs:
           </vector>
           EOF
 
+          cat > app/src/main/res/drawable/ic_nav_home.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+              <path android:fillColor="#1976D2" android:pathData="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
+          </vector>
+          EOF
+
+          cat > app/src/main/res/drawable/ic_nav_settings.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+              <path android:fillColor="#1976D2" android:pathData="M19.14,12.94c0.04,-0.3 0.06,-0.61 0.06,-0.94c0,-0.32 -0.02,-0.64 -0.06,-0.94l2.03,-1.58c0.18,-0.14 0.23,-0.41 0.12,-0.61l-1.92,-3.32c-0.12,-0.22 -0.37,-0.29 -0.59,-0.22l-2.39,0.96c-0.5,-0.38 -1.03,-0.7 -1.62,-0.94L14.4,2.81c-0.04,-0.24 -0.24,-0.41 -0.48,-0.41h-3.84c-0.24,0 -0.43,0.17 -0.47,0.41L9.25,5.35C8.66,5.59 8.13,5.91 7.63,6.29L5.24,5.33c-0.22,-0.08 -0.47,0 -0.59,0.22L2.74,8.87c-0.12,0.21 -0.08,0.47 0.12,0.61l2.03,1.58C4.84,11.36 4.82,11.67 4.82,12c0,0.33 0.02,0.64 0.06,0.94L2.85,14.52c-0.18,0.14 -0.23,0.41 -0.12,0.61l1.92,3.32c0.12,0.22 0.37,0.29 0.59,0.22l2.39,-0.96c0.5,0.38 1.03,0.7 1.62,0.94l0.36,2.54c0.05,0.24 0.24,0.41 0.48,0.41h3.84c0.24,0 0.44,-0.17 0.47,-0.41l0.36,-2.54c0.59,-0.24 1.13,-0.56 1.62,-0.94l2.39,0.96c0.22,0.08 0.47,0 0.59,-0.22l1.92,-3.32c0.12,-0.22 0.07,-0.47 -0.12,-0.61L19.14,12.94zM12,15.6c-1.98,0 -3.6,-1.62 -3.6,-3.6s1.62,-3.6 3.6,-3.6s3.6,1.62 3.6,3.6S13.98,15.6 12,15.6z"/>
+          </vector>
+          EOF
+
+          cat > app/src/main/res/drawable/ic_nav_flash.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+              <path android:fillColor="#1976D2" android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM11,17l3,-5h-2V7l-3,5h2v5z"/>
+          </vector>
+          EOF
+
+          cat > app/src/main/res/drawable/ic_power.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+              <path android:fillColor="#1976D2" android:pathData="M12,3v10m0,0a7,7 0 1,1 0,-14 7,7 0 0,1 0,14z"/>
+          </vector>
+          EOF
+
+          # 启动图标
           cat > app/src/main/res/drawable/ic_launcher_background.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="#1A1A1A"/></shape>
@@ -205,18 +240,14 @@ jobs:
           </vector>
           EOF
 
-          cat > app/src/main/res/drawable/ic_nav_home.xml << 'EOF'
+          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
-          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
-              <path android:fillColor="#1976D2" android:pathData="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
-          </vector>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
           EOF
 
-          cat > app/src/main/res/drawable/ic_nav_settings.xml << 'EOF'
+          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
-          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
-              <path android:fillColor="#1976D2" android:pathData="M19.14,12.94c0.04,-0.3 0.06,-0.61 0.06,-0.94c0,-0.32 -0.02,-0.64 -0.06,-0.94l2.03,-1.58c0.18,-0.14 0.23,-0.41 0.12,-0.61l-1.92,-3.32c-0.12,-0.22 -0.37,-0.29 -0.59,-0.22l-2.39,0.96c-0.5,-0.38 -1.03,-0.7 -1.62,-0.94L14.4,2.81c-0.04,-0.24 -0.24,-0.41 -0.48,-0.41h-3.84c-0.24,0 -0.43,0.17 -0.47,0.41L9.25,5.35C8.66,5.59 8.13,5.91 7.63,6.29L5.24,5.33c-0.22,-0.08 -0.47,0 -0.59,0.22L2.74,8.87c-0.12,0.21 -0.08,0.47 0.12,0.61l2.03,1.58C4.84,11.36 4.82,11.67 4.82,12c0,0.33 0.02,0.64 0.06,0.94L2.85,14.52c-0.18,0.14 -0.23,0.41 -0.12,0.61l1.92,3.32c0.12,0.22 0.37,0.29 0.59,0.22l2.39,-0.96c0.5,0.38 1.03,0.7 1.62,0.94l0.36,2.54c0.05,0.24 0.24,0.41 0.48,0.41h3.84c0.24,0 0.44,-0.17 0.47,-0.41l0.36,-2.54c0.59,-0.24 1.13,-0.56 1.62,-0.94l2.39,0.96c0.22,0.08 0.47,0 0.59,-0.22l1.92,-3.32c0.12,-0.22 0.07,-0.47 -0.12,-0.61L19.14,12.94zM12,15.6c-1.98,0 -3.6,-1.62 -3.6,-3.6s1.62,-3.6 3.6,-3.6s3.6,1.62 3.6,3.6S13.98,15.6 12,15.6z"/>
-          </vector>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
           EOF
 
           # ----- 壁纸资源 -----
@@ -255,17 +286,7 @@ jobs:
           </shape>
           EOF
 
-          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
-          EOF
-
-          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
-          EOF
-
-          # ========== 多语言字符串资源（已去除 emoji） ==========
+          # ========== 多语言字符串资源 ==========
           cat > app/src/main/res/values/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -305,8 +326,16 @@ jobs:
               <string name="settings_page_beautify">设置页美化</string>
               <string name="settings_card_alpha">卡片透明度</string>
               <string name="settings_text_alpha">文字透明度</string>
+              <string name="animation_style_title">主页滑动动画</string>
+              <string-array name="animation_styles">
+                  <item>堆叠递进</item>
+                  <item>优雅平移</item>
+                  <item>渐隐淡出</item>
+                  <item>弹性滚动</item>
+                  <item>轻透渐变</item>
+              </string-array>
               <string name="about_title">关于</string>
-              <string name="version_label">版本: 1.5.9</string>
+              <string name="version_label">版本: 1.6.0</string>
               <string name="generate_log_btn">生成日志</string>
               <string name="language_dialog_title">选择语言</string>
               <string name="language_zh">简体中文</string>
@@ -316,6 +345,19 @@ jobs:
               <string name="language_ug">ئۇيغۇرچە</string>
               <string name="nav_home">主页</string>
               <string name="nav_settings">设置</string>
+              <string name="nav_flash">刷入</string>
+              <string name="flash_device_info">设备信息</string>
+              <string name="flash_backup">提取 DTBO</string>
+              <string name="flash_flash">刷入 DTBO</string>
+              <string name="flash_success">操作成功</string>
+              <string name="flash_fail">操作失败</string>
+              <string name="flash_no_root">需要 Root 权限</string>
+              <string name="power_menu_title">电源菜单</string>
+              <string name="power_reboot">重启</string>
+              <string name="power_shutdown">关机</string>
+              <string name="power_fastboot">Fastboot</string>
+              <string name="power_fastbootd">FastbootD</string>
+              <string name="power_recovery">Recovery</string>
               <string name="log_extracting">正在提取日志...</string>
               <string name="log_dialog_title">运行日志</string>
               <string name="log_dialog_close">关闭</string>
@@ -329,6 +371,7 @@ jobs:
           </resources>
           EOF
 
+          # 英文 strings.xml
           cat > app/src/main/res/values-en/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -368,8 +411,16 @@ jobs:
               <string name="settings_page_beautify">Settings Page</string>
               <string name="settings_card_alpha">Card Alpha</string>
               <string name="settings_text_alpha">Text Alpha</string>
+              <string name="animation_style_title">Home Scroll Animation</string>
+              <string-array name="animation_styles">
+                  <item>Stack</item>
+                  <item>Elegant Slide</item>
+                  <item>Fade Out</item>
+                  <item>Bouncy Scroll</item>
+                  <item>Light Gradient</item>
+              </string-array>
               <string name="about_title">About</string>
-              <string name="version_label">Version: 1.5.9</string>
+              <string name="version_label">Version: 1.6.0</string>
               <string name="generate_log_btn">Generate Log</string>
               <string name="language_dialog_title">Choose Language</string>
               <string name="language_zh">简体中文</string>
@@ -379,6 +430,19 @@ jobs:
               <string name="language_ug">ئۇيغۇرچە</string>
               <string name="nav_home">Home</string>
               <string name="nav_settings">Settings</string>
+              <string name="nav_flash">Flash</string>
+              <string name="flash_device_info">Device Info</string>
+              <string name="flash_backup">Backup DTBO</string>
+              <string name="flash_flash">Flash DTBO</string>
+              <string name="flash_success">Success</string>
+              <string name="flash_fail">Failed</string>
+              <string name="flash_no_root">Need Root</string>
+              <string name="power_menu_title">Power Menu</string>
+              <string name="power_reboot">Reboot</string>
+              <string name="power_shutdown">Shutdown</string>
+              <string name="power_fastboot">Fastboot</string>
+              <string name="power_fastbootd">FastbootD</string>
+              <string name="power_recovery">Recovery</string>
               <string name="log_extracting">Extracting log...</string>
               <string name="log_dialog_title">Runtime Log</string>
               <string name="log_dialog_close">Close</string>
@@ -392,6 +456,7 @@ jobs:
           </resources>
           EOF
 
+          # 日文 strings.xml
           cat > app/src/main/res/values-ja/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -431,8 +496,16 @@ jobs:
               <string name="settings_page_beautify">設定ページ</string>
               <string name="settings_card_alpha">カードの透明度</string>
               <string name="settings_text_alpha">テキストの透明度</string>
+              <string name="animation_style_title">ホームスクロールアニメ</string>
+              <string-array name="animation_styles">
+                  <item>スタック</item>
+                  <item>エレガントスライド</item>
+                  <item>フェードアウト</item>
+                  <item>バウンススクロール</item>
+                  <item>ライトグラデーション</item>
+              </string-array>
               <string name="about_title">について</string>
-              <string name="version_label">バージョン: 1.5.9</string>
+              <string name="version_label">バージョン: 1.6.0</string>
               <string name="generate_log_btn">ログ生成</string>
               <string name="language_dialog_title">言語を選択</string>
               <string name="language_zh">简体中文</string>
@@ -442,7 +515,20 @@ jobs:
               <string name="language_ug">ئۇيغۇرچە</string>
               <string name="nav_home">ホーム</string>
               <string name="nav_settings">設定</string>
-              <string name="log_extracting">ログを抽出中...</string>
+              <string name="nav_flash">フラッシュ</string>
+              <string name="flash_device_info">デバイス情報</string>
+              <string name="flash_backup">DTBOをバックアップ</string>
+              <string name="flash_flash">DTBOをフラッシュ</string>
+              <string name="flash_success">成功</string>
+              <string name="flash_fail">失敗</string>
+              <string name="flash_no_root">Rootが必要</string>
+              <string name="power_menu_title">電源メニュー</string>
+              <string name="power_reboot">再起動</string>
+              <string name="power_shutdown">シャットダウン</string>
+              <string name="power_fastboot">Fastboot</string>
+              <string name="power_fastbootd">FastbootD</string>
+              <string name="power_recovery">Recovery</string>
+              <string name="log_extracting">ログ抽出中...</string>
               <string name="log_dialog_title">実行ログ</string>
               <string name="log_dialog_close">閉じる</string>
               <string name="log_dialog_share">共有</string>
@@ -455,6 +541,7 @@ jobs:
           </resources>
           EOF
 
+          # 维吾尔语 strings.xml
           cat > app/src/main/res/values-ug/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -494,8 +581,16 @@ jobs:
               <string name="settings_page_beautify">تەڭشەك بېتى</string>
               <string name="settings_card_alpha">كارتا سۈزۈكلۈكى</string>
               <string name="settings_text_alpha">تېكىست سۈزۈكلۈكى</string>
+              <string name="animation_style_title">باش بەت سىيرىلىش ئانماتسىيەسى</string>
+              <string-array name="animation_styles">
+                  <item>دۆۋىلەپ ئىلگىرىلەش</item>
+                  <item>نەپىس سىيرىلىش</item>
+                  <item>يوقىلىپ چىقىش</item>
+                  <item>ئېلاستىك دومىلاش</item>
+                  <item>يېنىك رەڭ ئۆزگىرىش</item>
+              </string-array>
               <string name="about_title">ھەققىدە</string>
-              <string name="version_label">نەشرى: 1.5.9</string>
+              <string name="version_label">نەشرى: 1.6.0</string>
               <string name="generate_log_btn">خاتىرە ھاسىل قىلىش</string>
               <string name="language_dialog_title">تىل تاللاش</string>
               <string name="language_zh">简体中文</string>
@@ -505,6 +600,19 @@ jobs:
               <string name="language_ug">ئۇيغۇرچە</string>
               <string name="nav_home">ئاساسىي بەت</string>
               <string name="nav_settings">تەڭشەكلەر</string>
+              <string name="nav_flash">فلاش</string>
+              <string name="flash_device_info">ئۈسكۈنە ئۇچۇرى</string>
+              <string name="flash_backup">DTBO نى زاپاسلاش</string>
+              <string name="flash_flash">DTBO نى فلاش قىلىش</string>
+              <string name="flash_success">مۇۋەپپەقىيەتلىك</string>
+              <string name="flash_fail">مەغلۇپ بولدى</string>
+              <string name="flash_no_root">Root ھوقۇقى كېرەك</string>
+              <string name="power_menu_title">قۇۋۋەت تىزىملىكى</string>
+              <string name="power_reboot">قايتا قوزغىتىش</string>
+              <string name="power_shutdown">ئۆچۈرۈش</string>
+              <string name="power_fastboot">Fastboot</string>
+              <string name="power_fastbootd">FastbootD</string>
+              <string name="power_recovery">Recovery</string>
               <string name="log_extracting">خاتىرە ئېلىۋېلىنىۋاتىدۇ...</string>
               <string name="log_dialog_title">ئىجرا خاتىرىسى</string>
               <string name="log_dialog_close">تاقاش</string>
@@ -518,6 +626,7 @@ jobs:
           </resources>
           EOF
 
+          # 繁体中文 strings.xml
           cat > app/src/main/res/values-zh-rTW/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -557,8 +666,16 @@ jobs:
               <string name="settings_page_beautify">設定頁美化</string>
               <string name="settings_card_alpha">卡片透明度</string>
               <string name="settings_text_alpha">文字透明度</string>
+              <string name="animation_style_title">主頁滑動動畫</string>
+              <string-array name="animation_styles">
+                  <item>堆疊遞進</item>
+                  <item>優雅平移</item>
+                  <item>漸隱淡出</item>
+                  <item>彈性滾動</item>
+                  <item>輕透漸變</item>
+              </string-array>
               <string name="about_title">關於</string>
-              <string name="version_label">版本: 1.5.9</string>
+              <string name="version_label">版本: 1.6.0</string>
               <string name="generate_log_btn">產生記錄</string>
               <string name="language_dialog_title">選擇語言</string>
               <string name="language_zh">简体中文</string>
@@ -568,6 +685,19 @@ jobs:
               <string name="language_ug">ئۇيغۇرچە</string>
               <string name="nav_home">首頁</string>
               <string name="nav_settings">設定</string>
+              <string name="nav_flash">刷入</string>
+              <string name="flash_device_info">裝置資訊</string>
+              <string name="flash_backup">備份 DTBO</string>
+              <string name="flash_flash">刷入 DTBO</string>
+              <string name="flash_success">操作成功</string>
+              <string name="flash_fail">操作失敗</string>
+              <string name="flash_no_root">需要 Root 權限</string>
+              <string name="power_menu_title">電源選單</string>
+              <string name="power_reboot">重啟</string>
+              <string name="power_shutdown">關機</string>
+              <string name="power_fastboot">Fastboot</string>
+              <string name="power_fastbootd">FastbootD</string>
+              <string name="power_recovery">Recovery</string>
               <string name="log_extracting">正在擷取記錄...</string>
               <string name="log_dialog_title">執行記錄</string>
               <string name="log_dialog_close">關閉</string>
@@ -582,6 +712,7 @@ jobs:
           EOF
 
           # ========== Java 源码 ==========
+          # LanguageUtils.java
           cat > app/src/main/java/com/pmahz/util/LanguageUtils.java << 'EOF'
           package com.pmahz.util;
 
@@ -640,6 +771,7 @@ jobs:
           }
           EOF
 
+          # DisplayMode.java
           cat > app/src/main/java/com/pmahz/model/DisplayMode.java << 'EOF'
           package com.pmahz.model;
 
@@ -680,6 +812,7 @@ jobs:
           }
           EOF
 
+          # RootUtils.java (包含设备信息、刷入/备份)
           cat > app/src/main/java/com/pmahz/util/RootUtils.java << 'EOF'
           package com.pmahz.util;
 
@@ -762,6 +895,40 @@ jobs:
                   }
               }
 
+              public static String getDeviceInfo() {
+                  StringBuilder sb = new StringBuilder();
+                  sb.append("设备型号: ").append(getProp("ro.product.model"));
+                  sb.append("\n系统版本: ").append(getProp("ro.build.version.incremental"));
+                  sb.append("\nAndroid: ").append(getProp("ro.build.version.release"));
+                  sb.append("\n卡槽: ").append(getProp("ro.boot.slot_suffix"));
+                  return sb.toString();
+              }
+
+              public static boolean backupDtbo(String path) {
+                  return execSu("dd if=/dev/block/by-name/dtbo of=" + path);
+              }
+
+              public static boolean flashDtbo(String path) {
+                  return execSu("dd if=" + path + " of=/dev/block/by-name/dtbo");
+              }
+
+              private static String getProp(String key) {
+                  try {
+                      Process p = Runtime.getRuntime().exec("getprop " + key);
+                      BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                      return r.readLine();
+                  } catch (Exception e) { return "未知"; }
+              }
+
+              private static boolean execSu(String cmd) {
+                  try {
+                      Process p = Runtime.getRuntime().exec("su");
+                      DataOutputStream os = new DataOutputStream(p.getOutputStream());
+                      os.writeBytes(cmd + "\nexit\n"); os.flush();
+                      return p.waitFor() == 0;
+                  } catch (Exception e) { return false; }
+              }
+
               public static String generateRuntimeLog() {
                   StringBuilder sb = new StringBuilder();
                   sb.append("=== 屏幕刷新率工具 运行调试日志 ===\n");
@@ -790,6 +957,7 @@ jobs:
           }
           EOF
 
+          # RateAdapter.java (带选中边框)
           cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
           package com.pmahz.adapter;
 
@@ -896,6 +1064,7 @@ jobs:
           }
           EOF
 
+          # HomeFragment.java (支持动画风格)
           cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
           package com.pmahz.fragment;
 
@@ -936,17 +1105,45 @@ jobs:
                   titleText.setText(R.string.home_title);
                   btnLanguage.setOnClickListener(view -> showLanguagePopup());
 
-                  recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                  recyclerView.setItemAnimator(null);
-                  adapter = new RateAdapter(getContext(), dataItems, this::onRateSelected);
-                  recyclerView.setAdapter(adapter);
-
                   prefs = requireActivity().getSharedPreferences("s", Context.MODE_PRIVATE);
                   prefs.registerOnSharedPreferenceChangeListener(this);
+                  applyAnimationStyle();
                   updateUI();
-
                   loadData();
                   return v;
+              }
+
+              private void applyAnimationStyle() {
+                  String style = prefs.getString("animation_style", "优雅平移");
+                  recyclerView.setItemAnimator(null);
+                  LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+                  switch (style) {
+                      case "堆叠递进":
+                          layoutManager.setReverseLayout(true);
+                          layoutManager.setStackFromEnd(true);
+                          recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                              @Override public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                                  outRect.bottom = -20;
+                              }
+                          });
+                          break;
+                      case "渐隐淡出":
+                          recyclerView.setAlpha(0.9f);
+                          break;
+                      case "弹性滚动":
+                          recyclerView.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+                          break;
+                      case "轻透渐变":
+                          recyclerView.setAlpha(0.8f);
+                          recyclerView.setBackground(new GradientDrawable(
+                              GradientDrawable.Orientation.TOP_BOTTOM,
+                              new int[]{Color.TRANSPARENT, Color.argb(60,255,255,255)}));
+                          break;
+                      default: break;
+                  }
+                  recyclerView.setLayoutManager(layoutManager);
+                  adapter = new RateAdapter(getContext(), dataItems, this::onRateSelected);
+                  recyclerView.setAdapter(adapter);
               }
 
               private void showLanguagePopup() {
@@ -1005,7 +1202,6 @@ jobs:
                   float titleAlpha = 1f - wallpaperAlpha;
                   titleBar.setAlpha(titleAlpha);
                   titleText.setAlpha(titleAlpha);
-                  // 地球图标始终不透明
                   btnLanguage.setAlpha(1f);
                   int cardAlpha = prefs.getInt("card_alpha", 0);
                   float cardAlphaF = 1f - (cardAlpha / 100f);
@@ -1126,6 +1322,7 @@ jobs:
           }
           EOF
 
+          # SettingsFragment.java (含动画选项)
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -1162,6 +1359,7 @@ jobs:
               private Button btnCustomWallpaper;
               private ActivityResultLauncher<Intent> pickImageLauncher;
               private View rootView;
+              private Spinner spAnimation;
 
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_settings, c, false);
@@ -1285,6 +1483,26 @@ jobs:
 
                   applySettingTransparency();
 
+                  // 动画风格选择
+                  spAnimation = v.findViewById(R.id.sp_animation_style);
+                  String[] styles = getResources().getStringArray(R.array.animation_styles);
+                  ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, styles);
+                  adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                  spAnimation.setAdapter(adapter);
+                  String currentStyle = prefs.getString("animation_style", "优雅平移");
+                  for (int i = 0; i < styles.length; i++) {
+                      if (styles[i].equals(currentStyle)) {
+                          spAnimation.setSelection(i);
+                          break;
+                      }
+                  }
+                  spAnimation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                      @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                          prefs.edit().putString("animation_style", styles[position]).apply();
+                      }
+                      @Override public void onNothingSelected(AdapterView<?> parent) {}
+                  });
+
                   pickImageLauncher = registerForActivityResult(
                           new ActivityResultContracts.StartActivityForResult(),
                           result -> {
@@ -1385,6 +1603,106 @@ jobs:
           }
           EOF
 
+          # FlashFragment.java
+          cat > app/src/main/java/com/pmahz/fragment/FlashFragment.java << 'EOF'
+          package com.pmahz.fragment;
+
+          import android.content.Intent;
+          import android.os.Bundle;
+          import android.view.*;
+          import android.widget.*;
+          import androidx.appcompat.app.AlertDialog;
+          import androidx.fragment.app.Fragment;
+          import com.pmahz.R;
+          import com.pmahz.util.RootUtils;
+          import java.io.File;
+
+          public class FlashFragment extends Fragment {
+              private TextView tvDeviceInfo;
+              private TextView tvLog;
+              private StringBuilder logBuilder = new StringBuilder();
+
+              @Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+                  View v = inflater.inflate(R.layout.fragment_flash, container, false);
+                  tvDeviceInfo = v.findViewById(R.id.tv_device_info);
+                  tvLog = v.findViewById(R.id.tv_flash_log);
+                  ImageView btnPower = v.findViewById(R.id.btn_power);
+                  Button btnBackup = v.findViewById(R.id.btn_backup);
+                  Button btnFlash = v.findViewById(R.id.btn_flash);
+
+                  refreshDeviceInfo();
+
+                  btnPower.setOnClickListener(view -> showPowerMenu());
+                  btnBackup.setOnClickListener(view -> executeWithRoot("backup"));
+                  btnFlash.setOnClickListener(view -> executeWithRoot("flash"));
+
+                  return v;
+              }
+
+              private void refreshDeviceInfo() {
+                  if (RootUtils.isRooted()) {
+                      tvDeviceInfo.setText(RootUtils.getDeviceInfo());
+                  } else {
+                      tvDeviceInfo.setText("Root 权限不可用");
+                  }
+              }
+
+              private void executeWithRoot(String action) {
+                  if (!RootUtils.isRooted()) {
+                      Toast.makeText(getContext(), R.string.flash_no_root, Toast.LENGTH_SHORT).show();
+                      return;
+                  }
+                  String path = "/sdcard/dtbo.img";
+                  boolean success;
+                  if (action.equals("backup")) {
+                      success = RootUtils.backupDtbo(path);
+                  } else {
+                      success = RootUtils.flashDtbo(path);
+                  }
+                  String result = action.equals("backup") ? "提取 DTBO" : "刷入 DTBO";
+                  logBuilder.append(result).append(success ? " 成功\n" : " 失败\n");
+                  tvLog.setText(logBuilder.toString());
+                  Toast.makeText(getContext(), success ? R.string.flash_success : R.string.flash_fail, Toast.LENGTH_SHORT).show();
+              }
+
+              private void showPowerMenu() {
+                  String[] items = {
+                      getString(R.string.power_reboot),
+                      getString(R.string.power_shutdown),
+                      getString(R.string.power_fastboot),
+                      getString(R.string.power_fastbootd),
+                      getString(R.string.power_recovery)
+                  };
+                  new AlertDialog.Builder(getContext())
+                      .setTitle(R.string.power_menu_title)
+                      .setItems(items, (dialog, which) -> {
+                          String cmd = null;
+                          switch (which) {
+                              case 0: cmd = "reboot"; break;
+                              case 1: cmd = "reboot -p"; break;
+                              case 2: cmd = "reboot bootloader"; break;
+                              case 3: cmd = "reboot fastboot"; break;
+                              case 4: cmd = "reboot recovery"; break;
+                          }
+                          if (cmd != null && RootUtils.isRooted()) {
+                              execSu(cmd);
+                          }
+                      })
+                      .show();
+              }
+
+              private void execSu(String cmd) {
+                  try {
+                      Process p = Runtime.getRuntime().exec("su");
+                      DataOutputStream os = new DataOutputStream(p.getOutputStream());
+                      os.writeBytes(cmd + "\nexit\n"); os.flush();
+                      p.waitFor();
+                  } catch (Exception e) { e.printStackTrace(); }
+              }
+          }
+          EOF
+
+          # MainActivity.java (支持三个导航)
           cat > app/src/main/java/com/pmahz/MainActivity.java << 'EOF'
           package com.pmahz;
 
@@ -1401,6 +1719,7 @@ jobs:
           import com.google.android.material.bottomnavigation.BottomNavigationView;
           import com.pmahz.fragment.HomeFragment;
           import com.pmahz.fragment.SettingsFragment;
+          import com.pmahz.fragment.FlashFragment;
           import com.pmahz.util.LanguageUtils;
           import java.io.InputStream;
           import androidx.appcompat.app.AppCompatDelegate;
@@ -1411,20 +1730,16 @@ jobs:
               private SharedPreferences prefs;
 
               @Override protected void onCreate(Bundle s) {
-              AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-               super.onCreate(s);
+                  AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                  super.onCreate(s);
                   LanguageUtils.applyLanguage(this);
                   setContentView(R.layout.activity_main);
-                  
-                  // 状态栏透明，跟随壁纸
-              getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-              getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
-                  // 状态栏图标颜色（深色图标，在浅色壁纸上清晰可见）
-              if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-              getWindow().getDecorView().setSystemUiVisibility(
-              android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-             );
-          }
+
+                  getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                  getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+                  if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                      getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                  }
 
                   wallpaperView = findViewById(R.id.global_wallpaper);
                   bottomNav = findViewById(R.id.bottom_navigation);
@@ -1443,6 +1758,10 @@ jobs:
                       }
                       if (item.getItemId() == R.id.nav_settings) {
                           loadFragment(new SettingsFragment(), true);
+                          return true;
+                      }
+                      if (item.getItemId() == R.id.nav_flash) {
+                          loadFragment(new FlashFragment(), true);
                           return true;
                       }
                       return false;
@@ -1586,7 +1905,6 @@ jobs:
           </LinearLayout>
           EOF
 
-          # 卡片布局修复文字偏上
           cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -1738,6 +2056,21 @@ jobs:
                       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                           android:orientation="vertical" android:padding="16dp">
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/animation_style_title" android:textStyle="bold" android:textSize="18sp"
+                              android:textColor="@color/text_dark"/>
+                          <Spinner android:id="@+id/sp_animation_style"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:layout_marginTop="8dp"/>
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp"
+                      app:cardBackgroundColor="#AAFFFFFF">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                               android:text="@string/about_title" android:textStyle="bold" android:textSize="18sp"
                               android:textColor="@color/text_dark"/>
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -1761,11 +2094,62 @@ jobs:
           </ScrollView>
           EOF
 
+          cat > app/src/main/res/layout/fragment_flash.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent" android:layout_height="match_parent"
+              android:orientation="vertical" android:padding="16dp"
+              android:background="@android:color/transparent"
+              android:fitsSystemWindows="true">
+
+              <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:text="@string/flash_device_info" android:textSize="18sp" android:textStyle="bold"
+                      android:textColor="@color/text_dark"/>
+                  <ImageView android:id="@+id/btn_power"
+                      android:layout_width="32dp" android:layout_height="32dp"
+                      android:src="@drawable/ic_power"
+                      android:layout_alignParentEnd="true"
+                      android:padding="4dp"
+                      android:clickable="true"
+                      android:focusable="true"
+                      android:background="?attr/selectableItemBackgroundBorderless"
+                      android:contentDescription="@string/power_menu_title"/>
+              </RelativeLayout>
+
+              <TextView android:id="@+id/tv_device_info"
+                  android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:textSize="14sp" android:layout_marginTop="8dp"
+                  android:background="#22FFFFFF" android:padding="8dp"
+                  android:textColor="@color/text_dark"/>
+
+              <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:orientation="horizontal" android:layout_marginTop="16dp">
+                  <Button android:id="@+id/btn_backup"
+                      android:layout_width="0dp" android:layout_height="wrap_content"
+                      android:layout_weight="1" android:text="@string/flash_backup"
+                      style="@style/Widget.MaterialComponents.Button"/>
+                  <Button android:id="@+id/btn_flash"
+                      android:layout_width="0dp" android:layout_height="wrap_content"
+                      android:layout_weight="1" android:text="@string/flash_flash"
+                      style="@style/Widget.MaterialComponents.Button"/>
+              </LinearLayout>
+
+              <TextView android:id="@+id/tv_flash_log"
+                  android:layout_width="match_parent" android:layout_height="0dp"
+                  android:layout_weight="1" android:layout_marginTop="16dp"
+                  android:background="#22FFFFFF" android:padding="8dp"
+                  android:gravity="top" android:textSize="12sp"
+                  android:textColor="@color/text_dark"/>
+          </LinearLayout>
+          EOF
+
           cat > app/src/main/res/menu/bottom_nav_menu.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <menu xmlns:android="http://schemas.android.com/apk/res/android">
               <item android:id="@+id/nav_home" android:icon="@drawable/ic_nav_home" android:title="@string/nav_home"/>
               <item android:id="@+id/nav_settings" android:icon="@drawable/ic_nav_settings" android:title="@string/nav_settings"/>
+              <item android:id="@+id/nav_flash" android:icon="@drawable/ic_nav_flash" android:title="@string/nav_flash"/>
           </menu>
           EOF
 
@@ -1805,5 +2189,5 @@ jobs:
       - name: 6. 提炼并分发 APK 产物
         uses: actions/upload-artifact@v4
         with:
-          name: RefreshRate-v1.5.9-ioo
+          name: RefreshRate-v1.6.0-Complete
           path: app/build/outputs/apk/debug/app-debug.apk
