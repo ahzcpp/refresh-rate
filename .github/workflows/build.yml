@@ -18,9 +18,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 3. 生成固定签名与完整项目（v1.6.0 全功能版）
+      - name: 3. 生成固定签名与完整项目（v1.6.0 完整无缺）
         run: |
-          # 创建固定 debug.keystore
           mkdir -p app
           keytool -genkeypair \
             -alias androiddebugkey \
@@ -33,7 +32,6 @@ jobs:
             -keysize 2048 \
             -validity 10000
 
-          # 生成完整源码
           cat > generate.sh << 'SCRIPTEOF'
           #!/bin/bash
           set -e
@@ -812,7 +810,7 @@ jobs:
           }
           EOF
 
-          # RootUtils.java (包含设备信息、刷入/备份)
+          # RootUtils.java
           cat > app/src/main/java/com/pmahz/util/RootUtils.java << 'EOF'
           package com.pmahz.util;
 
@@ -957,7 +955,7 @@ jobs:
           }
           EOF
 
-          # RateAdapter.java (带选中边框)
+          # RateAdapter.java
           cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
           package com.pmahz.adapter;
 
@@ -1064,13 +1062,14 @@ jobs:
           }
           EOF
 
-          # HomeFragment.java (支持动画风格)
+          # HomeFragment.java (正确导入)
           cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
           package com.pmahz.fragment;
 
           import android.content.Context;
           import android.content.SharedPreferences;
           import android.graphics.Color;
+          import android.graphics.Rect;
           import android.graphics.drawable.GradientDrawable;
           import android.os.Bundle;
           import android.view.*;
@@ -1322,7 +1321,7 @@ jobs:
           }
           EOF
 
-          # SettingsFragment.java (含动画选项)
+          # SettingsFragment.java
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -1603,7 +1602,7 @@ jobs:
           }
           EOF
 
-          # FlashFragment.java
+          # FlashFragment.java (正确导入 DataOutputStream)
           cat > app/src/main/java/com/pmahz/fragment/FlashFragment.java << 'EOF'
           package com.pmahz.fragment;
 
@@ -1615,7 +1614,7 @@ jobs:
           import androidx.fragment.app.Fragment;
           import com.pmahz.R;
           import com.pmahz.util.RootUtils;
-          import java.io.File;
+          import java.io.DataOutputStream;
 
           public class FlashFragment extends Fragment {
               private TextView tvDeviceInfo;
@@ -1702,7 +1701,7 @@ jobs:
           }
           EOF
 
-          # MainActivity.java (支持三个导航)
+          # MainActivity.java (正确导入 View)
           cat > app/src/main/java/com/pmahz/MainActivity.java << 'EOF'
           package com.pmahz;
 
@@ -1711,6 +1710,7 @@ jobs:
           import android.graphics.BitmapFactory;
           import android.net.Uri;
           import android.os.Bundle;
+          import android.view.View;
           import android.view.WindowManager;
           import android.widget.ImageView;
           import androidx.appcompat.app.AppCompatActivity;
@@ -2189,5 +2189,5 @@ jobs:
       - name: 6. 提炼并分发 APK 产物
         uses: actions/upload-artifact@v4
         with:
-          name: RefreshRate-v1.6.0-Complete
+          name: RefreshRate-v1.6.0-Complete-Fixed
           path: app/build/outputs/apk/debug/app-debug.apk
