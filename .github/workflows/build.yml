@@ -76,7 +76,7 @@ jobs:
               compileSdk 34
               defaultConfig {
                   applicationId "com.pmahz"
-                  minSdk 23
+                  minSdk 24
                   targetSdk 34
                   versionCode 160
                   versionName "1.6.0"
