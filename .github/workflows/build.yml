@@ -340,10 +340,10 @@ jobs:
               <string name="root_running_label">Root 运行</string>
               <string name="shizuku_running_label">Shizuku 运行</string>
               <string name="adb_running_label">ADB 模式</string>
-              <string name="adb_title">ADB 常驻授权（无需 Root / Shizuku）</string>
-              <string name="adb_desc">执行下方命令后，守护进程会常驻后台，直到重启手机失效。\n只需执行一次即可。</string>
-              <string name="adb_not_running">ADB 守护未运行</string>
-              <string name="adb_running">✅ ADB 守护运行中</string>
+              <string name="adb_title">ADB 模式授权</string>
+              <string name="adb_desc">执行下方命令后，应用即可直接切换刷新率，重启手机前一直有效。</string>
+              <string name="adb_not_running">ADB 授权未执行</string>
+              <string name="adb_running">✅ ADB 授权已生效</string>
               <string name="adb_cmd_label">在电脑端执行以下命令（一次性）：</string>
               <string name="adb_copy">复制命令</string>
               <string name="adb_check">检测状态</string>
@@ -418,10 +418,10 @@ jobs:
               <string name="root_running_label">Root Mode</string>
               <string name="shizuku_running_label">Shizuku Mode</string>
               <string name="adb_running_label">ADB Mode</string>
-              <string name="adb_title">ADB Daemon (No Root/Shizuku)</string>
-              <string name="adb_desc">Run the command below once, daemon stays until reboot.</string>
-              <string name="adb_not_running">ADB daemon not running</string>
-              <string name="adb_running">✅ ADB daemon running</string>
+              <string name="adb_title">ADB Mode Authorization</string>
+              <string name="adb_desc">Run the command below once, then you can switch refresh rate directly until reboot.</string>
+              <string name="adb_not_running">ADB not authorized</string>
+              <string name="adb_running">✅ ADB authorized</string>
               <string name="adb_cmd_label">Execute once on PC:</string>
               <string name="adb_copy">Copy command</string>
               <string name="adb_check">Check status</string>
@@ -496,10 +496,10 @@ jobs:
               <string name="root_running_label">Root</string>
               <string name="shizuku_running_label">Shizuku</string>
               <string name="adb_running_label">ADB モード</string>
-              <string name="adb_title">ADB デーモン (Root/Shizuku 不要)</string>
-              <string name="adb_desc">下記コマンドを一度実行すれば、再起動まで有効です。</string>
-              <string name="adb_not_running">ADB デーモン未実行</string>
-              <string name="adb_running">✅ ADB デーモン実行中</string>
+              <string name="adb_title">ADB モード認証</string>
+              <string name="adb_desc">下記コマンドを一度実行すれば、再起動まで直接リフレッシュレートを切り替えられます。</string>
+              <string name="adb_not_running">ADB 未認証</string>
+              <string name="adb_running">✅ ADB 認証済み</string>
               <string name="adb_cmd_label">PC で以下を一度実行：</string>
               <string name="adb_copy">コピー</string>
               <string name="adb_check">状態確認</string>
@@ -575,7 +575,7 @@ jobs:
               <string name="shizuku_running_label">Shizuku</string>
               <string name="adb_running_label">ADB</string>
               <string name="adb_title">ADB ھوقۇقى</string>
-              <string name="adb_desc">بىر قېتىملىق بۇيرۇق، قايتا قوزغىغۇچە</string>
+              <string name="adb_desc">بىر قېتىملىق بۇيرۇق، قايتا قوزغىغۇچە ئىشلىيەلەيسىز</string>
               <string name="adb_not_running">ADB ئىجرا قىلىنمىدى</string>
               <string name="adb_running">✅ ADB ئىجرا</string>
               <string name="adb_cmd_label">PC دا بىر قېتىم ئىجرا قىلىڭ:</string>
@@ -652,10 +652,10 @@ jobs:
               <string name="root_running_label">Root 執行</string>
               <string name="shizuku_running_label">Shizuku 執行</string>
               <string name="adb_running_label">ADB 模式</string>
-              <string name="adb_title">ADB 常駐授權（免 Root / Shizuku）</string>
-              <string name="adb_desc">執行一次以下命令，重啟前持續有效。</string>
-              <string name="adb_not_running">ADB 守護未執行</string>
-              <string name="adb_running">✅ ADB 守護執行中</string>
+              <string name="adb_title">ADB 模式授權</string>
+              <string name="adb_desc">執行一次以下命令，重啟前可直接切換更新率。</string>
+              <string name="adb_not_running">ADB 未授權</string>
+              <string name="adb_running">✅ ADB 已授權</string>
               <string name="adb_cmd_label">於電腦端執行（一次性）：</string>
               <string name="adb_copy">複製命令</string>
               <string name="adb_check">檢測狀態</string>
@@ -902,9 +902,10 @@ jobs:
           }
           EOF
 
-          # AdbUtils.java（常驻模式，命令清晰可读）
+          # AdbUtils.java（一行命令授权，无守护进程字样）
           cat > app/src/main/java/com/pmahz/util/AdbUtils.java << 'EOF'
           package com.pmahz.util;
+          import android.content.Context;
           import android.util.Log;
           import com.pmahz.model.DisplayMode;
           import java.io.*;
@@ -915,39 +916,47 @@ jobs:
 
           public class AdbUtils {
               private static final String TAG = "AdbUtils";
-              private static final String DAEMON_PATH = "/data/local/tmp/refresh-rate-daemon";
               private static final String CMD_DIR = "/data/local/tmp/refresh-rate-tool";
               private static final File CMD_FILE = new File(CMD_DIR, "cmd");
               private static final File RES_FILE = new File(CMD_DIR, "result");
               private static final File HB_FILE  = new File(CMD_DIR, "heartbeat");
               private static final long TIMEOUT_MS = 3000;
 
-              public static String getAdbCommand() {
-                  // 使用 heredoc 生成清晰、直接可执行的命令
-                  return "adb shell << 'ADBSH'\n" +
-                      "cat > /data/local/tmp/refresh-rate-daemon << 'SCRIPT'\n" +
-                      "#!/system/bin/sh\n" +
-                      "DIR=/data/local/tmp/refresh-rate-tool\n" +
-                      "mkdir -p $DIR\n" +
-                      "CMD_FILE=\"$DIR/cmd\"\n" +
-                      "RES_FILE=\"$DIR/result\"\n" +
-                      "HB_FILE=\"$DIR/heartbeat\"\n" +
-                      "chmod 777 $DIR\n" +
-                      "while true; do\n" +
-                      "  date +%s > $HB_FILE\n" +
-                      "  if [ -s \"$CMD_FILE\" ]; then\n" +
-                      "    CMD=$(cat \"$CMD_FILE\")\n" +
-                      "    truncate -s 0 \"$CMD_FILE\"\n" +
-                      "    eval \"$CMD\" > \"$RES_FILE\" 2>&1\n" +
-                      "    echo \"---DONE---\" >> \"$RES_FILE\"\n" +
-                      "  fi\n" +
-                      "  sleep 0.5\n" +
-                      "done\n" +
-                      "SCRIPT\n" +
-                      "chmod 777 /data/local/tmp/refresh-rate-daemon\n" +
-                      "nohup sh /data/local/tmp/refresh-rate-daemon > /dev/null 2>&1 &\n" +
-                      "echo 'Daemon started'\n" +
-                      "ADBSH";
+              // 应用启动时生成 /storage/emulated/0/Android/data/com.pmahz/iniadb.sh
+              public static File getScriptFile(Context ctx) {
+                  File dir = ctx.getExternalFilesDir(null);
+                  if (dir == null) dir = ctx.getFilesDir();
+                  return new File(dir, "iniadb.sh");
+              }
+
+              public static void generateScript(Context ctx) {
+                  File script = getScriptFile(ctx);
+                  File parent = script.getParentFile();
+                  if (parent != null && !parent.exists()) parent.mkdirs();
+                  try (FileWriter fw = new FileWriter(script)) {
+                      fw.write("#!/system/bin/sh\n");
+                      fw.write("DIR=" + CMD_DIR + "\n");
+                      fw.write("mkdir -p $DIR\n");
+                      fw.write("chmod 777 $DIR\n");
+                      fw.write("while true; do\n");
+                      fw.write("  date +%s > $DIR/heartbeat\n");
+                      fw.write("  if [ -s \"$DIR/cmd\" ]; then\n");
+                      fw.write("    CMD=$(cat \"$DIR/cmd\")\n");
+                      fw.write("    truncate -s 0 \"$DIR/cmd\"\n");
+                      fw.write("    eval \"$CMD\" > \"$DIR/result\" 2>&1\n");
+                      fw.write("    echo \"---DONE---\" >> \"$DIR/result\"\n");
+                      fw.write("  fi\n");
+                      fw.write("  sleep 0.5\n");
+                      fw.write("done\n");
+                  } catch (IOException e) {
+                      Log.e(TAG, "generateScript", e);
+                  }
+                  script.setExecutable(true, false);
+              }
+
+              // 返回给用户的一行命令
+              public static String getAdbCommand(Context ctx) {
+                  return "adb shell sh " + getScriptFile(ctx).getAbsolutePath();
               }
 
               public static boolean isRunning() {
@@ -1003,7 +1012,7 @@ jobs:
           }
           EOF
 
-          # SettingsFragment.java（包含精确的 Shizuku 颜色处理）
+          # SettingsFragment.java
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'SETFRAGEOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -1099,11 +1108,13 @@ jobs:
                   Button btnAdbCopy = v.findViewById(R.id.btn_adb_copy);
                   Button btnAdbCheck = v.findViewById(R.id.btn_adb_check);
                   adbCommandGroup = v.findViewById(R.id.adb_command_group);
-                  tvAdbCmd.setText(AdbUtils.getAdbCommand());
+                  // 确保脚本已生成，然后显示命令
+                  AdbUtils.generateScript(requireContext());
+                  tvAdbCmd.setText(AdbUtils.getAdbCommand(requireContext()));
                   refreshAdbStatus();
                   btnAdbCopy.setOnClickListener(view -> {
                       ClipboardManager cm = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                      cm.setPrimaryClip(ClipData.newPlainText("adb", AdbUtils.getAdbCommand()));
+                      cm.setPrimaryClip(ClipData.newPlainText("adb", AdbUtils.getAdbCommand(requireContext())));
                       Toast.makeText(getContext(), R.string.adb_copied, Toast.LENGTH_SHORT).show();
                   });
                   btnAdbCheck.setOnClickListener(view -> refreshAdbStatus());
@@ -1596,6 +1607,7 @@ jobs:
           import com.pmahz.fragment.HomeFragment;
           import com.pmahz.fragment.SettingsFragment;
           import com.pmahz.util.LanguageUtils;
+          import com.pmahz.util.AdbUtils;
           import java.io.InputStream;
           public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
               private ImageView wallpaperView;
@@ -1605,6 +1617,8 @@ jobs:
                   AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                   super.onCreate(s);
                   LanguageUtils.applyLanguage(this);
+                  // 生成 ADB 授权脚本到外部存储
+                  AdbUtils.generateScript(this);
                   setContentView(R.layout.activity_main);
                   getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                   getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
