@@ -854,7 +854,7 @@ jobs:
           }
           EOF
 
-          # ShizukuUtils.java
+          # ShizukuUtils.java（反射）
           cat > app/src/main/java/com/pmahz/util/ShizukuUtils.java << 'EOF'
           package com.pmahz.util;
           import android.content.pm.PackageManager;
@@ -902,10 +902,9 @@ jobs:
           }
           EOF
 
-          # AdbUtils.java（重写为常驻模式）
+          # AdbUtils.java（常驻模式，命令清晰可读）
           cat > app/src/main/java/com/pmahz/util/AdbUtils.java << 'EOF'
           package com.pmahz.util;
-          import android.content.Context;
           import android.util.Log;
           import com.pmahz.model.DisplayMode;
           import java.io.*;
@@ -924,8 +923,11 @@ jobs:
               private static final long TIMEOUT_MS = 3000;
 
               public static String getAdbCommand() {
-                  String script = "#!/system/bin/sh\n" +
-                      "DIR=" + CMD_DIR + "\n" +
+                  // 使用 heredoc 生成清晰、直接可执行的命令
+                  return "adb shell << 'ADBSH'\n" +
+                      "cat > /data/local/tmp/refresh-rate-daemon << 'SCRIPT'\n" +
+                      "#!/system/bin/sh\n" +
+                      "DIR=/data/local/tmp/refresh-rate-tool\n" +
                       "mkdir -p $DIR\n" +
                       "CMD_FILE=\"$DIR/cmd\"\n" +
                       "RES_FILE=\"$DIR/result\"\n" +
@@ -940,8 +942,12 @@ jobs:
                       "    echo \"---DONE---\" >> \"$RES_FILE\"\n" +
                       "  fi\n" +
                       "  sleep 0.5\n" +
-                      "done";
-                  return "echo '" + script.replace("'", "'\\''") + "' | adb shell \"cat > " + DAEMON_PATH + " && chmod 777 " + DAEMON_PATH + " && nohup sh " + DAEMON_PATH + " > /dev/null 2>&1 &\"";
+                      "done\n" +
+                      "SCRIPT\n" +
+                      "chmod 777 /data/local/tmp/refresh-rate-daemon\n" +
+                      "nohup sh /data/local/tmp/refresh-rate-daemon > /dev/null 2>&1 &\n" +
+                      "echo 'Daemon started'\n" +
+                      "ADBSH";
               }
 
               public static boolean isRunning() {
@@ -997,8 +1003,7 @@ jobs:
           }
           EOF
 
-          # 适配 AdbUtils 变更后的调用处（SettingsFragment、HomeFragment）
-          # 以下文件需要更新（主要是移除之前的 generateScript 调用，改用新的静态方法）
+          # SettingsFragment.java（包含精确的 Shizuku 颜色处理）
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'SETFRAGEOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -1019,6 +1024,7 @@ jobs:
           import android.text.Spanned;
           import android.text.method.LinkMovementMethod;
           import android.text.style.ClickableSpan;
+          import android.text.style.ForegroundColorSpan;
           import android.view.*;
           import android.widget.*;
           import androidx.activity.result.ActivityResultLauncher;
@@ -1225,9 +1231,23 @@ jobs:
               private void updateShizukuStatus(TextView tv, Button btn) {
                   boolean av = com.pmahz.util.ShizukuUtils.isAvailable();
                   boolean pe = com.pmahz.util.ShizukuUtils.hasPermission();
-                  if (!av) { tv.setText(R.string.shizuku_not_running); tv.setTextColor(0xFF888888); btn.setVisibility(View.GONE); }
-                  else if (!pe) { tv.setText(R.string.shizuku_running_no_permission); tv.setTextColor(0xFFE74C3C); btn.setVisibility(View.VISIBLE); }
-                  else { tv.setText(R.string.shizuku_granted); tv.setTextColor(0xFF2ECC71); btn.setVisibility(View.GONE); }
+                  if (!av) {
+                      String full = getString(R.string.shizuku_not_running);
+                      SpannableString sp = new SpannableString(full);
+                      int end = full.indexOf("（");
+                      if (end == -1) end = full.length();
+                      sp.setSpan(new ForegroundColorSpan(0xFFE74C3C), 0, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                      tv.setText(sp);
+                      btn.setVisibility(View.GONE);
+                  } else if (!pe) {
+                      tv.setText(R.string.shizuku_running_no_permission);
+                      tv.setTextColor(0xFFE74C3C);
+                      btn.setVisibility(View.VISIBLE);
+                  } else {
+                      tv.setText(R.string.shizuku_granted);
+                      tv.setTextColor(0xFF2ECC71);
+                      btn.setVisibility(View.GONE);
+                  }
               }
               private void applySettingTransparency() {
                   if (rootView == null) return;
@@ -1281,7 +1301,7 @@ jobs:
           }
           SETFRAGEOF
 
-          # HomeFragment 也需要更新对 AdbUtils 的调用（移除 generateScript）
+          # HomeFragment.java
           cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'HOMEFRAGEOF'
           package com.pmahz.fragment;
           import android.content.Context;
