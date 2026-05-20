@@ -864,7 +864,7 @@ jobs:
               public static String execAndRead(String cmd) {
                   if (!isAvailable() || !hasPermission()) return "";
                   try {
-                      Process p = Shizuku.newProcess(new String[]{"sh", "-c", cmd});
+                      Process p = Shizuku.newProcess(new String[]{"sh", "-c", cmd}, null, null);
                       BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
                       StringBuilder sb = new StringBuilder();
                       String line;
@@ -879,7 +879,7 @@ jobs:
 
               private static boolean execShizuku(String cmd) {
                   try {
-                      Process p = Shizuku.newProcess(new String[]{"sh", "-c", cmd});
+                      Process p = Shizuku.newProcess(new String[]{"sh", "-c", cmd}, null, null);
                       int code = p.waitFor();
                       Log.d(TAG, "execShizuku exit=" + code + " cmd=" + cmd);
                       return true;
