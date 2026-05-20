@@ -20,7 +20,6 @@ jobs:
 
       - name: 3. 生成固定签名 keystore 与完整项目源码
         run: |
-          # 先建 app 目录，再生成 keystore
           mkdir -p app
           keytool -genkeypair \
             -alias androiddebugkey \
@@ -33,7 +32,6 @@ jobs:
             -keysize 2048 \
             -validity 10000
 
-          # 生成完整项目源码
           cat > generate.sh << 'SCRIPTEOF'
           #!/bin/bash
           set -e
@@ -230,7 +228,6 @@ jobs:
           </vector>
           EOF
 
-          # 新图标：ic_magisk.xml
           cat > app/src/main/res/drawable/ic_magisk.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -243,7 +240,6 @@ jobs:
           </vector>
           EOF
 
-          # 新图标：ic_shizuku.xml
           cat > app/src/main/res/drawable/ic_shizuku.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -302,7 +298,7 @@ jobs:
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
           EOF
 
-          # ========== 多语言字符串资源（已去除 emoji） ==========
+          # ========== 多语言字符串资源 ==========
           cat > app/src/main/res/values/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -827,7 +823,6 @@ jobs:
           }
           EOF
 
-          # ShizukuUtils.java
           cat > app/src/main/java/com/pmahz/util/ShizukuUtils.java << 'EOF'
           package com.pmahz.util;
           import android.content.pm.PackageManager;
@@ -838,13 +833,11 @@ jobs:
               private static final String TAG = "ShizukuUtils";
               public static final int REQUEST_CODE = 1001;
 
-              /** Shizuku 服务是否在运行 */
               public static boolean isAvailable() {
                   try { return Shizuku.pingBinder(); }
                   catch (Exception e) { return false; }
               }
 
-              /** 本应用是否已获得 Shizuku 授权 */
               public static boolean hasPermission() {
                   try {
                       if (Shizuku.isPreV11()) return false;
@@ -852,16 +845,11 @@ jobs:
                   } catch (Exception e) { return false; }
               }
 
-              /** 请求 Shizuku 授权（会弹出 Shizuku 授权对话框） */
               public static void requestPermission() {
                   try { Shizuku.requestPermission(REQUEST_CODE); }
                   catch (Exception e) { Log.e(TAG, "requestPermission: " + e.getMessage()); }
               }
 
-              /**
-               * 通过 Shizuku 切换刷新率
-               * Shell 用户拥有 WRITE_SECURE_SETTINGS，无需 root
-               */
               public static boolean setRefreshRate(int modeId, int hz) {
                   if (!isAvailable() || !hasPermission()) return false;
                   int idx = modeId - 1;
@@ -873,11 +861,10 @@ jobs:
                   return execShizuku(script);
               }
 
-              /** 通过 Shizuku 执行任意 shell 命令，返回输出 */
               public static String execAndRead(String cmd) {
                   if (!isAvailable() || !hasPermission()) return "";
                   try {
-                      Process p = Shizuku.newProcess(new String[]{"sh", "-c", cmd}, null, null);
+                      Process p = Shizuku.newProcess(new String[]{"sh", "-c", cmd});
                       BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
                       StringBuilder sb = new StringBuilder();
                       String line;
@@ -892,7 +879,7 @@ jobs:
 
               private static boolean execShizuku(String cmd) {
                   try {
-                      Process p = Shizuku.newProcess(new String[]{"sh", "-c", cmd}, null, null);
+                      Process p = Shizuku.newProcess(new String[]{"sh", "-c", cmd});
                       int code = p.waitFor();
                       Log.d(TAG, "execShizuku exit=" + code + " cmd=" + cmd);
                       return true;
@@ -1119,7 +1106,6 @@ jobs:
                   float titleAlpha = 1f - wallpaperAlpha;
                   titleBar.setAlpha(titleAlpha);
                   titleText.setAlpha(titleAlpha);
-                  // 地球图标始终不透明
                   btnLanguage.setAlpha(1f);
                   int cardAlpha = prefs.getInt("card_alpha", 0);
                   float cardAlphaF = 1f - (cardAlpha / 100f);
@@ -1219,7 +1205,6 @@ jobs:
               }
 
               private void onRateSelected(DisplayMode mode) {
-                  // 读取用户选择的授权模式
                   String authMode = prefs.getString("auth_mode", "");
                   boolean useRoot    = "root".equals(authMode) && hasRoot;
                   boolean useShizuku = "shizuku".equals(authMode)
@@ -1301,12 +1286,10 @@ jobs:
                   com.google.android.material.switchmaterial.SwitchMaterial switchRoot    = v.findViewById(R.id.switch_root);
                   com.google.android.material.switchmaterial.SwitchMaterial switchShizuku = v.findViewById(R.id.switch_shizuku);
 
-                  // 读取已保存的授权模式（"root" / "shizuku" / ""）
                   String savedMode = prefs.getString("auth_mode", "");
                   switchRoot.setChecked("root".equals(savedMode));
                   switchShizuku.setChecked("shizuku".equals(savedMode));
 
-                  // 检测 Root 状态（后台）
                   new Thread(() -> {
                       boolean ok = RootUtils.isRooted();
                       if (isAdded() && getActivity() != null) {
@@ -1317,10 +1300,8 @@ jobs:
                       }
                   }).start();
 
-                  // 检测 Shizuku 状态
                   updateShizukuStatus(shizukuStatus, btnRequestShizuku);
 
-                  // Shizuku 授权按钮
                   btnRequestShizuku.setOnClickListener(view -> {
                       if (com.pmahz.util.ShizukuUtils.isAvailable()) {
                           com.pmahz.util.ShizukuUtils.requestPermission();
@@ -1331,20 +1312,17 @@ jobs:
                       }
                   });
 
-                  // Root 开关：打开时关闭 Shizuku
                   switchRoot.setOnCheckedChangeListener((btn, checked) -> {
                       if (checked) {
                           switchShizuku.setChecked(false);
                           prefs.edit().putString("auth_mode", "root").apply();
                       } else {
-                          // 仅当 Shizuku 也未开启时才清空
                           if (!switchShizuku.isChecked()) {
                               prefs.edit().putString("auth_mode", "").apply();
                           }
                       }
                   });
 
-                  // Shizuku 开关：打开时关闭 Root
                   switchShizuku.setOnCheckedChangeListener((btn, checked) -> {
                       if (checked) {
                           switchRoot.setChecked(false);
@@ -1613,10 +1591,8 @@ jobs:
                   LanguageUtils.applyLanguage(this);
                   setContentView(R.layout.activity_main);
                   
-                  // 状态栏透明，跟随壁纸
               getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
               getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
-                  // 状态栏图标颜色（深色图标，在浅色壁纸上清晰可见）
               if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
               getWindow().getDecorView().setSystemUiVisibility(
               android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
@@ -1783,7 +1759,6 @@ jobs:
           </LinearLayout>
           EOF
 
-          # 卡片布局修复文字偏上
           cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -1850,7 +1825,6 @@ jobs:
                               android:textSize="18sp" android:textColor="@color/text_dark"
                               android:paddingBottom="12dp"/>
 
-                          <!-- Root + Magisk图标 + 开关 -->
                           <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                               android:orientation="horizontal" android:gravity="center_vertical">
                               <ImageView android:layout_width="28dp" android:layout_height="28dp"
@@ -1874,7 +1848,6 @@ jobs:
                               android:background="#22000000" android:layout_marginTop="14dp"
                               android:layout_marginBottom="14dp"/>
 
-                          <!-- Shizuku + 图标 + 开关 -->
                           <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                               android:orientation="horizontal" android:gravity="center_vertical">
                               <ImageView android:layout_width="28dp" android:layout_height="28dp"
