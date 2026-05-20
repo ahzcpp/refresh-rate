@@ -50,7 +50,6 @@ jobs:
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/mipmap-anydpi-v26
 
-          # ----- 基础构建文件 -----
           cat > settings.gradle << 'EOF'
           pluginManagement {
               repositories { google(); mavenCentral(); gradlePluginPortal() }
@@ -88,13 +87,8 @@ jobs:
                   }
               }
               buildTypes {
-                  debug {
-                      signingConfig signingConfigs.debug
-                      minifyEnabled false
-                  }
-                  release {
-                      minifyEnabled false
-                  }
+                  debug { signingConfig signingConfigs.debug; minifyEnabled false }
+                  release { minifyEnabled false }
               }
               compileOptions {
                   sourceCompatibility JavaVersion.VERSION_17
@@ -142,15 +136,13 @@ jobs:
                   <provider
                       android:name="rikka.shizuku.ShizukuProvider"
                       android:authorities="com.pmahz.shizuku"
-                      android:enabled="true"
-                      android:exported="true"
+                      android:enabled="true" android:exported="true"
                       android:multiprocess="false"
                       android:permission="android.permission.INTERACT_ACROSS_USERS_FULL"/>
               </application>
           </manifest>
           EOF
 
-          # ----- 动画资源 -----
           cat > app/src/main/res/anim/item_animation.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <set xmlns:android="http://schemas.android.com/apk/res/android" android:duration="450">
@@ -187,12 +179,11 @@ jobs:
           </set>
           EOF
 
-          # ----- 图标资源 -----
           cat > app/src/main/res/drawable/ic_language_earth.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <vector xmlns:android="http://schemas.android.com/apk/res/android"
               android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
-              <path android:fillColor="#1976D2" android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM12,4c0.44,0 0.86,0.04 1.27,0.12 -0.29,0.56 -0.51,1.16 -0.64,1.8 -0.24,-0.07 -0.49,-0.12 -0.75,-0.17V4zM9.34,4.14c0.23,0.56 0.4,1.18 0.48,1.84 -0.53,0.14 -1.04,0.34 -1.52,0.59 -0.1,-0.68 -0.1,-1.39 0.04,-2.06 0.32,-0.16 0.66,-0.29 1,-0.37zM7.36,5.68c0.57,0.34 1.17,0.62 1.81,0.81 -0.08,0.65 -0.08,1.31 0.01,1.96 -0.59,0.29 -1.13,0.67 -1.6,1.11 -0.47,-0.72 -0.8,-1.53 -0.94,-2.39 0.22,-0.5 0.46,-1 0.72,-1.49zM5.85,8.12c0.62,0.56 1.32,1.03 2.08,1.39 -0.11,0.66 -0.14,1.33 -0.08,2 -0.63,0.15 -1.23,0.36 -1.8,0.63 -0.21,-0.64 -0.35,-1.31 -0.4,-2 0.06,-0.68 0.13,-1.36 0.2,-2.02zM5,12c0,-0.28 0.02,-0.55 0.05,-0.82 0.65,0.25 1.33,0.44 2.02,0.56 0.04,0.68 0.16,1.35 0.34,2 -0.55,0.23 -1.07,0.51 -1.56,0.84C5.43,13.83 5.15,12.94 5,12zM7.83,15.21c0.58,0.22 1.18,0.4 1.79,0.52 -0.08,0.68 -0.08,1.37 -0.01,2.06 -0.57,0.33 -1.09,0.74 -1.54,1.21 -0.35,-0.58 -0.63,-1.2 -0.82,-1.86 0.19,-0.61 0.38,-1.25 0.58,-1.93zM11,19.95c-0.44,-0.02 -0.86,-0.08 -1.27,-0.17 0.3,-0.57 0.52,-1.18 0.65,-1.83 0.23,0.07 0.47,0.12 0.72,0.16L11,19.95zM13,19.88v-1.71c0.26,-0.03 0.52,-0.07 0.77,-0.14 0.14,0.67 0.37,1.3 0.68,1.88 -0.47,0.09 -0.95,0.14 -1.45,0.14V19.88zM15.23,18.52c-0.38,-0.51 -0.7,-1.07 -0.94,-1.67 0.6,-0.28 1.16,-0.65 1.65,-1.1 0.42,0.73 0.72,1.54 0.86,2.39 -0.49,0.18 -1.01,0.31 -1.57,0.38zM18.15,15.88c-0.61,-0.56 -1.3,-1.04 -2.05,-1.41 0.12,-0.67 0.15,-1.36 0.09,-2.04 0.62,-0.15 1.22,-0.37 1.78,-0.64 0.2,0.65 0.33,1.32 0.38,2.01 -0.07,0.7 -0.14,1.4 -0.2,2.08zM19,12c0,0.28 -0.02,0.55 -0.05,0.82 -0.64,-0.25 -1.31,-0.45 -1.99,-0.57 -0.04,-0.7 -0.16,-1.4 -0.36,-2.07 0.57,-0.24 1.12,-0.54 1.63,-0.89 0.45,0.75 0.77,1.57 0.95,2.44 0,-0.06 0,-0.11 0,-0.17h0.17zM16.27,8.84c-0.58,-0.22 -1.18,-0.4 -1.79,-0.52 0.08,-0.68 0.08,-1.37 0.01,-2.06 0.57,-0.33 1.09,-0.74 1.54,-1.21 0.35,0.58 0.63,1.2 0.82,1.86 -0.19,0.61 -0.38,1.25 -0.58,1.93z"/>
+              <path android:fillColor="#1976D2" android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM11,19.93C7.05,19.44 4,16.08 4,12c0,-0.61 0.08,-1.21 0.21,-1.78L9,15v1c0,1.1 0.9,2 2,2v1.93zM17.9,17.39c-0.26,-0.81 -1,-1.39 -1.9,-1.39h-1v-3c0,-0.55 -0.45,-1 -1,-1H8v-2h2c0.55,0 1,-0.45 1,-1V7h2c1.1,0 2,-0.9 2,-2v-0.41C17.93,5.78 20,8.65 20,12c0,2.08 -0.8,3.97 -2.1,5.39z"/>
           </vector>
           EOF
 
@@ -206,10 +197,7 @@ jobs:
           <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
               <path android:fillColor="#FFFFFF" android:pathData="M16,26 Q16,20 22,20 L86,20 Q92,20 92,26 L92,82 Q92,88 86,88 L22,88 Q16,88 16,82 Z"/>
               <path android:fillColor="#1A1A1A" android:pathData="M20,34 L88,34 L88,84 L20,84 Z"/>
-              <path android:fillColor="#FF5F57" android:pathData="M26,27 Q26,24 29,24 Q32,24 32,27 Q32,30 29,30 Q26,30 26,27 Z"/>
-              <path android:fillColor="#FEBC2E" android:pathData="M37,27 Q37,24 40,24 Q43,24 43,27 Q43,30 40,30 Q37,30 37,27 Z"/>
               <path android:fillColor="#28C840" android:pathData="M48,27 Q48,24 51,24 Q54,24 54,27 Q54,30 51,30 Q48,30 48,27 Z"/>
-              <path android:fillColor="#FFFFFF" android:strokeColor="#FFFFFF" android:strokeWidth="2" android:pathData="M28,52 L38,59 L28,66"/>
               <path android:fillColor="#FFFFFF" android:pathData="M43,66 L72,66 L72,70 L43,70 Z"/>
           </vector>
           EOF
@@ -230,29 +218,27 @@ jobs:
 
           cat > app/src/main/res/drawable/ic_magisk.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
-          <vector xmlns:android="http://schemas.android.com/apk/res/android"
-              android:width="24dp" android:height="24dp"
-              android:viewportWidth="24" android:viewportHeight="24">
-              <path android:fillColor="#00AF9C"
-                  android:pathData="M12,1 L21,6.5 L21,17.5 L12,23 L3,17.5 L3,6.5 Z"/>
-              <path android:fillColor="#FFFFFF"
-                  android:pathData="M7.5,8 L10.2,14.5 L12,11 L13.8,14.5 L16.5,8 L14.8,8 L12,13 L9.2,8 Z"/>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+              <path android:fillColor="#00AF9C" android:pathData="M12,1 L21,6.5 L21,17.5 L12,23 L3,17.5 L3,6.5 Z"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M7.5,8 L10.2,14.5 L12,11 L13.8,14.5 L16.5,8 L14.8,8 L12,13 L9.2,8 Z"/>
           </vector>
           EOF
 
           cat > app/src/main/res/drawable/ic_shizuku.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
-          <vector xmlns:android="http://schemas.android.com/apk/res/android"
-              android:width="24dp" android:height="24dp"
-              android:viewportWidth="24" android:viewportHeight="24">
-              <path android:fillColor="#7C4DFF"
-                  android:pathData="M3,6 Q3,3 6,3 L18,3 Q21,3 21,6 L21,18 Q21,21 18,21 L6,21 Q3,21 3,18 Z"/>
-              <path android:fillColor="#FFFFFF"
-                  android:pathData="M13,3.5 L8,12.5 L11.5,12.5 L11,20.5 L16,11.5 L12.5,11.5 Z"/>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+              <path android:fillColor="#7C4DFF" android:pathData="M3,6 Q3,3 6,3 L18,3 Q21,3 21,6 L21,18 Q21,21 18,21 L6,21 Q3,21 3,18 Z"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M13,3.5 L8,12.5 L11.5,12.5 L11,20.5 L16,11.5 L12.5,11.5 Z"/>
           </vector>
           EOF
 
-          # ----- 壁纸资源 -----
+          cat > app/src/main/res/drawable/ic_adb.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+              <path android:fillColor="#3DDC84" android:pathData="M5,16c0,3.87 3.13,7 7,7s7,-3.13 7,-7v-4H5v4zM16.12,4.37l2.1,-2.1l-0.82,-0.83l-2.3,2.31C13.92,3.16 12.99,3 12,3s-1.92,0.16 -2.79,0.46L6.91,1.44l-0.82,0.83l2.1,2.1C6.14,5.64 5,7.68 5,10v1h14v-1c0,-2.32 -1.14,-4.36 -2.88,-5.63zM9,9c-0.55,0 -1,-0.45 -1,-1s0.45,-1 1,-1s1,0.45 1,1S9.55,9 9,9zM15,9c-0.55,0 -1,-0.45 -1,-1s0.45,-1 1,-1s1,0.45 1,1S15.55,9 15,9z"/>
+          </vector>
+          EOF
+
           cat > app/src/main/res/drawable/wallpaper_gradient_1.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
@@ -297,9 +283,7 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@drawable/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>
           EOF
-
-          # ========== 多语言字符串资源 ==========
-          # 简体中文
+          
           cat > app/src/main/res/values/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -307,8 +291,8 @@ jobs:
               <string name="home_title">屏幕刷新率</string>
               <string name="high_resolution">高分辨率  </string>
               <string name="low_resolution">低分辨率  </string>
-              <string name="fallback_high_res">高分辨率 1272x2772 (免Root模拟)</string>
-              <string name="fallback_low_res">低分辨率 1080x2354 (免Root模拟)</string>
+              <string name="fallback_high_res">高分辨率 1272x2772 </string>
+              <string name="fallback_low_res">低分辨率 1080x2354 </string>
               <string name="rate_name_high">高刷</string>
               <string name="rate_name_extreme">极致</string>
               <string name="rate_name_excellent">极佳</string>
@@ -319,9 +303,9 @@ jobs:
               <string name="rate_desc_excellent">提高刷新率，极致体验</string>
               <string name="rate_desc_smooth">较高刷新率，画面流畅</string>
               <string name="rate_desc_standard">常规刷新率，延长续航</string>
-              <string name="no_root_toast">未获取root权限</string>
+              <string name="no_root_toast">未获取任何授权</string>
               <string name="switch_success">已切换至 %d Hz</string>
-              <string name="switch_fail">切换失败，请检查 Root 授权</string>
+              <string name="switch_fail">切换失败，请检查授权</string>
               <string name="settings_root_title">授权状态</string>
               <string name="settings_root_granted">已获取 Root 权限</string>
               <string name="settings_root_denied">未获取 Root 权限</string>
@@ -341,6 +325,17 @@ jobs:
               <string name="settings_text_alpha">文字透明度</string>
               <string name="root_running_label">Root 运行</string>
               <string name="shizuku_running_label">Shizuku 运行</string>
+              <string name="adb_running_label">ADB 模式</string>
+              <string name="adb_title">ADB 授权（无需 Root / Shizuku）</string>
+              <string name="adb_desc">通过电脑 adb 启动守护脚本，长期保持权限直到重启手机。</string>
+              <string name="adb_not_running">ADB 守护未运行</string>
+              <string name="adb_running">✅ ADB 守护运行中</string>
+              <string name="adb_cmd_label">在电脑端执行以下命令：</string>
+              <string name="adb_copy">复制命令</string>
+              <string name="adb_regen">重新生成脚本</string>
+              <string name="adb_check">检测状态</string>
+              <string name="adb_copied">已复制到剪贴板</string>
+              <string name="adb_script_regen">脚本已重新生成</string>
               <string name="about_title">关于</string>
               <string name="version_label">版本: 1.6.0</string>
               <string name="generate_log_btn">生成日志</string>
@@ -365,7 +360,6 @@ jobs:
           </resources>
           EOF
 
-          # 英文
           cat > app/src/main/res/values-en/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -385,12 +379,12 @@ jobs:
               <string name="rate_desc_excellent">Enhanced refresh, premium feel</string>
               <string name="rate_desc_smooth">Smooth display, extended battery</string>
               <string name="rate_desc_standard">Standard refresh, long battery life</string>
-              <string name="no_root_toast">No root access</string>
+              <string name="no_root_toast">No authorization</string>
               <string name="switch_success">Switched to %d Hz</string>
-              <string name="switch_fail">Switch failed, check root access</string>
-              <string name="settings_root_title">Authorization Status</string>
-              <string name="settings_root_granted">Root access granted</string>
-              <string name="settings_root_denied">No root access</string>
+              <string name="switch_fail">Switch failed, check authorization</string>
+              <string name="settings_root_title">Authorization</string>
+              <string name="settings_root_granted">Root granted</string>
+              <string name="settings_root_denied">No root</string>
               <string name="settings_wallpaper_title">Wallpaper</string>
               <string name="wallpaper_gradient1">Sunset</string>
               <string name="wallpaper_gradient2">Aurora</string>
@@ -405,12 +399,23 @@ jobs:
               <string name="settings_page_beautify">Settings Page</string>
               <string name="settings_card_alpha">Card Alpha</string>
               <string name="settings_text_alpha">Text Alpha</string>
-              <string name="root_running_label">Root Running</string>
-              <string name="shizuku_running_label">Shizuku Running</string>
+              <string name="root_running_label">Root Mode</string>
+              <string name="shizuku_running_label">Shizuku Mode</string>
+              <string name="adb_running_label">ADB Mode</string>
+              <string name="adb_title">ADB Mode (No Root / Shizuku)</string>
+              <string name="adb_desc">Use PC adb to start a daemon script, valid until reboot.</string>
+              <string name="adb_not_running">ADB daemon not running</string>
+              <string name="adb_running">✅ ADB daemon running</string>
+              <string name="adb_cmd_label">Run on your PC:</string>
+              <string name="adb_copy">Copy command</string>
+              <string name="adb_regen">Regenerate script</string>
+              <string name="adb_check">Check status</string>
+              <string name="adb_copied">Copied</string>
+              <string name="adb_script_regen">Script regenerated</string>
               <string name="about_title">About</string>
               <string name="version_label">Version: 1.6.0</string>
               <string name="generate_log_btn">Generate Log</string>
-              <string name="language_dialog_title">Choose Language</string>
+              <string name="language_dialog_title">Language</string>
               <string name="language_zh">简体中文</string>
               <string name="language_zh_tw">繁體中文</string>
               <string name="language_en">English</string>
@@ -424,14 +429,13 @@ jobs:
               <string name="log_dialog_share">Share</string>
               <string name="custom_wallpaper_saved">Custom wallpaper saved</string>
               <string name="need_storage_permission">Storage permission required</string>
-              <string name="permission_go_settings">Go to Settings</string>
+              <string name="permission_go_settings">Settings</string>
               <string name="permission_cancel">Cancel</string>
-              <string name="permission_denied_title">Storage Permission</string>
-              <string name="permission_denied_message">You have denied the permission. Please grant it manually in system settings.</string>
+              <string name="permission_denied_title">Permission required</string>
+              <string name="permission_denied_message">Permission denied, grant it manually in system settings.</string>
           </resources>
           EOF
 
-          # 日文
           cat > app/src/main/res/values-ja/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -446,17 +450,17 @@ jobs:
               <string name="rate_name_excellent">極佳</string>
               <string name="rate_name_smooth">滑らか</string>
               <string name="rate_name_standard">標準</string>
-              <string name="rate_desc_high">至高の没入感、完璧な視覚</string>
-              <string name="rate_desc_extreme">流動的で快適な体験</string>
-              <string name="rate_desc_excellent">リフレッシュレート向上、至高の体験</string>
-              <string name="rate_desc_smooth">高いリフレッシュレート、滑らかな表示</string>
-              <string name="rate_desc_standard">通常のリフレッシュレート、長持ちバッテリー</string>
-              <string name="no_root_toast">Root権限がありません</string>
+              <string name="rate_desc_high">至高の没入感</string>
+              <string name="rate_desc_extreme">流動的で快適</string>
+              <string name="rate_desc_excellent">高リフレッシュ、極上体験</string>
+              <string name="rate_desc_smooth">滑らかな表示</string>
+              <string name="rate_desc_standard">通常、長持ちバッテリー</string>
+              <string name="no_root_toast">権限なし</string>
               <string name="switch_success">%d Hz に切り替えました</string>
-              <string name="switch_fail">切り替えに失敗しました。Root権限を確認してください</string>
+              <string name="switch_fail">切り替え失敗</string>
               <string name="settings_root_title">認証状態</string>
-              <string name="settings_root_granted">Root権限を取得しました</string>
-              <string name="settings_root_denied">Root権限がありません</string>
+              <string name="settings_root_granted">Root 取得済み</string>
+              <string name="settings_root_denied">Root なし</string>
               <string name="settings_wallpaper_title">壁紙</string>
               <string name="wallpaper_gradient1">サンセット</string>
               <string name="wallpaper_gradient2">オーロラ</string>
@@ -467,16 +471,27 @@ jobs:
               <string name="wallpaper_choose_image">ギャラリーから選択</string>
               <string name="wallpaper_alpha_label">壁紙の透明度</string>
               <string name="card_display_title">カード表示</string>
-              <string name="card_alpha_label">カードの透明度</string>
+              <string name="card_alpha_label">カード透明度</string>
               <string name="settings_page_beautify">設定ページ</string>
-              <string name="settings_card_alpha">カードの透明度</string>
-              <string name="settings_text_alpha">テキストの透明度</string>
-              <string name="root_running_label">Root 実行</string>
-              <string name="shizuku_running_label">Shizuku 実行</string>
+              <string name="settings_card_alpha">カード透明度</string>
+              <string name="settings_text_alpha">テキスト透明度</string>
+              <string name="root_running_label">Root</string>
+              <string name="shizuku_running_label">Shizuku</string>
+              <string name="adb_running_label">ADB モード</string>
+              <string name="adb_title">ADB モード (Root/Shizuku 不要)</string>
+              <string name="adb_desc">PC の adb で常駐スクリプトを起動、再起動まで有効。</string>
+              <string name="adb_not_running">ADB デーモン未実行</string>
+              <string name="adb_running">✅ ADB デーモン実行中</string>
+              <string name="adb_cmd_label">PC で以下を実行：</string>
+              <string name="adb_copy">コピー</string>
+              <string name="adb_regen">再生成</string>
+              <string name="adb_check">状態確認</string>
+              <string name="adb_copied">コピーしました</string>
+              <string name="adb_script_regen">スクリプト再生成</string>
               <string name="about_title">について</string>
               <string name="version_label">バージョン: 1.6.0</string>
               <string name="generate_log_btn">ログ生成</string>
-              <string name="language_dialog_title">言語を選択</string>
+              <string name="language_dialog_title">言語</string>
               <string name="language_zh">简体中文</string>
               <string name="language_zh_tw">繁體中文</string>
               <string name="language_en">English</string>
@@ -484,20 +499,19 @@ jobs:
               <string name="language_ug">ئۇيغۇرچە</string>
               <string name="nav_home">ホーム</string>
               <string name="nav_settings">設定</string>
-              <string name="log_extracting">ログを抽出中...</string>
-              <string name="log_dialog_title">実行ログ</string>
+              <string name="log_extracting">ログ抽出中...</string>
+              <string name="log_dialog_title">ログ</string>
               <string name="log_dialog_close">閉じる</string>
               <string name="log_dialog_share">共有</string>
-              <string name="custom_wallpaper_saved">カスタム壁紙を保存しました</string>
-              <string name="need_storage_permission">ストレージ権限が必要です</string>
+              <string name="custom_wallpaper_saved">壁紙を保存</string>
+              <string name="need_storage_permission">ストレージ権限が必要</string>
               <string name="permission_go_settings">設定へ</string>
               <string name="permission_cancel">キャンセル</string>
-              <string name="permission_denied_title">ストレージ権限</string>
-              <string name="permission_denied_message">権限が拒否されました。システム設定で手動で許可してください。</string>
+              <string name="permission_denied_title">権限が必要</string>
+              <string name="permission_denied_message">設定で許可してください。</string>
           </resources>
           EOF
 
-          # 维吾尔语
           cat > app/src/main/res/values-ug/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -512,17 +526,17 @@ jobs:
               <string name="rate_name_excellent">ناھايىتى ياخشى</string>
               <string name="rate_name_smooth">سىلىق</string>
               <string name="rate_name_standard">ئۆلچەملىك</string>
-              <string name="rate_desc_high">ئەڭ يۇقىرى سۈزۈلۈش، مۇكەممەل كۆرۈنۈش</string>
-              <string name="rate_desc_extreme">سىلىق ۋە خۇشاللىنارلىق تەجرىبە</string>
-              <string name="rate_desc_excellent">يېڭىلاش دەرىجىسىنى ئۆستۈرۈش، ئېسىل ھېس</string>
-              <string name="rate_desc_smooth">يۇقىرى يېڭىلاش دەرىجىسى، سىلىق كۆرۈنۈش</string>
-              <string name="rate_desc_standard">ئۆلچەملىك يېڭىلاش، ئۇزۇن باتارېيە</string>
-              <string name="no_root_toast">Root ھوقۇقى يوق</string>
-              <string name="switch_success">%d Hz غا ئالماشتۇرۇلدى</string>
-              <string name="switch_fail">ئالماشتۇرۇش مەغلۇب بولدى، Root ھوقۇقىنى تەكشۈرۈڭ</string>
+              <string name="rate_desc_high">ئەڭ يۇقىرى</string>
+              <string name="rate_desc_extreme">سىلىق تەجرىبە</string>
+              <string name="rate_desc_excellent">ئېسىل ھېس</string>
+              <string name="rate_desc_smooth">سىلىق كۆرۈنۈش</string>
+              <string name="rate_desc_standard">ئۇزۇن باتارېيە</string>
+              <string name="no_root_toast">ھوقۇق يوق</string>
+              <string name="switch_success">%d Hz</string>
+              <string name="switch_fail">مەغلۇب بولدى</string>
               <string name="settings_root_title">ھوقۇق ھالىتى</string>
-              <string name="settings_root_granted">Root ھوقۇقى بار</string>
-              <string name="settings_root_denied">Root ھوقۇقى يوق</string>
+              <string name="settings_root_granted">Root بار</string>
+              <string name="settings_root_denied">Root يوق</string>
               <string name="settings_wallpaper_title">تام رەسىم</string>
               <string name="wallpaper_gradient1">كۈن ئولتۇرۇش</string>
               <string name="wallpaper_gradient2">ئارۇرا</string>
@@ -532,38 +546,48 @@ jobs:
               <string name="wallpaper_custom">ئىختىيارى رەسىم</string>
               <string name="wallpaper_choose_image">گالېرېيەدىن تاللاش</string>
               <string name="wallpaper_alpha_label">تام رەسىم سۈزۈكلۈكى</string>
-              <string name="card_display_title">كارتا كۆرسىتىش</string>
+              <string name="card_display_title">كارتا</string>
               <string name="card_alpha_label">كارتا سۈزۈكلۈكى</string>
               <string name="settings_page_beautify">تەڭشەك بېتى</string>
               <string name="settings_card_alpha">كارتا سۈزۈكلۈكى</string>
               <string name="settings_text_alpha">تېكىست سۈزۈكلۈكى</string>
-              <string name="root_running_label">Root ئىجرا</string>
-              <string name="shizuku_running_label">Shizuku ئىجرا</string>
+              <string name="root_running_label">Root</string>
+              <string name="shizuku_running_label">Shizuku</string>
+              <string name="adb_running_label">ADB</string>
+              <string name="adb_title">ADB ھوقۇقى</string>
+              <string name="adb_desc">كومپيۇتېر adb ئارقىلىق</string>
+              <string name="adb_not_running">ADB ئىجرا قىلىنمىدى</string>
+              <string name="adb_running">✅ ADB ئىجرا</string>
+              <string name="adb_cmd_label">كومپيۇتېردا ئىجرا قىلىڭ:</string>
+              <string name="adb_copy">كۆچۈرۈش</string>
+              <string name="adb_regen">قايتا ھاسىل قىلىش</string>
+              <string name="adb_check">تەكشۈرۈش</string>
+              <string name="adb_copied">كۆچۈرۈلدى</string>
+              <string name="adb_script_regen">قايتا ھاسىل قىلىندى</string>
               <string name="about_title">ھەققىدە</string>
               <string name="version_label">نەشرى: 1.6.0</string>
-              <string name="generate_log_btn">خاتىرە ھاسىل قىلىش</string>
-              <string name="language_dialog_title">تىل تاللاش</string>
+              <string name="generate_log_btn">خاتىرە</string>
+              <string name="language_dialog_title">تىل</string>
               <string name="language_zh">简体中文</string>
               <string name="language_zh_tw">繁體中文</string>
               <string name="language_en">English</string>
               <string name="language_ja">日本語</string>
               <string name="language_ug">ئۇيغۇرچە</string>
-              <string name="nav_home">ئاساسىي بەت</string>
-              <string name="nav_settings">تەڭشەكلەر</string>
-              <string name="log_extracting">خاتىرە ئېلىۋېلىنىۋاتىدۇ...</string>
-              <string name="log_dialog_title">ئىجرا خاتىرىسى</string>
+              <string name="nav_home">باش بەت</string>
+              <string name="nav_settings">تەڭشەك</string>
+              <string name="log_extracting">ئېلىۋېلىنىۋاتىدۇ</string>
+              <string name="log_dialog_title">خاتىرە</string>
               <string name="log_dialog_close">تاقاش</string>
               <string name="log_dialog_share">ھەمبەھىرلەش</string>
-              <string name="custom_wallpaper_saved">ئىختىيارى تام رەسىم ساقلاندى</string>
-              <string name="need_storage_permission">ساقلاش ھوقۇقى كېرەك</string>
-              <string name="permission_go_settings">تەڭشەككە بېرىش</string>
-              <string name="permission_cancel">بىكار قىلىش</string>
-              <string name="permission_denied_title">ساقلاش ھوقۇقى</string>
-              <string name="permission_denied_message">سىز ھوقۇقنى رەت قىلدىڭىز. ئۇنى سىستېما تەڭشىكىدە قولدا بېرىڭ.</string>
+              <string name="custom_wallpaper_saved">ساقلاندى</string>
+              <string name="need_storage_permission">ساقلاش ھوقۇقى</string>
+              <string name="permission_go_settings">تەڭشەك</string>
+              <string name="permission_cancel">بىكار</string>
+              <string name="permission_denied_title">ھوقۇق</string>
+              <string name="permission_denied_message">تەڭشەكتە بېرىڭ</string>
           </resources>
           EOF
 
-          # 繁体中文
           cat > app/src/main/res/values-zh-rTW/strings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -578,17 +602,17 @@ jobs:
               <string name="rate_name_excellent">極佳</string>
               <string name="rate_name_smooth">流暢</string>
               <string name="rate_name_standard">標準</string>
-              <string name="rate_desc_high">臻享視界，完美觀感</string>
-              <string name="rate_desc_extreme">畫面流暢動人，舒適體驗</string>
-              <string name="rate_desc_excellent">提高更新率，極致體驗</string>
-              <string name="rate_desc_smooth">較高更新率，畫面流暢</string>
-              <string name="rate_desc_standard">常規更新率，延長續航</string>
-              <string name="no_root_toast">未取得root權限</string>
+              <string name="rate_desc_high">臻享視界</string>
+              <string name="rate_desc_extreme">畫面流暢</string>
+              <string name="rate_desc_excellent">提高更新率</string>
+              <string name="rate_desc_smooth">較高更新率</string>
+              <string name="rate_desc_standard">延長續航</string>
+              <string name="no_root_toast">未取得授權</string>
               <string name="switch_success">已切換至 %d Hz</string>
-              <string name="switch_fail">切換失敗，請檢查 Root 授權</string>
+              <string name="switch_fail">切換失敗</string>
               <string name="settings_root_title">授權狀態</string>
-              <string name="settings_root_granted">已取得 Root 權限</string>
-              <string name="settings_root_denied">未取得 Root 權限</string>
+              <string name="settings_root_granted">已取得 Root</string>
+              <string name="settings_root_denied">未取得 Root</string>
               <string name="settings_wallpaper_title">桌布美化</string>
               <string name="wallpaper_gradient1">日落漸層</string>
               <string name="wallpaper_gradient2">極光漸層</string>
@@ -605,6 +629,17 @@ jobs:
               <string name="settings_text_alpha">文字透明度</string>
               <string name="root_running_label">Root 執行</string>
               <string name="shizuku_running_label">Shizuku 執行</string>
+              <string name="adb_running_label">ADB 模式</string>
+              <string name="adb_title">ADB 授權（免 Root / Shizuku）</string>
+              <string name="adb_desc">透過電腦 adb 啟動常駐腳本，重啟前一直有效。</string>
+              <string name="adb_not_running">ADB 守護未執行</string>
+              <string name="adb_running">✅ ADB 守護執行中</string>
+              <string name="adb_cmd_label">於電腦端執行：</string>
+              <string name="adb_copy">複製命令</string>
+              <string name="adb_regen">重新產生腳本</string>
+              <string name="adb_check">檢測狀態</string>
+              <string name="adb_copied">已複製</string>
+              <string name="adb_script_regen">腳本已重新產生</string>
               <string name="about_title">關於</string>
               <string name="version_label">版本: 1.6.0</string>
               <string name="generate_log_btn">產生記錄</string>
@@ -616,23 +651,21 @@ jobs:
               <string name="language_ug">ئۇيغۇرچە</string>
               <string name="nav_home">首頁</string>
               <string name="nav_settings">設定</string>
-              <string name="log_extracting">正在擷取記錄...</string>
+              <string name="log_extracting">擷取中...</string>
               <string name="log_dialog_title">執行記錄</string>
               <string name="log_dialog_close">關閉</string>
               <string name="log_dialog_share">分享</string>
-              <string name="custom_wallpaper_saved">自訂桌布已儲存</string>
-              <string name="need_storage_permission">需要儲存權限才能選擇圖片</string>
+              <string name="custom_wallpaper_saved">已儲存</string>
+              <string name="need_storage_permission">需要儲存權限</string>
               <string name="permission_go_settings">前往設定</string>
               <string name="permission_cancel">取消</string>
-              <string name="permission_denied_title">需要儲存權限</string>
-              <string name="permission_denied_message">您已拒絕權限，請前往系統設定手動授予，否則無法選擇圖片。</string>
+              <string name="permission_denied_title">需要權限</string>
+              <string name="permission_denied_message">請於系統設定手動授予。</string>
           </resources>
           EOF
 
-          # ========== Java 源码 ==========
           cat > app/src/main/java/com/pmahz/util/LanguageUtils.java << 'EOF'
           package com.pmahz.util;
-
           import android.app.Activity;
           import android.content.Context;
           import android.content.SharedPreferences;
@@ -640,7 +673,6 @@ jobs:
           import android.content.res.Resources;
           import android.os.Build;
           import java.util.Locale;
-
           public class LanguageUtils {
               public static final String LANG_ZH = "zh";
               public static final String LANG_ZH_TW = "zh-rTW";
@@ -649,40 +681,25 @@ jobs:
               public static final String LANG_UG = "ug";
               private static final String PREFS_NAME = "s";
               private static final String KEY_LANG = "language";
-
               public static void applyLanguage(Context context) {
                   SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                  String lang = prefs.getString(KEY_LANG, LANG_ZH);
-                  setLocale(context, lang);
+                  setLocale(context, prefs.getString(KEY_LANG, LANG_ZH));
               }
-
               public static void setLanguageAndRecreate(Activity activity, String lang) {
-                  SharedPreferences prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                  prefs.edit().putString(KEY_LANG, lang).apply();
+                  activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().putString(KEY_LANG, lang).apply();
                   setLocale(activity, lang);
                   activity.recreate();
               }
-
               public static String getCurrentLang(Context context) {
-                  SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                  return prefs.getString(KEY_LANG, LANG_ZH);
+                  return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString(KEY_LANG, LANG_ZH);
               }
-
               private static void setLocale(Context context, String lang) {
-                  Locale locale;
-                  if (LANG_ZH_TW.equals(lang)) {
-                      locale = new Locale("zh", "TW");
-                  } else {
-                      locale = new Locale(lang);
-                  }
+                  Locale locale = LANG_ZH_TW.equals(lang) ? new Locale("zh", "TW") : new Locale(lang);
                   Locale.setDefault(locale);
                   Resources res = context.getResources();
                   Configuration config = res.getConfiguration();
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                      config.setLocale(locale);
-                  } else {
-                      config.locale = locale;
-                  }
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) config.setLocale(locale);
+                  else config.locale = locale;
                   res.updateConfiguration(config, res.getDisplayMetrics());
               }
           }
@@ -690,24 +707,18 @@ jobs:
 
           cat > app/src/main/java/com/pmahz/model/DisplayMode.java << 'EOF'
           package com.pmahz.model;
-
           import android.content.Context;
           import com.pmahz.R;
-
           public class DisplayMode {
               private int width, height, modeId;
               private float refreshRate;
-
-              public DisplayMode(int w, int h, float r, int id) {
-                  width=w; height=h; refreshRate=r; modeId=id;
-              }
+              public DisplayMode(int w, int h, float r, int id) { width=w; height=h; refreshRate=r; modeId=id; }
               public int getWidth(){return width;}
               public int getHeight(){return height;}
               public float getRefreshRate(){return refreshRate;}
               public int getModeId(){return modeId;}
               public String getResolutionLabel(){return width+"x"+height;}
               public int getRateInt(){return Math.round(refreshRate);}
-
               public String getRateName(Context ctx) {
                   int r = getRateInt();
                   if(r>=144) return ctx.getString(R.string.rate_name_high);
@@ -716,7 +727,6 @@ jobs:
                   if(r>=60)  return ctx.getString(R.string.rate_name_smooth);
                   return ctx.getString(R.string.rate_name_standard);
               }
-
               public String getRateDesc(Context ctx) {
                   int r = getRateInt();
                   if(r>=144) return ctx.getString(R.string.rate_desc_high);
@@ -730,7 +740,6 @@ jobs:
 
           cat > app/src/main/java/com/pmahz/util/RootUtils.java << 'EOF'
           package com.pmahz.util;
-
           import android.util.Log;
           import com.pmahz.model.DisplayMode;
           import java.io.*;
@@ -738,186 +747,247 @@ jobs:
           import java.util.List;
           import java.util.regex.Matcher;
           import java.util.regex.Pattern;
-
           public class RootUtils {
               private static final String TAG = "RootUtils";
-
               public static boolean isRooted() {
-                  Process p = null; DataOutputStream os = null; BufferedReader r = null;
+                  Process p=null; DataOutputStream os=null; BufferedReader r=null;
                   try {
                       p = Runtime.getRuntime().exec("su");
                       os = new DataOutputStream(p.getOutputStream());
                       os.writeBytes("echo RootOK\nexit\n"); os.flush();
                       r = new BufferedReader(new InputStreamReader(p.getInputStream()));
                       return "RootOK".equals(r.readLine());
-                  } catch (Exception e) { return false;
-                  } finally {
-                      try { if(os != null) os.close(); } catch(Exception ignored){}
-                      try { if(r != null) r.close(); } catch(Exception ignored){}
-                      try { if(p != null) p.destroy(); } catch(Exception ignored){}
+                  } catch (Exception e) { return false; }
+                  finally {
+                      try{if(os!=null)os.close();}catch(Exception ignored){}
+                      try{if(r!=null)r.close();}catch(Exception ignored){}
+                      try{if(p!=null)p.destroy();}catch(Exception ignored){}
                   }
               }
-
               public static List<DisplayMode> getDisplayModesFromDumpsys() {
                   List<DisplayMode> list = new ArrayList<>();
-                  Process p = null; DataOutputStream os = null; BufferedReader r = null;
+                  Process p=null; DataOutputStream os=null; BufferedReader r=null;
                   try {
                       p = Runtime.getRuntime().exec("su");
                       os = new DataOutputStream(p.getOutputStream());
-                      os.writeBytes("dumpsys display | grep 'DisplayModeRecord'\nexit\n");
-                      os.flush();
+                      os.writeBytes("dumpsys display | grep 'DisplayModeRecord'\nexit\n"); os.flush();
                       r = new BufferedReader(new InputStreamReader(p.getInputStream()));
                       String line;
-                      Pattern pattern = Pattern.compile("id=(\\d+),\\s*width=(\\d+),\\s*height=(\\d+),\\s*fps=([\\d.]+)");
-                      while ((line = r.readLine()) != null) {
-                          Matcher m = pattern.matcher(line);
-                          if (m.find()) {
-                              int id = Integer.parseInt(m.group(1));
-                              int w = Integer.parseInt(m.group(2));
-                              int h = Integer.parseInt(m.group(3));
-                              float fps = Float.parseFloat(m.group(4));
-                              list.add(new DisplayMode(w, h, fps, id));
-                          }
+                      Pattern pat = Pattern.compile("id=(\\d+),\\s*width=(\\d+),\\s*height=(\\d+),\\s*fps=([\\d.]+)");
+                      while ((line=r.readLine())!=null) {
+                          Matcher m = pat.matcher(line);
+                          if (m.find()) list.add(new DisplayMode(
+                              Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)),
+                              Float.parseFloat(m.group(4)), Integer.parseInt(m.group(1))));
                       }
-                  } catch (Exception e) {
-                      Log.e(TAG, "解析dumpsys失败", e);
-                  } finally {
-                      try { if(os != null) os.close(); } catch(Exception ignored){}
-                      try { if(r != null) r.close(); } catch(Exception ignored){}
-                      try { if(p != null) p.destroy(); } catch(Exception ignored){}
+                  } catch (Exception e) { Log.e(TAG, "dumpsys", e); }
+                  finally {
+                      try{if(os!=null)os.close();}catch(Exception ignored){}
+                      try{if(r!=null)r.close();}catch(Exception ignored){}
+                      try{if(p!=null)p.destroy();}catch(Exception ignored){}
                   }
                   return list;
               }
-
-              public static boolean setRefreshRate(int dumpsysModeId, int targetHz) {
-                  Process process = null; DataOutputStream os = null;
+              public static boolean setRefreshRate(int modeId, int hz) {
+                  Process pr=null; DataOutputStream os=null;
                   try {
-                      int index = dumpsysModeId - 1;
-                      process = Runtime.getRuntime().exec("su");
-                      os = new DataOutputStream(process.getOutputStream());
-                      os.writeBytes("service call SurfaceFlinger 1035 i32 " + index + "\n");
-                      os.writeBytes("settings put system peak_refresh_rate " + targetHz + ".0\n");
-                      os.writeBytes("settings put system min_refresh_rate " + targetHz + ".0\n");
-                      os.writeBytes("settings put system user_refresh_rate " + targetHz + "\n");
-                      os.writeBytes("settings put secure miui_refresh_rate " + targetHz + "\n");
+                      int idx = modeId - 1;
+                      pr = Runtime.getRuntime().exec("su");
+                      os = new DataOutputStream(pr.getOutputStream());
+                      os.writeBytes("service call SurfaceFlinger 1035 i32 " + idx + "\n");
+                      os.writeBytes("settings put system peak_refresh_rate " + hz + ".0\n");
+                      os.writeBytes("settings put system min_refresh_rate " + hz + ".0\n");
+                      os.writeBytes("settings put system user_refresh_rate " + hz + "\n");
+                      os.writeBytes("settings put secure miui_refresh_rate " + hz + "\n");
                       os.writeBytes("exit\n"); os.flush();
-                      process.waitFor();
+                      pr.waitFor();
                       return true;
-                  } catch (Exception e) { return false;
-                  } finally {
-                      try { if(os != null) os.close(); } catch(Exception ignored){}
-                      try { if(process != null) process.destroy(); } catch(Exception ignored){}
+                  } catch (Exception e) { return false; }
+                  finally {
+                      try{if(os!=null)os.close();}catch(Exception ignored){}
+                      try{if(pr!=null)pr.destroy();}catch(Exception ignored){}
                   }
               }
-
               public static String generateRuntimeLog() {
-                  StringBuilder sb = new StringBuilder();
-                  sb.append("=== 屏幕刷新率工具 运行调试日志 ===\n");
-                  sb.append("Root状态: ").append(isRooted() ? "已获取授权" : "未获取授权").append("\n\n");
-                  sb.append("=== 系统的 DisplayModeRecord 原始数据 ===\n");
-                  Process p = null; DataOutputStream os = null; BufferedReader r = null;
+                  StringBuilder sb = new StringBuilder("=== 屏幕刷新率工具 日志 ===\n");
+                  sb.append("Root: ").append(isRooted() ? "已授权" : "未授权").append("\n\n");
+                  Process p=null; DataOutputStream os=null; BufferedReader r=null;
                   try {
                       p = Runtime.getRuntime().exec("su");
                       os = new DataOutputStream(p.getOutputStream());
-                      os.writeBytes("dumpsys display | grep 'DisplayModeRecord'\nexit\n");
-                      os.flush();
+                      os.writeBytes("dumpsys display | grep 'DisplayModeRecord'\nexit\n"); os.flush();
                       r = new BufferedReader(new InputStreamReader(p.getInputStream()));
                       String line;
-                      while ((line = r.readLine()) != null) {
-                          sb.append(line.trim()).append("\n");
-                      }
-                  } catch (Exception e) {
-                      sb.append("提取系统错误: ").append(e.getMessage());
-                  } finally {
-                      try { if(os != null) os.close(); } catch(Exception ignored){}
-                      try { if(r != null) r.close(); } catch(Exception ignored){}
-                      try { if(p != null) p.destroy(); } catch(Exception ignored){}
+                      while ((line=r.readLine())!=null) sb.append(line.trim()).append("\n");
+                  } catch (Exception e) { sb.append("Err: ").append(e.getMessage()); }
+                  finally {
+                      try{if(os!=null)os.close();}catch(Exception ignored){}
+                      try{if(r!=null)r.close();}catch(Exception ignored){}
+                      try{if(p!=null)p.destroy();}catch(Exception ignored){}
                   }
                   return sb.toString();
               }
           }
           EOF
 
-          # ShizukuUtils.java（反射）
           cat > app/src/main/java/com/pmahz/util/ShizukuUtils.java << 'EOF'
           package com.pmahz.util;
           import android.content.pm.PackageManager;
           import android.util.Log;
           import java.io.*;
           import rikka.shizuku.Shizuku;
-
           public class ShizukuUtils {
               private static final String TAG = "ShizukuUtils";
               public static final int REQUEST_CODE = 1001;
-
               public static boolean isAvailable() {
-                  try { return Shizuku.pingBinder(); }
-                  catch (Exception e) { return false; }
+                  try { return Shizuku.pingBinder(); } catch (Exception e) { return false; }
               }
-
               public static boolean hasPermission() {
                   try {
                       if (Shizuku.isPreV11()) return false;
                       return Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED;
                   } catch (Exception e) { return false; }
               }
-
               public static void requestPermission() {
                   try { Shizuku.requestPermission(REQUEST_CODE); }
-                  catch (Exception e) { Log.e(TAG, "requestPermission: " + e.getMessage()); }
+                  catch (Exception e) { Log.e(TAG, e.getMessage()); }
               }
-
               public static boolean setRefreshRate(int modeId, int hz) {
                   if (!isAvailable() || !hasPermission()) return false;
                   int idx = modeId - 1;
-                  String script =
-                      "service call SurfaceFlinger 1035 i32 " + idx + " && " +
-                      "settings put system peak_refresh_rate " + hz + ".0 && " +
-                      "settings put system min_refresh_rate " + hz + ".0 && " +
-                      "settings put system user_refresh_rate " + hz;
+                  String script = "service call SurfaceFlinger 1035 i32 " + idx +
+                      " && settings put system peak_refresh_rate " + hz + ".0" +
+                      " && settings put system min_refresh_rate " + hz + ".0" +
+                      " && settings put system user_refresh_rate " + hz;
                   return execShizuku(script);
               }
-
-              public static String execAndRead(String cmd) {
-                  if (!isAvailable() || !hasPermission()) return "";
-                  try {
-                      Process p = execShizukuProcess(cmd);
-                      BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                      StringBuilder sb = new StringBuilder();
-                      String line;
-                      while ((line = r.readLine()) != null) sb.append(line).append("\n");
-                      p.waitFor();
-                      return sb.toString().trim();
-                  } catch (Exception e) {
-                      Log.e(TAG, "execAndRead: " + e.getMessage());
-                      return "";
-                  }
-              }
-
               private static boolean execShizuku(String cmd) {
                   try {
                       Process p = execShizukuProcess(cmd);
-                      int code = p.waitFor();
-                      Log.d(TAG, "execShizuku exit=" + code + " cmd=" + cmd);
+                      p.waitFor();
                       return true;
-                  } catch (Exception e) {
-                      Log.e(TAG, "execShizuku: " + e.getMessage());
-                      return false;
-                  }
+                  } catch (Exception e) { Log.e(TAG, e.getMessage()); return false; }
               }
-
               private static Process execShizukuProcess(String cmd) throws Exception {
                   java.lang.reflect.Method method = Shizuku.class.getDeclaredMethod(
                       "newProcess", String[].class, String[].class, String.class);
                   method.setAccessible(true);
-                  return (Process) method.invoke(null, new String[]{"sh", "-c", cmd}, null, null);
+                  return (Process) method.invoke(null, new String[]{"sh","-c",cmd}, null, null);
+              }
+          }
+          EOF
+
+          cat > app/src/main/java/com/pmahz/util/AdbUtils.java << 'EOF'
+          package com.pmahz.util;
+          import android.content.Context;
+          import android.util.Log;
+          import com.pmahz.model.DisplayMode;
+          import java.io.*;
+          import java.util.ArrayList;
+          import java.util.List;
+          import java.util.regex.Matcher;
+          import java.util.regex.Pattern;
+          public class AdbUtils {
+              private static final String TAG = "AdbUtils";
+              private static final long TIMEOUT_MS = 3000;
+              public static File getDir(Context ctx) {
+                  File d = ctx.getExternalFilesDir(null);
+                  return d != null ? d : ctx.getFilesDir();
+              }
+              public static File getScript(Context ctx)  { return new File(getDir(ctx), "iniadb.sh"); }
+              public static File getCmdFile(Context ctx) { return new File(getDir(ctx), "cmd"); }
+              public static File getResFile(Context ctx) { return new File(getDir(ctx), "result"); }
+              public static File getHbFile(Context ctx)  { return new File(getDir(ctx), "heartbeat"); }
+              public static String getAdbCommand(Context ctx) {
+                  return "adb shell sh " + getScript(ctx).getAbsolutePath();
+              }
+              public static boolean generateScript(Context ctx) {
+                  File script = getScript(ctx);
+                  File dir = script.getParentFile();
+                  if (dir != null && !dir.exists()) dir.mkdirs();
+                  String dirPath = dir.getAbsolutePath();
+                  String content =
+                      "#!/system/bin/sh\n" +
+                      "DIR=\"" + dirPath + "\"\n" +
+                      "CMD_FILE=\"$DIR/cmd\"\n" +
+                      "RES_FILE=\"$DIR/result\"\n" +
+                      "HB_FILE=\"$DIR/heartbeat\"\n" +
+                      "chmod 777 \"$DIR\" 2>/dev/null\n" +
+                      "echo \"[ADB Service] Started as: $(id)\"\n" +
+                      "echo \"[ADB Service] Watching $CMD_FILE\"\n" +
+                      "while true; do\n" +
+                      "  date +%s > \"$HB_FILE\"\n" +
+                      "  if [ -s \"$CMD_FILE\" ]; then\n" +
+                      "    CMD=$(cat \"$CMD_FILE\")\n" +
+                      "    > \"$CMD_FILE\"\n" +
+                      "    eval \"$CMD\" > \"$RES_FILE\" 2>&1\n" +
+                      "    echo \"---DONE---\" >> \"$RES_FILE\"\n" +
+                      "  fi\n" +
+                      "  sleep 0.3\n" +
+                      "done\n";
+                  try (FileWriter fw = new FileWriter(script)) { fw.write(content); }
+                  catch (IOException e) { Log.e(TAG, "write", e); return false; }
+                  script.setExecutable(true, false);
+                  script.setReadable(true, false);
+                  try { new FileWriter(getCmdFile(ctx)).close(); } catch (IOException ignored) {}
+                  try { new FileWriter(getResFile(ctx)).close(); } catch (IOException ignored) {}
+                  return true;
+              }
+              public static boolean isRunning(Context ctx) {
+                  File hb = getHbFile(ctx);
+                  if (!hb.exists()) return false;
+                  return System.currentTimeMillis() - hb.lastModified() < 2500;
+              }
+              public static String exec(Context ctx, String cmd) {
+                  if (!isRunning(ctx)) return null;
+                  try {
+                      File res = getResFile(ctx);
+                      try (FileWriter fw = new FileWriter(res)) {}
+                      try (FileWriter fw = new FileWriter(getCmdFile(ctx))) { fw.write(cmd); }
+                      long start = System.currentTimeMillis();
+                      while (System.currentTimeMillis() - start < TIMEOUT_MS) {
+                          Thread.sleep(150);
+                          if (res.length() > 0) {
+                              StringBuilder sb = new StringBuilder();
+                              try (BufferedReader br = new BufferedReader(new FileReader(res))) {
+                                  String line;
+                                  while ((line = br.readLine()) != null) {
+                                      if ("---DONE---".equals(line)) return sb.toString().trim();
+                                      sb.append(line).append("\n");
+                                  }
+                              }
+                          }
+                      }
+                      return null;
+                  } catch (Exception e) { Log.e(TAG, "exec", e); return null; }
+              }
+              public static boolean setRefreshRate(Context ctx, int modeId, int hz) {
+                  int idx = modeId - 1;
+                  String cmd =
+                      "service call SurfaceFlinger 1035 i32 " + idx + " && " +
+                      "settings put system peak_refresh_rate " + hz + ".0 && " +
+                      "settings put system min_refresh_rate " + hz + ".0 && " +
+                      "settings put system user_refresh_rate " + hz;
+                  return exec(ctx, cmd) != null;
+              }
+              public static List<DisplayMode> getDisplayModes(Context ctx) {
+                  List<DisplayMode> list = new ArrayList<>();
+                  String out = exec(ctx, "dumpsys display | grep DisplayModeRecord");
+                  if (out == null) return list;
+                  Pattern pat = Pattern.compile("id=(\\d+),\\s*width=(\\d+),\\s*height=(\\d+),\\s*fps=([\\d.]+)");
+                  for (String line : out.split("\n")) {
+                      Matcher m = pat.matcher(line);
+                      if (m.find()) list.add(new DisplayMode(
+                          Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)),
+                          Float.parseFloat(m.group(4)), Integer.parseInt(m.group(1))));
+                  }
+                  return list;
               }
           }
           EOF
 
           cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
           package com.pmahz.adapter;
-
           import android.content.Context;
           import android.graphics.Color;
           import android.view.*;
@@ -928,43 +998,34 @@ jobs:
           import com.pmahz.R;
           import com.pmahz.model.DisplayMode;
           import java.util.List;
-
           public class RateAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
               public static final int TYPE_HEADER = 0, TYPE_RATE = 1;
               public interface OnRateClick { void onClick(DisplayMode m); }
               private List<Object> items; private Context ctx; private OnRateClick listener;
               private DisplayMode current;
               private int lastCurrentPos = -1;
-
               public RateAdapter(Context c, List<Object> i, OnRateClick l) { ctx=c; items=i; listener=l; }
               public void update(List<Object> i) { items=i; notifyDataSetChanged(); }
-
               public void setCurrent(DisplayMode m) {
-                  int oldPos = lastCurrentPos;
-                  int newPos = findPosition(m);
+                  int oldPos = lastCurrentPos, newPos = findPosition(m);
                   if (oldPos != newPos) {
                       if (oldPos >= 0) notifyItemChanged(oldPos);
                       if (newPos >= 0) notifyItemChanged(newPos);
                   }
-                  current = m;
-                  lastCurrentPos = newPos;
+                  current = m; lastCurrentPos = newPos;
               }
-
-              private int findPosition(DisplayMode target) {
-                  for (int i = 0; i < items.size(); i++) {
-                      Object obj = items.get(i);
-                      if (obj instanceof DisplayMode) {
-                          DisplayMode dm = (DisplayMode) obj;
-                          if (dm.getModeId() == target.getModeId() && dm.getRateInt() == target.getRateInt()) {
-                              return i;
-                          }
+              private int findPosition(DisplayMode t) {
+                  for (int i=0; i<items.size(); i++) {
+                      Object o = items.get(i);
+                      if (o instanceof DisplayMode) {
+                          DisplayMode dm = (DisplayMode)o;
+                          if (dm.getModeId()==t.getModeId() && dm.getRateInt()==t.getRateInt()) return i;
                       }
                   }
                   return -1;
               }
-
               @Override public int getItemViewType(int p) { return items.get(p) instanceof String ? TYPE_HEADER : TYPE_RATE; }
-              @Override public int getItemCount() { return items==null ? 0 : items.size(); }
+              @Override public int getItemCount() { return items==null?0:items.size(); }
               @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup p, int t) {
                   LayoutInflater inf = LayoutInflater.from(ctx);
                   if (t == TYPE_HEADER) return new HVH(inf.inflate(R.layout.item_res_header, p, false));
@@ -973,14 +1034,15 @@ jobs:
               @Override public void onBindViewHolder(RecyclerView.ViewHolder h, int pos) {
                   h.itemView.startAnimation(AnimationUtils.loadAnimation(ctx, R.anim.item_animation));
                   if (getItemViewType(pos) == TYPE_HEADER) {
-                      ((HVH) h).title.setText((String) items.get(pos));
+                      ((HVH)h).title.setText((String) items.get(pos));
                   } else {
-                      DisplayMode m = (DisplayMode) items.get(pos); RVH r = (RVH) h;
+                      DisplayMode m = (DisplayMode) items.get(pos);
+                      RVH r = (RVH)h;
                       r.name.setText(m.getRateName(ctx));
-                      r.hz.setText(m.getRateInt() + " Hz");
+                      r.hz.setText(m.getRateInt()+" Hz");
                       r.desc.setText(m.getRateDesc(ctx));
                       int color = colorFor(m.getRateInt());
-                      boolean act = current != null && current.getModeId() == m.getModeId() && current.getRateInt() == m.getRateInt();
+                      boolean act = current != null && current.getModeId()==m.getModeId() && current.getRateInt()==m.getRateInt();
                       if (act) {
                           r.card.setCardBackgroundColor(darkenColor(color, 0.7f));
                           r.card.setStrokeColor(color);
@@ -989,41 +1051,31 @@ jobs:
                           r.card.setCardBackgroundColor(color);
                           r.card.setStrokeWidth(0);
                       }
-                      r.card.setOnClickListener(v -> { if (listener != null) listener.onClick(m); });
+                      r.card.setOnClickListener(v -> { if (listener!=null) listener.onClick(m); });
                   }
               }
-
               private int colorFor(int hz) {
-                  if (hz >= 170) return Color.parseColor("#1565C0");
-                  if (hz >= 144) return Color.parseColor("#1E88E5");
-                  if (hz >= 120) return Color.parseColor("#2196F3");
-                  if (hz >= 90)  return Color.parseColor("#00ACC1");
+                  if (hz>=170) return Color.parseColor("#1565C0");
+                  if (hz>=144) return Color.parseColor("#1E88E5");
+                  if (hz>=120) return Color.parseColor("#2196F3");
+                  if (hz>=90)  return Color.parseColor("#00ACC1");
                   return Color.parseColor("#00897B");
               }
-
-              private int darkenColor(int color, float factor) {
-                  int a = Color.alpha(color);
-                  int r = Math.round(Color.red(color) * factor);
-                  int g = Math.round(Color.green(color) * factor);
-                  int b = Math.round(Color.blue(color) * factor);
-                  return Color.argb(a, Math.min(r, 255), Math.min(g, 255), Math.min(b, 255));
+              private int darkenColor(int color, float f) {
+                  return Color.argb(Color.alpha(color),
+                      Math.min(Math.round(Color.red(color)*f), 255),
+                      Math.min(Math.round(Color.green(color)*f), 255),
+                      Math.min(Math.round(Color.blue(color)*f), 255));
               }
-
-              private int dpToPx(int dp) {
-                  return (int) (dp * ctx.getResources().getDisplayMetrics().density);
-              }
-
-              static class HVH extends RecyclerView.ViewHolder { TextView title; HVH(View v) { super(v); title = v.findViewById(R.id.tv_header_title); } }
-              static class RVH extends RecyclerView.ViewHolder {
-                  MaterialCardView card; TextView name, hz, desc;
-                  RVH(View v) { super(v); card=v.findViewById(R.id.card_rate); name=v.findViewById(R.id.tv_rate_name); hz=v.findViewById(R.id.tv_rate_hz); desc=v.findViewById(R.id.tv_rate_desc); }
-              }
+              private int dpToPx(int dp) { return (int)(dp * ctx.getResources().getDisplayMetrics().density); }
+              static class HVH extends RecyclerView.ViewHolder { TextView title;
+                  HVH(View v) { super(v); title = v.findViewById(R.id.tv_header_title); } }
+              static class RVH extends RecyclerView.ViewHolder { MaterialCardView card; TextView name, hz, desc;
+                  RVH(View v) { super(v); card=v.findViewById(R.id.card_rate); name=v.findViewById(R.id.tv_rate_name); hz=v.findViewById(R.id.tv_rate_hz); desc=v.findViewById(R.id.tv_rate_desc); } }
           }
           EOF
-
-          cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
+                    cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
           package com.pmahz.fragment;
-
           import android.content.Context;
           import android.content.SharedPreferences;
           import android.graphics.Color;
@@ -1038,8 +1090,8 @@ jobs:
           import com.pmahz.model.DisplayMode;
           import com.pmahz.util.LanguageUtils;
           import com.pmahz.util.RootUtils;
+          import com.pmahz.util.AdbUtils;
           import java.util.*;
-
           public class HomeFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
               private RateAdapter adapter;
               private boolean hasRoot = false;
@@ -1050,159 +1102,111 @@ jobs:
               private TextView titleText;
               private ImageView btnLanguage;
               private PopupWindow languagePopup;
-
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_home, c, false);
                   recyclerView = v.findViewById(R.id.recycler_rates);
                   titleBar = v.findViewById(R.id.home_title_bar);
                   titleText = v.findViewById(R.id.home_title_text);
                   btnLanguage = v.findViewById(R.id.btn_language_switch);
-
                   titleText.setText(R.string.home_title);
                   btnLanguage.setOnClickListener(view -> showLanguagePopup());
-
                   recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                   recyclerView.setItemAnimator(null);
                   adapter = new RateAdapter(getContext(), dataItems, this::onRateSelected);
                   recyclerView.setAdapter(adapter);
-
                   prefs = requireActivity().getSharedPreferences("s", Context.MODE_PRIVATE);
                   prefs.registerOnSharedPreferenceChangeListener(this);
                   updateUI();
-
                   loadData();
                   return v;
               }
-
               private void showLanguagePopup() {
-                  if (languagePopup != null && languagePopup.isShowing()) {
-                      languagePopup.dismiss();
-                  }
-
-                  String[] languages = {
-                      getString(R.string.language_zh),
-                      getString(R.string.language_zh_tw),
-                      getString(R.string.language_en),
-                      getString(R.string.language_ja),
-                      getString(R.string.language_ug)
-                  };
-                  String[] langCodes = {LanguageUtils.LANG_ZH, LanguageUtils.LANG_ZH_TW, LanguageUtils.LANG_EN, LanguageUtils.LANG_JA, LanguageUtils.LANG_UG};
-                  String currentLang = LanguageUtils.getCurrentLang(getContext());
-
-                  ListView listView = new ListView(getContext());
-                  ArrayAdapter<String> listAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, languages);
-                  listView.setAdapter(listAdapter);
-                  listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-                  for (int i = 0; i < langCodes.length; i++) {
-                      if (langCodes[i].equals(currentLang)) {
-                          listView.setItemChecked(i, true);
-                          break;
-                      }
-                  }
-                  listView.setOnItemClickListener((parent, view, position, id) -> {
-                      String selectedLang = langCodes[position];
-                      if (!selectedLang.equals(LanguageUtils.getCurrentLang(getContext()))) {
-                          LanguageUtils.setLanguageAndRecreate(requireActivity(), selectedLang);
-                      }
+                  if (languagePopup != null && languagePopup.isShowing()) languagePopup.dismiss();
+                  String[] languages = { getString(R.string.language_zh), getString(R.string.language_zh_tw), getString(R.string.language_en), getString(R.string.language_ja), getString(R.string.language_ug) };
+                  String[] codes = {LanguageUtils.LANG_ZH, LanguageUtils.LANG_ZH_TW, LanguageUtils.LANG_EN, LanguageUtils.LANG_JA, LanguageUtils.LANG_UG};
+                  String cur = LanguageUtils.getCurrentLang(getContext());
+                  ListView lv = new ListView(getContext());
+                  ArrayAdapter<String> a = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, languages);
+                  lv.setAdapter(a);
+                  lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+                  for (int i=0; i<codes.length; i++) if (codes[i].equals(cur)) { lv.setItemChecked(i, true); break; }
+                  lv.setOnItemClickListener((p, view, pos, id) -> {
+                      String sel = codes[pos];
+                      if (!sel.equals(LanguageUtils.getCurrentLang(getContext())))
+                          LanguageUtils.setLanguageAndRecreate(requireActivity(), sel);
                       languagePopup.dismiss();
                   });
-
                   GradientDrawable bg = new GradientDrawable();
                   bg.setShape(GradientDrawable.RECTANGLE);
                   bg.setCornerRadius(dpToPx(16));
                   bg.setColor(Color.WHITE);
-                  listView.setBackground(bg);
-                  listView.setClipToOutline(true);
-
-                  int width = (int) (150 * getResources().getDisplayMetrics().density);
-                  languagePopup = new PopupWindow(listView, width, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+                  lv.setBackground(bg);
+                  lv.setClipToOutline(true);
+                  int w = (int)(150 * getResources().getDisplayMetrics().density);
+                  languagePopup = new PopupWindow(lv, w, LinearLayout.LayoutParams.WRAP_CONTENT, true);
                   languagePopup.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
                   languagePopup.setElevation(12);
                   languagePopup.showAsDropDown(btnLanguage, 0, 8);
               }
-
-              private int dpToPx(int dp) {
-                  return (int) (dp * getResources().getDisplayMetrics().density);
-              }
-
+              private int dpToPx(int dp) { return (int)(dp * getResources().getDisplayMetrics().density); }
               private void updateUI() {
-                  float wallpaperAlpha = prefs.getFloat("wallpaper_alpha", 0.3f);
-                  float titleAlpha = 1f - wallpaperAlpha;
-                  titleBar.setAlpha(titleAlpha);
-                  titleText.setAlpha(titleAlpha);
-                  btnLanguage.setAlpha(1f);
-                  int cardAlpha = prefs.getInt("card_alpha", 0);
-                  float cardAlphaF = 1f - (cardAlpha / 100f);
-                  recyclerView.setAlpha(cardAlphaF);
+                  float wa = prefs.getFloat("wallpaper_alpha", 0.3f);
+                  float ta = 1f - wa;
+                  titleBar.setAlpha(ta); titleText.setAlpha(ta); btnLanguage.setAlpha(1f);
+                  recyclerView.setAlpha(1f - prefs.getInt("card_alpha", 0)/100f);
               }
-
-              @Override public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                  if ("wallpaper_alpha".equals(key) || "card_alpha".equals(key)) {
-                      updateUI();
-                  }
+              @Override public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
+                  if ("wallpaper_alpha".equals(key) || "card_alpha".equals(key)) updateUI();
               }
-
               @Override public void onDestroyView() {
                   super.onDestroyView();
                   prefs.unregisterOnSharedPreferenceChangeListener(this);
-                  if (languagePopup != null) {
-                      languagePopup.dismiss();
-                      languagePopup = null;
-                  }
+                  if (languagePopup != null) { languagePopup.dismiss(); languagePopup = null; }
               }
-
               private void loadData() {
                   new Thread(() -> {
                       hasRoot = RootUtils.isRooted();
-                      List<DisplayMode> modes;
+                      List<DisplayMode> modes = new ArrayList<>();
                       if (hasRoot) {
                           modes = RootUtils.getDisplayModesFromDumpsys();
                           if (modes.isEmpty()) hasRoot = false;
-                      } else {
-                          modes = new ArrayList<>();
                       }
-                      if (!hasRoot) {
-                          modes = getFallbackFromDisplayManager();
+                      if (modes.isEmpty() && AdbUtils.isRunning(getContext())) {
+                          modes = AdbUtils.getDisplayModes(getContext());
                       }
+                      if (modes.isEmpty()) modes = getFallbackFromDisplayManager();
                       List<Object> built = buildSortedList(modes);
                       if (getActivity() != null) {
+                          List<Object> finalBuilt = built;
                           getActivity().runOnUiThread(() -> {
-                              dataItems.clear();
-                              dataItems.addAll(built);
-                              adapter.notifyDataSetChanged();
+                              dataItems.clear(); dataItems.addAll(finalBuilt); adapter.notifyDataSetChanged();
                           });
                       }
                   }).start();
               }
-
               private List<DisplayMode> getFallbackFromDisplayManager() {
                   List<DisplayMode> list = new ArrayList<>();
                   try {
                       android.hardware.display.DisplayManager dm = (android.hardware.display.DisplayManager)
-                              requireActivity().getSystemService(Context.DISPLAY_SERVICE);
+                          requireActivity().getSystemService(Context.DISPLAY_SERVICE);
                       android.view.Display d = dm.getDisplay(android.view.Display.DEFAULT_DISPLAY);
-                      android.view.Display.Mode[] modes = d.getSupportedModes();
-                      for (android.view.Display.Mode m : modes) {
-                          list.add(new DisplayMode(m.getPhysicalWidth(), m.getPhysicalHeight(),
-                                  m.getRefreshRate(), m.getModeId()));
+                      for (android.view.Display.Mode m : d.getSupportedModes()) {
+                          list.add(new DisplayMode(m.getPhysicalWidth(), m.getPhysicalHeight(), m.getRefreshRate(), m.getModeId()));
                       }
                   } catch (Exception ignored) {}
                   return list;
               }
-
-              private List<Object> buildSortedList(List<DisplayMode> dumpedModes) {
-                  if (dumpedModes == null || dumpedModes.isEmpty()) return fallback();
+              private List<Object> buildSortedList(List<DisplayMode> modes) {
+                  if (modes == null || modes.isEmpty()) return fallback();
                   Map<String, List<DisplayMode>> grouped = new LinkedHashMap<>();
-                  for (DisplayMode m : dumpedModes) {
+                  for (DisplayMode m : modes) {
                       String k = m.getWidth() + "x" + m.getHeight();
                       grouped.computeIfAbsent(k, x -> new ArrayList<>()).add(m);
                   }
                   List<String> keys = new ArrayList<>(grouped.keySet());
                   keys.sort((a, b) -> {
                       String[] pa = a.split("x"), pb = b.split("x");
-                      int resA = Integer.parseInt(pa[0]) * Integer.parseInt(pa[1]);
-                      int resB = Integer.parseInt(pb[0]) * Integer.parseInt(pb[1]);
-                      return Integer.compare(resB, resA);
+                      return Integer.compare(Integer.parseInt(pb[0])*Integer.parseInt(pb[1]), Integer.parseInt(pa[0])*Integer.parseInt(pa[1]));
                   });
                   List<Object> items = new ArrayList<>();
                   Context ctx = getContext();
@@ -1216,36 +1220,31 @@ jobs:
                   }
                   return items;
               }
-
               private List<Object> fallback() {
-                  int[] highResRates = {60, 90, 120, 144, 165, 170, 175, 177};
-                  int[] lowResRates  = {60, 90, 120, 144, 165, 170, 175, 177};
+                  int[] rates = {60, 90, 120, 144, 165, 170, 175, 177};
                   List<Object> l = new ArrayList<>();
                   l.add(getString(R.string.fallback_high_res));
-                  for (int r : highResRates) l.add(new DisplayMode(1272, 2772, r, -1));
+                  for (int r : rates) l.add(new DisplayMode(1272, 2772, r, -1));
                   l.add(getString(R.string.fallback_low_res));
-                  for (int r : lowResRates) l.add(new DisplayMode(1080, 2354, r, -1));
+                  for (int r : rates) l.add(new DisplayMode(1080, 2354, r, -1));
                   return l;
               }
-
               private void onRateSelected(DisplayMode mode) {
                   String authMode = prefs.getString("auth_mode", "");
                   boolean useRoot    = "root".equals(authMode) && hasRoot;
                   boolean useShizuku = "shizuku".equals(authMode)
                           && com.pmahz.util.ShizukuUtils.isAvailable()
                           && com.pmahz.util.ShizukuUtils.hasPermission();
-
-                  if (!useRoot && !useShizuku) {
+                  boolean useAdb     = "adb".equals(authMode) && AdbUtils.isRunning(getContext());
+                  if (!useRoot && !useShizuku && !useAdb) {
                       Toast.makeText(getContext(), R.string.no_root_toast, Toast.LENGTH_SHORT).show();
                       return;
                   }
                   new Thread(() -> {
                       boolean ok = false;
-                      if (useRoot) {
-                          ok = RootUtils.setRefreshRate(mode.getModeId(), mode.getRateInt());
-                      } else if (useShizuku) {
-                          ok = com.pmahz.util.ShizukuUtils.setRefreshRate(mode.getModeId(), mode.getRateInt());
-                      }
+                      if (useRoot)         ok = RootUtils.setRefreshRate(mode.getModeId(), mode.getRateInt());
+                      else if (useShizuku) ok = com.pmahz.util.ShizukuUtils.setRefreshRate(mode.getModeId(), mode.getRateInt());
+                      else if (useAdb)     ok = AdbUtils.setRefreshRate(getContext(), mode.getModeId(), mode.getRateInt());
                       final boolean success = ok;
                       if (getActivity() != null) {
                           getActivity().runOnUiThread(() -> {
@@ -1265,6 +1264,8 @@ jobs:
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.Manifest;
+          import android.content.ClipData;
+          import android.content.ClipboardManager;
           import android.content.Context;
           import android.content.Intent;
           import android.content.SharedPreferences;
@@ -1273,6 +1274,8 @@ jobs:
           import android.net.Uri;
           import android.os.Build;
           import android.os.Bundle;
+          import android.os.Handler;
+          import android.os.Looper;
           import android.provider.Settings;
           import android.text.SpannableString;
           import android.text.Spanned;
@@ -1289,8 +1292,7 @@ jobs:
           import androidx.fragment.app.Fragment;
           import com.pmahz.R;
           import com.pmahz.util.RootUtils;
-          import java.util.*;
-
+          import com.pmahz.util.AdbUtils;
           public class SettingsFragment extends Fragment {
               private SharedPreferences prefs;
               private RadioGroup rgWallpaper;
@@ -1298,22 +1300,23 @@ jobs:
               private Button btnCustomWallpaper;
               private ActivityResultLauncher<Intent> pickImageLauncher;
               private View rootView;
-
+              private TextView tvAdbStatus;
+              private Handler adbHandler = new Handler(Looper.getMainLooper());
+              private Runnable adbPoll;
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_settings, c, false);
                   rootView = v;
                   prefs = requireActivity().getSharedPreferences("s", Context.MODE_PRIVATE);
-
                   TextView rootStatus    = v.findViewById(R.id.tv_root_status);
                   TextView shizukuStatus = v.findViewById(R.id.tv_shizuku_status);
                   Button btnRequestShizuku = v.findViewById(R.id.btn_request_shizuku);
                   com.google.android.material.switchmaterial.SwitchMaterial switchRoot    = v.findViewById(R.id.switch_root);
                   com.google.android.material.switchmaterial.SwitchMaterial switchShizuku = v.findViewById(R.id.switch_shizuku);
-
+                  com.google.android.material.switchmaterial.SwitchMaterial switchAdb     = v.findViewById(R.id.switch_adb);
                   String savedMode = prefs.getString("auth_mode", "");
                   switchRoot.setChecked("root".equals(savedMode));
                   switchShizuku.setChecked("shizuku".equals(savedMode));
-
+                  switchAdb.setChecked("adb".equals(savedMode));
                   new Thread(() -> {
                       boolean ok = RootUtils.isRooted();
                       if (isAdded() && getActivity() != null) {
@@ -1323,75 +1326,80 @@ jobs:
                           });
                       }
                   }).start();
-
                   updateShizukuStatus(shizukuStatus, btnRequestShizuku);
-
                   btnRequestShizuku.setOnClickListener(view -> {
                       if (com.pmahz.util.ShizukuUtils.isAvailable()) {
                           com.pmahz.util.ShizukuUtils.requestPermission();
-                          new android.os.Handler(android.os.Looper.getMainLooper())
-                              .postDelayed(() -> updateShizukuStatus(shizukuStatus, btnRequestShizuku), 1000);
+                          new Handler(Looper.getMainLooper()).postDelayed(() -> updateShizukuStatus(shizukuStatus, btnRequestShizuku), 1000);
                       } else {
                           Toast.makeText(getContext(), "请先安装并启动 Shizuku", Toast.LENGTH_LONG).show();
                       }
                   });
-
-                  switchRoot.setOnCheckedChangeListener((btn, checked) -> {
-                      if (checked) {
-                          switchShizuku.setChecked(false);
-                          prefs.edit().putString("auth_mode", "root").apply();
-                      } else {
-                          if (!switchShizuku.isChecked()) {
-                              prefs.edit().putString("auth_mode", "").apply();
-                          }
-                      }
+                  switchRoot.setOnCheckedChangeListener((btn, ck) -> {
+                      if (ck) { switchShizuku.setChecked(false); switchAdb.setChecked(false); prefs.edit().putString("auth_mode", "root").apply(); }
+                      else if (!switchShizuku.isChecked() && !switchAdb.isChecked()) prefs.edit().putString("auth_mode", "").apply();
                   });
-
-                  switchShizuku.setOnCheckedChangeListener((btn, checked) -> {
-                      if (checked) {
-                          switchRoot.setChecked(false);
-                          prefs.edit().putString("auth_mode", "shizuku").apply();
-                          updateShizukuStatus(shizukuStatus, btnRequestShizuku);
-                      } else {
-                          if (!switchRoot.isChecked()) {
-                              prefs.edit().putString("auth_mode", "").apply();
-                          }
-                          btnRequestShizuku.setVisibility(android.view.View.GONE);
-                      }
+                  switchShizuku.setOnCheckedChangeListener((btn, ck) -> {
+                      if (ck) { switchRoot.setChecked(false); switchAdb.setChecked(false); prefs.edit().putString("auth_mode", "shizuku").apply();
+                          updateShizukuStatus(shizukuStatus, btnRequestShizuku); }
+                      else { if (!switchRoot.isChecked() && !switchAdb.isChecked()) prefs.edit().putString("auth_mode", "").apply();
+                          btnRequestShizuku.setVisibility(View.GONE); }
                   });
-
-                  TextView author = v.findViewById(R.id.tv_author);
-                  String fullText = "酷安:爱好者ahh 前往关注";
-                  SpannableString spannable = new SpannableString(fullText);
-                  ClickableSpan clickableSpan = new ClickableSpan() {
-                      @Override public void onClick(@NonNull View widget) {
-                          String url = "https://www.coolapk.com/u/31452988";
-                          try {
-                              startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                                      .setPackage("com.coolapk.market"));
-                          } catch (Exception e) {
-                              startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-                          }
+                  switchAdb.setOnCheckedChangeListener((btn, ck) -> {
+                      if (ck) { switchRoot.setChecked(false); switchShizuku.setChecked(false); prefs.edit().putString("auth_mode", "adb").apply(); }
+                      else if (!switchRoot.isChecked() && !switchShizuku.isChecked()) prefs.edit().putString("auth_mode", "").apply();
+                  });
+                  // ADB 卡片
+                  tvAdbStatus = v.findViewById(R.id.tv_adb_status);
+                  TextView tvAdbCmd = v.findViewById(R.id.tv_adb_cmd);
+                  Button btnAdbCopy = v.findViewById(R.id.btn_adb_copy);
+                  Button btnAdbRegen = v.findViewById(R.id.btn_adb_regen);
+                  Button btnAdbCheck = v.findViewById(R.id.btn_adb_check);
+                  AdbUtils.generateScript(getContext());
+                  tvAdbCmd.setText(AdbUtils.getAdbCommand(getContext()));
+                  refreshAdbStatus();
+                  btnAdbCopy.setOnClickListener(view -> {
+                      ClipboardManager cm = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                      cm.setPrimaryClip(ClipData.newPlainText("adb", AdbUtils.getAdbCommand(getContext())));
+                      Toast.makeText(getContext(), R.string.adb_copied, Toast.LENGTH_SHORT).show();
+                  });
+                  btnAdbRegen.setOnClickListener(view -> {
+                      AdbUtils.generateScript(getContext());
+                      tvAdbCmd.setText(AdbUtils.getAdbCommand(getContext()));
+                      Toast.makeText(getContext(), R.string.adb_script_regen, Toast.LENGTH_SHORT).show();
+                  });
+                  btnAdbCheck.setOnClickListener(view -> refreshAdbStatus());
+                  adbPoll = new Runnable() {
+                      @Override public void run() {
+                          refreshAdbStatus();
+                          adbHandler.postDelayed(this, 2000);
                       }
                   };
-                  int start = fullText.indexOf("前往关注");
-                  spannable.setSpan(clickableSpan, start, start + "前往关注".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                  author.setText(spannable);
+                  adbHandler.postDelayed(adbPoll, 2000);
+                  TextView author = v.findViewById(R.id.tv_author);
+                  String fullText = "酷安:爱好者ahh 前往关注";
+                  SpannableString sp = new SpannableString(fullText);
+                  ClickableSpan cs = new ClickableSpan() {
+                      @Override public void onClick(@NonNull View w) {
+                          String url = "https://www.coolapk.com/u/31452988";
+                          try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)).setPackage("com.coolapk.market")); }
+                          catch (Exception e) { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); }
+                      }
+                  };
+                  int st = fullText.indexOf("前往关注");
+                  sp.setSpan(cs, st, st + 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                  author.setText(sp);
                   author.setMovementMethod(LinkMovementMethod.getInstance());
                   author.setHighlightColor(Color.TRANSPARENT);
-
-                  Button btnGenerateLog = v.findViewById(R.id.btn_generate_log);
-                  btnGenerateLog.setText(R.string.generate_log_btn);
-                  btnGenerateLog.setOnClickListener(view -> {
+                  Button btnGenLog = v.findViewById(R.id.btn_generate_log);
+                  btnGenLog.setText(R.string.generate_log_btn);
+                  btnGenLog.setOnClickListener(view -> {
                       Toast.makeText(getContext(), R.string.log_extracting, Toast.LENGTH_SHORT).show();
                       new Thread(() -> {
                           String log = RootUtils.generateRuntimeLog();
-                          if (getActivity() != null) {
-                              getActivity().runOnUiThread(() -> showLogDialog(log));
-                          }
+                          if (getActivity() != null) getActivity().runOnUiThread(() -> showLogDialog(log));
                       }).start();
                   });
-
                   rgWallpaper = v.findViewById(R.id.rg_wallpaper);
                   sbAlpha = v.findViewById(R.id.sb_alpha);
                   sbCardAlpha = v.findViewById(R.id.sb_card_alpha);
@@ -1399,16 +1407,14 @@ jobs:
                   sbSettingTextAlpha = v.findViewById(R.id.sb_setting_text_alpha);
                   btnCustomWallpaper = v.findViewById(R.id.btn_custom_wallpaper);
                   btnCustomWallpaper.setText(R.string.wallpaper_choose_image);
-
                   ((RadioButton)v.findViewById(R.id.rb_gradient1)).setText(R.string.wallpaper_gradient1);
                   ((RadioButton)v.findViewById(R.id.rb_gradient2)).setText(R.string.wallpaper_gradient2);
                   ((RadioButton)v.findViewById(R.id.rb_gradient3)).setText(R.string.wallpaper_gradient3);
                   ((RadioButton)v.findViewById(R.id.rb_white)).setText(R.string.wallpaper_white);
                   ((RadioButton)v.findViewById(R.id.rb_black)).setText(R.string.wallpaper_black);
                   ((RadioButton)v.findViewById(R.id.rb_custom)).setText(R.string.wallpaper_custom);
-
-                  int currentType = prefs.getInt("wallpaper_type", 4);
-                  switch (currentType) {
+                  int t = prefs.getInt("wallpaper_type", 4);
+                  switch (t) {
                       case 1: rgWallpaper.check(R.id.rb_gradient2); break;
                       case 2: rgWallpaper.check(R.id.rb_gradient3); break;
                       case 3: rgWallpaper.check(R.id.rb_custom); break;
@@ -1419,53 +1425,38 @@ jobs:
                   sbCardAlpha.setProgress(prefs.getInt("card_alpha", 0));
                   sbSettingCardAlpha.setProgress(prefs.getInt("setting_card_alpha", 0));
                   sbSettingTextAlpha.setProgress(prefs.getInt("setting_text_alpha", 0));
-
-                  rgWallpaper.setOnCheckedChangeListener((group, checkedId) -> {
+                  rgWallpaper.setOnCheckedChangeListener((g, id) -> {
                       int type;
-                      if (checkedId == R.id.rb_gradient2) type = 1;
-                      else if (checkedId == R.id.rb_gradient3) type = 2;
-                      else if (checkedId == R.id.rb_custom) type = 3;
-                      else if (checkedId == R.id.rb_black) type = 5;
+                      if (id == R.id.rb_gradient2) type = 1;
+                      else if (id == R.id.rb_gradient3) type = 2;
+                      else if (id == R.id.rb_custom) type = 3;
+                      else if (id == R.id.rb_black) type = 5;
                       else type = 4;
                       prefs.edit().putInt("wallpaper_type", type).apply();
-                      if (type == 3 && prefs.getString("wallpaper_uri", null) == null) {
+                      if (type == 3 && prefs.getString("wallpaper_uri", null) == null)
                           Toast.makeText(getContext(), "请先选择自定义图片", Toast.LENGTH_SHORT).show();
-                      }
                   });
-
                   sbAlpha.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                      @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                          prefs.edit().putFloat("wallpaper_alpha", progress / 100f).apply();
-                      }
-                      @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-                      @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                      @Override public void onProgressChanged(SeekBar sb, int p, boolean u) { prefs.edit().putFloat("wallpaper_alpha", p/100f).apply(); }
+                      @Override public void onStartTrackingTouch(SeekBar sb) {}
+                      @Override public void onStopTrackingTouch(SeekBar sb) {}
                   });
-
                   sbCardAlpha.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                      @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                          prefs.edit().putInt("card_alpha", progress).apply();
-                      }
-                      @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-                      @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                      @Override public void onProgressChanged(SeekBar sb, int p, boolean u) { prefs.edit().putInt("card_alpha", p).apply(); }
+                      @Override public void onStartTrackingTouch(SeekBar sb) {}
+                      @Override public void onStopTrackingTouch(SeekBar sb) {}
                   });
-
-                  SeekBar.OnSeekBarChangeListener settingTransparencyListener = new SeekBar.OnSeekBarChangeListener() {
-                      @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                          applySettingTransparency();
-                      }
-                      @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-                      @Override public void onStopTrackingTouch(SeekBar seekBar) {
-                          prefs.edit()
-                              .putInt("setting_card_alpha", sbSettingCardAlpha.getProgress())
-                              .putInt("setting_text_alpha", sbSettingTextAlpha.getProgress())
-                              .apply();
+                  SeekBar.OnSeekBarChangeListener stl = new SeekBar.OnSeekBarChangeListener() {
+                      @Override public void onProgressChanged(SeekBar sb, int p, boolean u) { applySettingTransparency(); }
+                      @Override public void onStartTrackingTouch(SeekBar sb) {}
+                      @Override public void onStopTrackingTouch(SeekBar sb) {
+                          prefs.edit().putInt("setting_card_alpha", sbSettingCardAlpha.getProgress())
+                              .putInt("setting_text_alpha", sbSettingTextAlpha.getProgress()).apply();
                       }
                   };
-                  sbSettingCardAlpha.setOnSeekBarChangeListener(settingTransparencyListener);
-                  sbSettingTextAlpha.setOnSeekBarChangeListener(settingTransparencyListener);
-
+                  sbSettingCardAlpha.setOnSeekBarChangeListener(stl);
+                  sbSettingTextAlpha.setOnSeekBarChangeListener(stl);
                   applySettingTransparency();
-
                   pickImageLauncher = registerForActivityResult(
                           new ActivityResultContracts.StartActivityForResult(),
                           result -> {
@@ -1477,116 +1468,86 @@ jobs:
                                       Toast.makeText(getContext(), R.string.custom_wallpaper_saved, Toast.LENGTH_SHORT).show();
                                   }
                               }
-                          }
-                  );
-
+                          });
                   btnCustomWallpaper.setOnClickListener(view -> {
-                      String permission = Build.VERSION.SDK_INT >= 33 ? Manifest.permission.READ_MEDIA_IMAGES : Manifest.permission.READ_EXTERNAL_STORAGE;
-                      if (ContextCompat.checkSelfPermission(requireActivity(), permission) != PackageManager.PERMISSION_GRANTED) {
-                          requestPermissions(new String[]{permission}, 100);
-                      } else {
-                          openGallery();
-                      }
+                      String per = Build.VERSION.SDK_INT >= 33 ? Manifest.permission.READ_MEDIA_IMAGES : Manifest.permission.READ_EXTERNAL_STORAGE;
+                      if (ContextCompat.checkSelfPermission(requireActivity(), per) != PackageManager.PERMISSION_GRANTED)
+                          requestPermissions(new String[]{per}, 100);
+                      else openGallery();
                   });
-
                   return v;
               }
-
-              private void updateShizukuStatus(TextView tv, Button btn) {
-                  boolean avail = com.pmahz.util.ShizukuUtils.isAvailable();
-                  boolean perm  = com.pmahz.util.ShizukuUtils.hasPermission();
-                  if (!avail) {
-                      tv.setText("Shizuku 未运行（需先安装启动）");
-                      tv.setTextColor(0xFF888888);
-                      btn.setVisibility(android.view.View.GONE);
-                  } else if (!perm) {
-                      tv.setText("Shizuku 运行中，未授权");
-                      tv.setTextColor(0xFFE74C3C);
-                      btn.setVisibility(android.view.View.VISIBLE);
-                  } else {
-                      tv.setText("✅ Shizuku 已授权，可切换刷新率");
-                      tv.setTextColor(0xFF2ECC71);
-                      btn.setVisibility(android.view.View.GONE);
-                  }
+              private void refreshAdbStatus() {
+                  if (tvAdbStatus == null) return;
+                  boolean run = AdbUtils.isRunning(getContext());
+                  tvAdbStatus.setText(run ? R.string.adb_running : R.string.adb_not_running);
+                  tvAdbStatus.setTextColor(run ? 0xFF2ECC71 : 0xFFE74C3C);
               }
-
+              @Override public void onDestroyView() {
+                  super.onDestroyView();
+                  if (adbHandler != null && adbPoll != null) adbHandler.removeCallbacks(adbPoll);
+              }
+              private void updateShizukuStatus(TextView tv, Button btn) {
+                  boolean av = com.pmahz.util.ShizukuUtils.isAvailable();
+                  boolean pe = com.pmahz.util.ShizukuUtils.hasPermission();
+                  if (!av) { tv.setText("Shizuku 未运行"); tv.setTextColor(0xFF888888); btn.setVisibility(View.GONE); }
+                  else if (!pe) { tv.setText("Shizuku 未授权"); tv.setTextColor(0xFFE74C3C); btn.setVisibility(View.VISIBLE); }
+                  else { tv.setText("✅ Shizuku 已授权"); tv.setTextColor(0xFF2ECC71); btn.setVisibility(View.GONE); }
+              }
               private void applySettingTransparency() {
                   if (rootView == null) return;
-                  int cardAlpha = 255 - (int)(sbSettingCardAlpha.getProgress() / 100f * 255);
-                  int textAlpha = 255 - (int)(sbSettingTextAlpha.getProgress() / 100f * 255);
-                  applyAlphaToViewGroup((ViewGroup) rootView, cardAlpha, textAlpha);
+                  int ca = 255 - (int)(sbSettingCardAlpha.getProgress()/100f * 255);
+                  int ta = 255 - (int)(sbSettingTextAlpha.getProgress()/100f * 255);
+                  applyAlpha((ViewGroup) rootView, ca, ta);
               }
-
-              private void applyAlphaToViewGroup(ViewGroup parent, int cardAlpha, int textAlpha) {
-                  for (int i = 0; i < parent.getChildCount(); i++) {
-                      View child = parent.getChildAt(i);
-                      if (child instanceof CardView) {
-                          ((CardView) child).setCardBackgroundColor(Color.argb(cardAlpha, 255, 255, 255));
-                      } else if (child instanceof TextView) {
-                          child.setAlpha(textAlpha / 255f);
-                      }
-                      if (child instanceof ViewGroup) {
-                          applyAlphaToViewGroup((ViewGroup) child, cardAlpha, textAlpha);
-                      }
+              private void applyAlpha(ViewGroup p, int ca, int ta) {
+                  for (int i=0; i<p.getChildCount(); i++) {
+                      View c = p.getChildAt(i);
+                      if (c instanceof CardView) ((CardView)c).setCardBackgroundColor(Color.argb(ca, 255, 255, 255));
+                      else if (c instanceof TextView) c.setAlpha(ta/255f);
+                      if (c instanceof ViewGroup) applyAlpha((ViewGroup)c, ca, ta);
                   }
               }
-
               private void openGallery() {
-                  Intent intent = new Intent(Intent.ACTION_PICK);
-                  intent.setType("image/*");
-                  pickImageLauncher.launch(intent);
+                  Intent i = new Intent(Intent.ACTION_PICK); i.setType("image/*"); pickImageLauncher.launch(i);
               }
-
-              @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-                  if (requestCode == 100) {
-                      if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                          openGallery();
-                      } else {
-                          if (!shouldShowRequestPermissionRationale(permissions[0])) {
-                              new AlertDialog.Builder(getContext())
-                                      .setTitle(R.string.permission_denied_title)
-                                      .setMessage(R.string.permission_denied_message)
-                                      .setPositiveButton(R.string.permission_go_settings, (d, w) -> {
-                                          Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                          intent.setData(Uri.parse("package:" + requireActivity().getPackageName()));
-                                          startActivity(intent);
-                                      })
-                                      .setNegativeButton(R.string.permission_cancel, null)
-                                      .show();
-                          } else {
-                              Toast.makeText(getContext(), R.string.need_storage_permission, Toast.LENGTH_SHORT).show();
-                          }
-                      }
+              @Override public void onRequestPermissionsResult(int rc, @NonNull String[] p, @NonNull int[] r) {
+                  if (rc == 100) {
+                      if (r.length>0 && r[0]==PackageManager.PERMISSION_GRANTED) openGallery();
+                      else if (!shouldShowRequestPermissionRationale(p[0])) {
+                          new AlertDialog.Builder(getContext())
+                              .setTitle(R.string.permission_denied_title)
+                              .setMessage(R.string.permission_denied_message)
+                              .setPositiveButton(R.string.permission_go_settings, (d, w) -> {
+                                  Intent it = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                  it.setData(Uri.parse("package:" + requireActivity().getPackageName()));
+                                  startActivity(it);
+                              }).setNegativeButton(R.string.permission_cancel, null).show();
+                      } else Toast.makeText(getContext(), R.string.need_storage_permission, Toast.LENGTH_SHORT).show();
                   }
               }
-
-              private void showLogDialog(String logContent) {
+              private void showLogDialog(String log) {
                   if (getContext() == null) return;
                   ScrollView sv = new ScrollView(getContext());
                   TextView tv = new TextView(getContext());
-                  tv.setText(logContent);
-                  tv.setPadding(30, 30, 30, 30);
+                  tv.setText(log); tv.setPadding(30, 30, 30, 30);
                   tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
                   tv.setTextColor(Color.BLACK);
                   sv.addView(tv);
                   new AlertDialog.Builder(getContext())
-                          .setTitle(R.string.log_dialog_title)
-                          .setView(sv)
-                          .setPositiveButton(R.string.log_dialog_close, null)
-                          .setNeutralButton(R.string.log_dialog_share, (d, w) -> {
-                              Intent share = new Intent(Intent.ACTION_SEND);
-                              share.setType("text/plain");
-                              share.putExtra(Intent.EXTRA_TEXT, logContent);
-                              startActivity(Intent.createChooser(share, getString(R.string.log_dialog_share)));
-                          })
-                          .show();
+                      .setTitle(R.string.log_dialog_title).setView(sv)
+                      .setPositiveButton(R.string.log_dialog_close, null)
+                      .setNeutralButton(R.string.log_dialog_share, (d, w) -> {
+                          Intent sh = new Intent(Intent.ACTION_SEND);
+                          sh.setType("text/plain"); sh.putExtra(Intent.EXTRA_TEXT, log);
+                          startActivity(Intent.createChooser(sh, getString(R.string.log_dialog_share)));
+                      }).show();
               }
           }
           EOF
 
           cat > app/src/main/java/com/pmahz/MainActivity.java << 'EOF'
           package com.pmahz;
-
           import android.content.SharedPreferences;
           import android.graphics.Bitmap;
           import android.graphics.BitmapFactory;
@@ -1595,105 +1556,73 @@ jobs:
           import android.view.WindowManager;
           import android.widget.ImageView;
           import androidx.appcompat.app.AppCompatActivity;
+          import androidx.appcompat.app.AppCompatDelegate;
           import androidx.fragment.app.Fragment;
           import androidx.fragment.app.FragmentTransaction;
           import com.google.android.material.bottomnavigation.BottomNavigationView;
           import com.pmahz.fragment.HomeFragment;
           import com.pmahz.fragment.SettingsFragment;
           import com.pmahz.util.LanguageUtils;
+          import com.pmahz.util.AdbUtils;
           import java.io.InputStream;
-          import androidx.appcompat.app.AppCompatDelegate;
-
           public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
               private ImageView wallpaperView;
               private BottomNavigationView bottomNav;
               private SharedPreferences prefs;
-
               @Override protected void onCreate(Bundle s) {
-              AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-               super.onCreate(s);
+                  AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                  super.onCreate(s);
                   LanguageUtils.applyLanguage(this);
+                  AdbUtils.generateScript(this);
                   setContentView(R.layout.activity_main);
-                  
-              getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-              getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
-              if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-              getWindow().getDecorView().setSystemUiVisibility(
-              android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-             );
-          }
-
+                  getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                  getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+                  if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
+                      getWindow().getDecorView().setSystemUiVisibility(android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
                   wallpaperView = findViewById(R.id.global_wallpaper);
                   bottomNav = findViewById(R.id.bottom_navigation);
-
                   prefs = getSharedPreferences("s", MODE_PRIVATE);
                   prefs.registerOnSharedPreferenceChangeListener(this);
                   applyWallpaperAndUI();
-
-                  if (s == null) {
-                      loadFragment(new HomeFragment(), false);
-                  }
+                  if (s == null) loadFragment(new HomeFragment(), false);
                   bottomNav.setOnItemSelectedListener(item -> {
-                      if (item.getItemId() == R.id.nav_home) {
-                          loadFragment(new HomeFragment(), false);
-                          return true;
-                      }
-                      if (item.getItemId() == R.id.nav_settings) {
-                          loadFragment(new SettingsFragment(), true);
-                          return true;
-                      }
+                      if (item.getItemId() == R.id.nav_home) { loadFragment(new HomeFragment(), false); return true; }
+                      if (item.getItemId() == R.id.nav_settings) { loadFragment(new SettingsFragment(), true); return true; }
                       return false;
                   });
               }
-
-              private void loadFragment(Fragment fragment, boolean toSettings) {
+              private void loadFragment(Fragment f, boolean toSet) {
                   FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                  if (toSettings) {
-                      ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
-                  } else {
-                      ft.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
-                  }
-                  ft.replace(R.id.fragment_container, fragment).commit();
+                  if (toSet) ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
+                  else ft.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
+                  ft.replace(R.id.fragment_container, f).commit();
               }
-
               private void applyWallpaperAndUI() {
                   int type = prefs.getInt("wallpaper_type", 4);
-                  float wallpaperAlpha = prefs.getFloat("wallpaper_alpha", 0.3f);
-                  wallpaperView.setAlpha(wallpaperAlpha);
-
-                  float titleAlpha = 1f - wallpaperAlpha;
-                  bottomNav.getBackground().setAlpha((int)(titleAlpha * 255));
+                  float wa = prefs.getFloat("wallpaper_alpha", 0.3f);
+                  wallpaperView.setAlpha(wa);
+                  bottomNav.getBackground().setAlpha((int)((1f-wa)*255));
                   bottomNav.setElevation(0);
-
                   if (type == 3) {
-                      String uriStr = prefs.getString("wallpaper_uri", null);
-                      if (uriStr != null) {
+                      String uri = prefs.getString("wallpaper_uri", null);
+                      if (uri != null) {
                           try {
-                              InputStream is = getContentResolver().openInputStream(Uri.parse(uriStr));
-                              Bitmap bitmap = BitmapFactory.decodeStream(is);
-                              wallpaperView.setImageBitmap(bitmap);
-                          } catch (Exception e) {
-                              wallpaperView.setImageResource(R.drawable.wallpaper_white);
-                          }
-                      } else {
-                          wallpaperView.setImageResource(R.drawable.wallpaper_white);
-                      }
+                              InputStream is = getContentResolver().openInputStream(Uri.parse(uri));
+                              wallpaperView.setImageBitmap(BitmapFactory.decodeStream(is));
+                          } catch (Exception e) { wallpaperView.setImageResource(R.drawable.wallpaper_white); }
+                      } else wallpaperView.setImageResource(R.drawable.wallpaper_white);
                   } else {
-                      int resId;
-                      if (type == 1) resId = R.drawable.wallpaper_gradient_2;
-                      else if (type == 2) resId = R.drawable.wallpaper_gradient_3;
-                      else if (type == 5) resId = R.drawable.wallpaper_black;
-                      else resId = R.drawable.wallpaper_white;
-                      wallpaperView.setImageResource(resId);
+                      int id;
+                      if (type==1) id=R.drawable.wallpaper_gradient_2;
+                      else if (type==2) id=R.drawable.wallpaper_gradient_3;
+                      else if (type==5) id=R.drawable.wallpaper_black;
+                      else id=R.drawable.wallpaper_white;
+                      wallpaperView.setImageResource(id);
                   }
               }
-
-              @Override public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                  if (key.startsWith("wallpaper_")) {
-                      applyWallpaperAndUI();
-                  }
+              @Override public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
+                  if (key.startsWith("wallpaper_")) applyWallpaperAndUI();
               }
-
               @Override protected void onDestroy() {
                   super.onDestroy();
                   prefs.unregisterOnSharedPreferenceChangeListener(this);
@@ -1701,33 +1630,26 @@ jobs:
           }
           EOF
 
-          # ========== 布局文件 ==========
           cat > app/src/main/res/layout/activity_main.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent" android:layout_height="match_parent"
               android:fitsSystemWindows="true">
-
-              <ImageView
-                  android:id="@+id/global_wallpaper"
+              <ImageView android:id="@+id/global_wallpaper"
                   android:layout_width="0dp" android:layout_height="0dp"
                   app:layout_constraintTop_toTopOf="parent"
                   app:layout_constraintBottom_toBottomOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintEnd_toEndOf="parent"
-                  android:scaleType="centerCrop"
-                  android:alpha="0.3"/>
-
-              <FrameLayout
-                  android:id="@+id/fragment_container"
+                  android:scaleType="centerCrop" android:alpha="0.3"/>
+              <FrameLayout android:id="@+id/fragment_container"
                   android:layout_width="0dp" android:layout_height="0dp"
                   app:layout_constraintTop_toTopOf="parent"
                   app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
                   app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintEnd_toEndOf="parent"
                   android:background="@android:color/transparent"/>
-
               <com.google.android.material.bottomnavigation.BottomNavigationView
                   android:id="@+id/bottom_navigation"
                   android:layout_width="0dp" android:layout_height="wrap_content"
@@ -1738,8 +1660,7 @@ jobs:
                   android:background="#AAFFFFFF"
                   app:itemIconTint="#1976D2"
                   app:itemTextColor="#1976D2"
-                  app:elevation="0dp"
-                  android:elevation="0dp"/>
+                  app:elevation="0dp" android:elevation="0dp"/>
           </androidx.constraintlayout.widget.ConstraintLayout>
           EOF
 
@@ -1747,39 +1668,29 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent" android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:background="@android:color/transparent"
+              android:orientation="vertical" android:background="@android:color/transparent"
               android:fitsSystemWindows="true">
-              <RelativeLayout
-                  android:id="@+id/home_title_bar"
+              <RelativeLayout android:id="@+id/home_title_bar"
                   android:layout_width="match_parent" android:layout_height="wrap_content"
-                  android:padding="20dp"
-                  android:background="#88FFFFFF">
-                  <TextView
-                      android:id="@+id/home_title_text"
+                  android:padding="20dp" android:background="#88FFFFFF">
+                  <TextView android:id="@+id/home_title_text"
                       android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:text="@string/home_title"
                       android:textSize="26sp" android:textStyle="bold"
                       android:textColor="@color/text_dark"
                       android:layout_centerVertical="true"/>
-                  <ImageView
-                      android:id="@+id/btn_language_switch"
-                      android:layout_width="32dp"
-                      android:layout_height="32dp"
+                  <ImageView android:id="@+id/btn_language_switch"
+                      android:layout_width="32dp" android:layout_height="32dp"
                       android:src="@drawable/ic_language_earth"
                       android:layout_alignParentEnd="true"
                       android:layout_centerVertical="true"
-                      android:padding="4dp"
-                      android:clickable="true"
-                      android:focusable="true"
+                      android:padding="4dp" android:clickable="true" android:focusable="true"
                       android:background="?attr/selectableItemBackgroundBorderless"
                       android:contentDescription="@string/language_dialog_title"/>
               </RelativeLayout>
-              <androidx.recyclerview.widget.RecyclerView
-                  android:id="@+id/recycler_rates"
+              <androidx.recyclerview.widget.RecyclerView android:id="@+id/recycler_rates"
                   android:layout_width="match_parent" android:layout_height="match_parent"
-                  android:padding="10dp"
-                  android:background="@android:color/transparent"/>
+                  android:padding="10dp" android:background="@android:color/transparent"/>
           </LinearLayout>
           EOF
 
@@ -1789,28 +1700,23 @@ jobs:
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent" android:layout_height="wrap_content"
               android:padding="6dp" android:orientation="vertical">
-
-              <com.google.android.material.card.MaterialCardView
-                  android:id="@+id/card_rate"
+              <com.google.android.material.card.MaterialCardView android:id="@+id/card_rate"
                   android:layout_width="match_parent" android:layout_height="wrap_content"
-                  android:minHeight="100dp"
-                  app:cardCornerRadius="16dp"
-                  app:strokeWidth="0dp"
-                  app:strokeColor="#00000000"
+                  android:minHeight="100dp" app:cardCornerRadius="16dp"
+                  app:strokeWidth="0dp" app:strokeColor="#00000000"
                   android:background="@android:color/transparent">
-
                   <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:padding="16dp"
-                      android:minHeight="100dp">
-                      <TextView android:id="@+id/tv_rate_name" android:layout_width="wrap_content"
-                          android:layout_height="wrap_content" android:textColor="#FFFFFF"/>
-                      <TextView android:id="@+id/tv_rate_hz" android:layout_width="wrap_content"
-                          android:layout_height="wrap_content" android:textSize="30sp"
-                          android:textStyle="bold" android:textColor="#FFFFFF"
+                      android:padding="16dp" android:minHeight="100dp">
+                      <TextView android:id="@+id/tv_rate_name"
+                          android:layout_width="wrap_content" android:layout_height="wrap_content"
+                          android:textColor="#FFFFFF"/>
+                      <TextView android:id="@+id/tv_rate_hz"
+                          android:layout_width="wrap_content" android:layout_height="wrap_content"
+                          android:textSize="30sp" android:textStyle="bold" android:textColor="#FFFFFF"
                           android:layout_below="@id/tv_rate_name"/>
-                      <TextView android:id="@+id/tv_rate_desc" android:layout_width="wrap_content"
-                          android:layout_height="wrap_content" android:textColor="#EEEEEE"
-                          android:layout_alignParentBottom="true"/>
+                      <TextView android:id="@+id/tv_rate_desc"
+                          android:layout_width="wrap_content" android:layout_height="wrap_content"
+                          android:textColor="#EEEEEE" android:layout_alignParentBottom="true"/>
                   </RelativeLayout>
               </com.google.android.material.card.MaterialCardView>
           </LinearLayout>
@@ -1820,8 +1726,7 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent" android:layout_height="wrap_content"
-              android:padding="10dp"
-              android:background="@android:color/transparent">
+              android:padding="10dp" android:background="@android:color/transparent">
               <TextView android:id="@+id/tv_header_title"
                   android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:textStyle="bold" android:textColor="@color/text_dark"/>
@@ -1833,8 +1738,7 @@ jobs:
           <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent" android:layout_height="match_parent"
-              android:background="@android:color/transparent"
-              android:fitsSystemWindows="true">
+              android:background="@android:color/transparent" android:fitsSystemWindows="true">
               <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                   android:orientation="vertical" android:padding="16dp">
 
@@ -1843,12 +1747,10 @@ jobs:
                       app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
                       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                           android:orientation="vertical" android:padding="16dp">
-
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                               android:text="@string/settings_root_title" android:textStyle="bold"
                               android:textSize="18sp" android:textColor="@color/text_dark"
                               android:paddingBottom="12dp"/>
-
                           <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                               android:orientation="horizontal" android:gravity="center_vertical">
                               <ImageView android:layout_width="28dp" android:layout_height="28dp"
@@ -1863,15 +1765,11 @@ jobs:
                                       android:text="检测中..." android:textSize="12sp"
                                       android:textColor="@color/text_muted"/>
                               </LinearLayout>
-                              <com.google.android.material.switchmaterial.SwitchMaterial
-                                  android:id="@+id/switch_root"
+                              <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switch_root"
                                   android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                           </LinearLayout>
-
                           <View android:layout_width="match_parent" android:layout_height="1dp"
-                              android:background="#22000000" android:layout_marginTop="14dp"
-                              android:layout_marginBottom="14dp"/>
-
+                              android:background="#22000000" android:layout_marginTop="14dp" android:layout_marginBottom="14dp"/>
                           <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                               android:orientation="horizontal" android:gravity="center_vertical">
                               <ImageView android:layout_width="28dp" android:layout_height="28dp"
@@ -1886,29 +1784,84 @@ jobs:
                                       android:text="检测中..." android:textSize="12sp"
                                       android:textColor="@color/text_muted"/>
                               </LinearLayout>
-                              <com.google.android.material.switchmaterial.SwitchMaterial
-                                  android:id="@+id/switch_shizuku"
+                              <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switch_shizuku"
                                   android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                           </LinearLayout>
-
                           <Button android:id="@+id/btn_request_shizuku"
                               android:layout_width="match_parent" android:layout_height="48dp"
-                              android:text="授权 Shizuku" android:layout_marginTop="10dp"
-                              android:visibility="gone"
+                              android:text="授权 Shizuku" android:layout_marginTop="10dp" android:visibility="gone"
                               style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-
+                          <View android:layout_width="match_parent" android:layout_height="1dp"
+                              android:background="#22000000" android:layout_marginTop="14dp" android:layout_marginBottom="14dp"/>
+                          <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:orientation="horizontal" android:gravity="center_vertical">
+                              <ImageView android:layout_width="28dp" android:layout_height="28dp"
+                                  android:src="@drawable/ic_adb" android:layout_marginEnd="10dp"/>
+                              <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                                  android:layout_weight="1" android:orientation="vertical">
+                                  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                      android:text="@string/adb_running_label" android:textSize="15sp"
+                                      android:textColor="@color/text_dark"/>
+                                  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                      android:text="@string/adb_desc" android:textSize="11sp"
+                                      android:textColor="@color/text_muted"/>
+                              </LinearLayout>
+                              <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switch_adb"
+                                  android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                          </LinearLayout>
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
-                      app:cardCornerRadius="12dp"
-                      app:cardBackgroundColor="#AAFFFFFF">
+                      app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
                       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                           android:orientation="vertical" android:padding="16dp">
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                              android:text="@string/settings_wallpaper_title" android:textStyle="bold" android:textSize="18sp"
-                              android:textColor="@color/text_dark"/>
+                              android:text="@string/adb_title" android:textStyle="bold"
+                              android:textSize="18sp" android:textColor="@color/text_dark"/>
+                          <TextView android:id="@+id/tv_adb_status"
+                              android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/adb_not_running" android:textSize="13sp"
+                              android:layout_marginTop="6dp"
+                              android:textColor="@color/text_muted"/>
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/adb_cmd_label" android:textSize="13sp"
+                              android:textColor="@color/text_dark" android:layout_marginTop="10dp"/>
+                          <TextView android:id="@+id/tv_adb_cmd"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:padding="10dp" android:background="#22000000"
+                              android:textIsSelectable="true" android:textSize="12sp"
+                              android:fontFamily="monospace" android:layout_marginTop="4dp"/>
+                          <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:orientation="horizontal" android:layout_marginTop="8dp">
+                              <Button android:id="@+id/btn_adb_copy"
+                                  android:layout_width="0dp" android:layout_height="wrap_content"
+                                  android:layout_weight="1" android:layout_marginEnd="4dp"
+                                  android:text="@string/adb_copy"
+                                  style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                              <Button android:id="@+id/btn_adb_check"
+                                  android:layout_width="0dp" android:layout_height="wrap_content"
+                                  android:layout_weight="1" android:layout_marginStart="4dp" android:layout_marginEnd="4dp"
+                                  android:text="@string/adb_check"
+                                  style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                              <Button android:id="@+id/btn_adb_regen"
+                                  android:layout_width="0dp" android:layout_height="wrap_content"
+                                  android:layout_weight="1" android:layout_marginStart="4dp"
+                                  android:text="@string/adb_regen"
+                                  style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                          </LinearLayout>
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/settings_wallpaper_title" android:textStyle="bold"
+                              android:textSize="18sp" android:textColor="@color/text_dark"/>
                           <RadioGroup android:id="@+id/rg_wallpaper"
                               android:layout_width="match_parent" android:layout_height="wrap_content"
                               android:layout_marginTop="8dp">
@@ -1933,13 +1886,12 @@ jobs:
 
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
-                      app:cardCornerRadius="12dp"
-                      app:cardBackgroundColor="#AAFFFFFF">
+                      app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
                       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                           android:orientation="vertical" android:padding="16dp">
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                              android:text="@string/card_display_title" android:textStyle="bold" android:textSize="18sp"
-                              android:textColor="@color/text_dark"/>
+                              android:text="@string/card_display_title" android:textStyle="bold"
+                              android:textSize="18sp" android:textColor="@color/text_dark"/>
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                               android:text="@string/card_alpha_label" android:layout_marginTop="12dp"
                               android:textColor="@color/text_dark"/>
@@ -1951,13 +1903,12 @@ jobs:
 
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
-                      app:cardCornerRadius="12dp"
-                      app:cardBackgroundColor="#AAFFFFFF">
+                      app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
                       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                           android:orientation="vertical" android:padding="16dp">
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                              android:text="@string/settings_page_beautify" android:textStyle="bold" android:textSize="18sp"
-                              android:textColor="@color/text_dark"/>
+                              android:text="@string/settings_page_beautify" android:textStyle="bold"
+                              android:textSize="18sp" android:textColor="@color/text_dark"/>
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                               android:text="@string/settings_card_alpha" android:layout_marginTop="12dp"
                               android:textColor="@color/text_dark"/>
@@ -1975,30 +1926,25 @@ jobs:
 
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
-                      app:cardCornerRadius="12dp"
-                      app:cardBackgroundColor="#AAFFFFFF">
+                      app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
                       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                           android:orientation="vertical" android:padding="16dp">
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                              android:text="@string/about_title" android:textStyle="bold" android:textSize="18sp"
-                              android:textColor="@color/text_dark"/>
+                              android:text="@string/about_title" android:textStyle="bold"
+                              android:textSize="18sp" android:textColor="@color/text_dark"/>
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                               android:text="@string/version_label" android:layout_marginTop="4dp"
                               android:textColor="@color/text_dark"/>
                           <TextView android:id="@+id/tv_author"
                               android:layout_width="wrap_content" android:layout_height="wrap_content"
-                              android:textColor="#1976D2"
-                              android:layout_marginTop="4dp"/>
+                              android:textColor="#1976D2" android:layout_marginTop="4dp"/>
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
-                  <Button
-                      android:id="@+id/btn_generate_log"
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
+                  <Button android:id="@+id/btn_generate_log"
+                      android:layout_width="match_parent" android:layout_height="wrap_content"
                       android:text="@string/generate_log_btn"
                       style="@style/Widget.MaterialComponents.Button"/>
-
               </LinearLayout>
           </ScrollView>
           EOF
@@ -2014,9 +1960,14 @@ jobs:
           cat > app/src/main/res/values/colors.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
-              <color name="primary">#1976D2</color><color name="primary_dark">#1565C0</color><color name="accent">#42A5F5</color>
-              <color name="white">#FFFFFFFF</color><color name="black">#FF000000</color><color name="bg_main">#F0F4FF</color>
-              <color name="text_dark">#1A1A2E</color><color name="text_muted">#888888</color>
+              <color name="primary">#1976D2</color>
+              <color name="primary_dark">#1565C0</color>
+              <color name="accent">#42A5F5</color>
+              <color name="white">#FFFFFFFF</color>
+              <color name="black">#FF000000</color>
+              <color name="bg_main">#F0F4FF</color>
+              <color name="text_dark">#1A1A2E</color>
+              <color name="text_muted">#888888</color>
           </resources>
           EOF
 
@@ -2049,3 +2000,4 @@ jobs:
         with:
           name: RefreshRate-v1.6.0
           path: app/build/outputs/apk/debug/app-debug.apk
+
