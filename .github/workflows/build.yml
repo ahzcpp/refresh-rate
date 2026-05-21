@@ -925,7 +925,7 @@ jobs:
           }
           EOF
 
-          # ====== OverclockService.java（修复通知按钮并加固前台服务） ======
+          # ====== OverclockService.java ======
           cat > app/src/main/java/com/pmahz/service/OverclockService.java << 'EOF'
           package com.pmahz.service;
 
@@ -1559,7 +1559,7 @@ jobs:
           }
           EOF
 
-          # ====== SettingsFragment.java（含权限请求与完整方法） ======
+          # ====== SettingsFragment.java（完整版，无省略） ======
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -1779,7 +1779,6 @@ jobs:
                   switchOC.setOnCheckedChangeListener((btn, checked) -> {
                       prefs.edit().putBoolean("auto_overclock", checked).apply();
                       if (checked) {
-                          // 通知权限请求
                           if (Build.VERSION.SDK_INT >= 33) {
                               if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
                                       != PackageManager.PERMISSION_GRANTED) {
@@ -1984,10 +1983,9 @@ jobs:
                           }
                       }
                   }
-                  // 通知权限回调
                   if (requestCode == 200) {
                       if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                          // 用户授予权限后不做额外操作，下次开启开关时会自动启动服务
+                          // 用户授予后不做额外操作
                       } else {
                           Toast.makeText(getContext(), "通知权限被拒绝，守护通知可能无法显示", Toast.LENGTH_LONG).show();
                       }
@@ -2418,7 +2416,109 @@ jobs:
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
-                  <!-- 其余卡片省略... -->
+                  <!-- 壁纸美化卡片 -->
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp"
+                      app:cardBackgroundColor="#AAFFFFFF">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/settings_wallpaper_title" android:textStyle="bold" android:textSize="18sp"
+                              android:textColor="@color/text_dark"/>
+                          <RadioGroup android:id="@+id/rg_wallpaper"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:layout_marginTop="8dp">
+                              <RadioButton android:id="@+id/rb_white" android:text="@string/wallpaper_white"/>
+                              <RadioButton android:id="@+id/rb_black" android:text="@string/wallpaper_black"/>
+                              <RadioButton android:id="@+id/rb_gradient1" android:text="@string/wallpaper_gradient1"/>
+                              <RadioButton android:id="@+id/rb_gradient2" android:text="@string/wallpaper_gradient2"/>
+                              <RadioButton android:id="@+id/rb_gradient3" android:text="@string/wallpaper_gradient3"/>
+                              <RadioButton android:id="@+id/rb_custom" android:text="@string/wallpaper_custom"/>
+                          </RadioGroup>
+                          <Button android:id="@+id/btn_custom_wallpaper"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:text="@string/wallpaper_choose_image" android:layout_marginTop="4dp"/>
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/wallpaper_alpha_label" android:layout_marginTop="12dp"
+                              android:textColor="@color/text_dark"/>
+                          <SeekBar android:id="@+id/sb_alpha"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:max="100" android:progress="30"/>
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
+                  <!-- 档位显示卡片 -->
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp"
+                      app:cardBackgroundColor="#AAFFFFFF">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/card_display_title" android:textStyle="bold" android:textSize="18sp"
+                              android:textColor="@color/text_dark"/>
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/card_alpha_label" android:layout_marginTop="12dp"
+                              android:textColor="@color/text_dark"/>
+                          <SeekBar android:id="@+id/sb_card_alpha"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:max="100" android:progress="0"/>
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
+                  <!-- 设置页美化卡片 -->
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp"
+                      app:cardBackgroundColor="#AAFFFFFF">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/settings_page_beautify" android:textStyle="bold" android:textSize="18sp"
+                              android:textColor="@color/text_dark"/>
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/settings_card_alpha" android:layout_marginTop="12dp"
+                              android:textColor="@color/text_dark"/>
+                          <SeekBar android:id="@+id/sb_setting_card_alpha"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:max="100" android:progress="0"/>
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/settings_text_alpha" android:layout_marginTop="12dp"
+                              android:textColor="@color/text_dark"/>
+                          <SeekBar android:id="@+id/sb_setting_text_alpha"
+                              android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:max="100" android:progress="0"/>
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
+                  <!-- 关于卡片 -->
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp"
+                      app:cardBackgroundColor="#AAFFFFFF">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/about_title" android:textStyle="bold" android:textSize="18sp"
+                              android:textColor="@color/text_dark"/>
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/version_label" android:layout_marginTop="4dp"
+                              android:textColor="@color/text_dark"/>
+                          <TextView android:id="@+id/tv_author"
+                              android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:textColor="#1976D2"
+                              android:layout_marginTop="4dp"/>
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
+                  <Button
+                      android:id="@+id/btn_generate_log"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:text="@string/generate_log_btn"
+                      style="@style/Widget.MaterialComponents.Button"/>
+
               </LinearLayout>
           </ScrollView>
           EOF
