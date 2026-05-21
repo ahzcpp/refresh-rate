@@ -915,7 +915,7 @@ jobs:
           }
           EOF
 
-          # ====== 新增 AutoOverclockManager.java ======
+          # ====== 修改一：全新的 AutoOverclockManager.java ======
           cat > app/src/main/java/com/pmahz/util/AutoOverclockManager.java << 'EOF'
           package com.pmahz.util;
 
@@ -928,59 +928,87 @@ jobs:
 
           public class AutoOverclockManager {
               private static final String TAG = "AutoOverclock";
-              private static final long STEP_DELAY_MS  = 900;   // 每步等待时间
-              private static final long POLL_DELAY_MS  = 2500;  // 正常轮询间隔
+              private static final long STEP_DELAY_MS = 900;
+              private static final long POLL_DELAY_MS = 2500;
 
               private static Thread  daemonThread;
               private static volatile boolean running = false;
               private static volatile String  lastLog = "";
 
-              /** 启动守护线程 */
-              public static void start(Context ctx, String authMode, List<DisplayMode> sortedModes) {
-                  if (running || sortedModes == null || sortedModes.isEmpty()) return;
-                  running = true;
-                  lastLog = "守护启动中...";
+              /**
+               * @param authMode   "root" 或 "shizuku"
+               * @param allModes   设备支持的全部模式
+               * @param targetW    用户选定的目标分辨率宽
+               * @param targetH    用户选定的目标分辨率高
+               * @param targetHz   用户选定的目标刷新率（如 165）
+               */
+              public static void start(Context ctx, String authMode,
+                                       List<DisplayMode> allModes,
+                                       int targetW, int targetH, int targetHz) {
+                  if (running) return;
+                  if (allModes == null || allModes.isEmpty()) return;
 
-                  // 按 fps 从低到高排序（保证顺序切）
-                  List<DisplayMode> asc = new ArrayList<>(sortedModes);
-                  asc.sort((a, b) -> Float.compare(a.getRefreshRate(), b.getRefreshRate()));
+                  // 只保留目标分辨率的档位，按 fps 从低到高
+                  List<DisplayMode> filtered = new ArrayList<>();
+                  for (DisplayMode m : allModes) {
+                      if (m.getWidth() == targetW && m.getHeight() == targetH) {
+                          filtered.add(m);
+                      }
+                  }
+                  if (filtered.isEmpty()) {
+                      lastLog = "未找到目标分辨率 " + targetW + "x" + targetH + " 的任何档位";
+                      return;
+                  }
+                  filtered.sort((a, b) -> Float.compare(a.getRefreshRate(), b.getRefreshRate()));
+
+                  // 找目标档位（精确匹配，找不到就用最高）
+                  DisplayMode targetMode = filtered.get(filtered.size() - 1);
+                  for (DisplayMode m : filtered) {
+                      if (m.getRateInt() == targetHz) { targetMode = m; break; }
+                  }
+                  final DisplayMode finalTarget = targetMode;
+
+                  running = true;
+                  lastLog = "守护启动，目标：" + targetW + "x" + targetH + " @ " + finalTarget.getRateInt() + " Hz";
 
                   daemonThread = new Thread(() -> {
                       while (running) {
                           try {
-                              // 读取当前刷新率
                               float curRate = getCurrentRate(ctx);
                               int   curInt  = Math.round(curRate);
-                              DisplayMode maxMode = asc.get(asc.size() - 1);
+                              String curRes = getCurrentResolution(ctx);
+                              String tgtRes = targetW + "×" + targetH;
 
-                              if (curInt >= maxMode.getRateInt()) {
-                                  // 已在最高档，正常轮询
-                                  lastLog = "已在最高档 " + maxMode.getRateInt() + " Hz，守护中...";
+                              boolean resOk  = tgtRes.equals(curRes);
+                              boolean rateOk = curInt >= finalTarget.getRateInt();
+
+                              if (resOk && rateOk) {
+                                  lastLog = "已在目标 " + finalTarget.getRateInt() + " Hz，守护中...";
                                   Thread.sleep(POLL_DELAY_MS);
                                   continue;
                               }
 
-                              // 找到当前档位在列表中的位置
-                              int curIdx = -1;
-                              for (int i = 0; i < asc.size(); i++) {
-                                  if (Math.abs(asc.get(i).getRefreshRate() - curRate) < 2.0f) {
-                                      curIdx = i; break;
-                                  }
-                              }
-                              // 找不到精确档位时，找最近的低档
-                              if (curIdx < 0) {
-                                  for (int i = asc.size() - 1; i >= 0; i--) {
-                                      if (asc.get(i).getRateInt() <= curInt) {
+                              // 确定当前在 filtered 列表中的位置
+                              int curIdx = 0;
+                              if (resOk) {
+                                  // 分辨率正确，找刷新率位置
+                                  for (int i = filtered.size() - 1; i >= 0; i--) {
+                                      if (filtered.get(i).getRateInt() <= curInt) {
                                           curIdx = i; break;
                                       }
                                   }
                               }
-                              if (curIdx < 0) curIdx = 0;
+                              // 分辨率不对时从最低档开始往上切（会自动切到目标分辨率）
 
-                              // 顺着往上切一格
-                              int nextIdx = Math.min(curIdx + 1, asc.size() - 1);
-                              DisplayMode next = asc.get(nextIdx);
-                              lastLog = "检测到 " + curInt + " Hz，正在切 → " + next.getRateInt() + " Hz";
+                              int nextIdx = Math.min(curIdx + 1, filtered.size() - 1);
+                              // 如果下一格已超过目标，直接切目标
+                              if (filtered.get(nextIdx).getRateInt() > finalTarget.getRateInt()) {
+                                  nextIdx = filtered.indexOf(finalTarget);
+                                  if (nextIdx < 0) nextIdx = filtered.size() - 1;
+                              }
+                              DisplayMode next = filtered.get(nextIdx);
+                              lastLog = (!resOk ? "分辨率不符，" : "") +
+                                        "检测到 " + curInt + " Hz，切 → " + next.getRateInt() + " Hz";
                               Log.d(TAG, lastLog);
 
                               if ("root".equals(authMode)) {
@@ -988,24 +1016,22 @@ jobs:
                               } else if ("shizuku".equals(authMode)) {
                                   ShizukuUtils.setRefreshRate(next.getModeId(), next.getRateInt());
                               }
-
                               Thread.sleep(STEP_DELAY_MS);
 
                           } catch (InterruptedException e) {
                               break;
                           } catch (Exception e) {
-                              Log.e(TAG, "daemon error: " + e.getMessage());
+                              Log.e(TAG, "daemon: " + e.getMessage());
                               try { Thread.sleep(POLL_DELAY_MS); } catch (InterruptedException ex) { break; }
                           }
                       }
+                      running = false;
                       lastLog = "守护已停止";
-                      Log.d(TAG, "daemon stopped");
                   });
                   daemonThread.setDaemon(true);
                   daemonThread.start();
               }
 
-              /** 停止守护 */
               public static void stop() {
                   running = false;
                   if (daemonThread != null) { daemonThread.interrupt(); daemonThread = null; }
@@ -1014,7 +1040,6 @@ jobs:
               public static boolean isRunning() { return running; }
               public static String  getLastLog() { return lastLog; }
 
-              /** 读当前刷新率（不需要 root） */
               public static float getCurrentRate(Context ctx) {
                   try {
                       DisplayManager dm = (DisplayManager) ctx.getSystemService(Context.DISPLAY_SERVICE);
@@ -1022,7 +1047,6 @@ jobs:
                   } catch (Exception e) { return 0f; }
               }
 
-              /** 读当前分辨率 */
               public static String getCurrentResolution(Context ctx) {
                   try {
                       DisplayManager dm = (DisplayManager) ctx.getSystemService(Context.DISPLAY_SERVICE);
@@ -1031,7 +1055,6 @@ jobs:
                   } catch (Exception e) { return "--"; }
               }
 
-              /** 从 DisplayManager 拿支持的模式列表（无需 root） */
               public static List<DisplayMode> getSupportedModes(Context ctx) {
                   List<DisplayMode> list = new ArrayList<>();
                   try {
@@ -1520,13 +1543,87 @@ jobs:
                       }
                   });
 
-                  // ── 自动超频开关 ──────────────────────────────────────────
+                  // ── 自动超频开关 + 选择器（修改三：完整替换） ─────────────────────────────────
                   com.google.android.material.switchmaterial.SwitchMaterial switchOC =
                       v.findViewById(R.id.switch_auto_overclock);
                   TextView tvOCStatus = v.findViewById(R.id.tv_overclock_status);
                   TextView tvOCCur    = v.findViewById(R.id.tv_overclock_cur);
+                  Spinner spinnerRes  = v.findViewById(R.id.spinner_oc_resolution);
+                  Spinner spinnerRate = v.findViewById(R.id.spinner_oc_rate);
 
-                  // 恢复开关状态
+                  // 加载设备支持的全部模式，按分辨率分组
+                  List<com.pmahz.model.DisplayMode> allModes =
+                      com.pmahz.util.AutoOverclockManager.getSupportedModes(requireContext());
+
+                  // 收集唯一分辨率（按像素从高到低）
+                  java.util.LinkedHashMap<String, List<com.pmahz.model.DisplayMode>> resMap =
+                      new java.util.LinkedHashMap<>();
+                  for (com.pmahz.model.DisplayMode m : allModes) {
+                      String key = m.getWidth() + "x" + m.getHeight();
+                      resMap.computeIfAbsent(key, k -> new java.util.ArrayList<>()).add(m);
+                  }
+                  List<String> resKeys = new java.util.ArrayList<>(resMap.keySet());
+                  resKeys.sort((a, b) -> {
+                      String[] pa = a.split("x"), pb = b.split("x");
+                      return Integer.parseInt(pb[0]) * Integer.parseInt(pb[1])
+                           - Integer.parseInt(pa[0]) * Integer.parseInt(pa[1]);
+                  });
+                  List<String> resLabels = new java.util.ArrayList<>();
+                  for (String k : resKeys) resLabels.add(k.replace("x", "×"));
+
+                  ArrayAdapter<String> resAdapter = new ArrayAdapter<>(requireContext(),
+                      android.R.layout.simple_spinner_item, resLabels);
+                  resAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                  spinnerRes.setAdapter(resAdapter);
+
+                  // 读取已保存的选择
+                  String savedRes  = prefs.getString("oc_target_res",  resKeys.isEmpty() ? "" : resKeys.get(0));
+                  int    savedHz   = prefs.getInt("oc_target_hz", -1);
+
+                  int savedResIdx = resKeys.indexOf(savedRes);
+                  if (savedResIdx < 0) savedResIdx = 0;
+                  spinnerRes.setSelection(savedResIdx);
+
+                  // 根据分辨率填充刷新率列表
+                  final List<Integer>[] rateHolder = new List[]{new java.util.ArrayList<>()};
+                  Runnable populateRates = () -> {
+                      int resIdx = spinnerRes.getSelectedItemPosition();
+                      if (resIdx < 0 || resIdx >= resKeys.size()) return;
+                      String rk = resKeys.get(resIdx);
+                      List<com.pmahz.model.DisplayMode> ms = resMap.get(rk);
+                      ms.sort((a, b) -> Float.compare(b.getRefreshRate(), a.getRefreshRate()));
+                      List<String> rateLabels = new java.util.ArrayList<>();
+                      rateHolder[0] = new java.util.ArrayList<>();
+                      for (com.pmahz.model.DisplayMode m : ms) {
+                          rateLabels.add(m.getRateInt() + " Hz");
+                          rateHolder[0].add(m.getRateInt());
+                      }
+                      ArrayAdapter<String> ra = new ArrayAdapter<>(requireContext(),
+                          android.R.layout.simple_spinner_item, rateLabels);
+                      ra.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                      spinnerRate.setAdapter(ra);
+                      // 恢复保存的刷新率
+                      int idx = rateHolder[0].indexOf(savedHz);
+                      spinnerRate.setSelection(idx >= 0 ? idx : 0);
+                  };
+                  populateRates.run();
+
+                  spinnerRes.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                      @Override public void onItemSelected(android.widget.AdapterView<?> p, android.view.View vv, int pos, long id) {
+                          prefs.edit().putString("oc_target_res", resKeys.get(pos)).apply();
+                          populateRates.run();
+                      }
+                      @Override public void onNothingSelected(android.widget.AdapterView<?> p) {}
+                  });
+                  spinnerRate.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                      @Override public void onItemSelected(android.widget.AdapterView<?> p, android.view.View vv, int pos, long id) {
+                          if (pos < rateHolder[0].size())
+                              prefs.edit().putInt("oc_target_hz", rateHolder[0].get(pos)).apply();
+                      }
+                      @Override public void onNothingSelected(android.widget.AdapterView<?> p) {}
+                  });
+
+                  // 恢复守护开关状态
                   boolean ocWasOn = prefs.getBoolean("auto_overclock", false);
                   switchOC.setChecked(ocWasOn);
                   if (ocWasOn && com.pmahz.util.AutoOverclockManager.isRunning()) {
@@ -1535,10 +1632,9 @@ jobs:
                       startOverclockStatusUpdater(tvOCStatus, tvOCCur);
                   }
 
-                  // 初始显示一次当前状态
                   new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                       if (!isAdded()) return;
-                      float r = com.pmahz.util.AutoOverclockManager.getCurrentRate(requireContext());
+                      float r   = com.pmahz.util.AutoOverclockManager.getCurrentRate(requireContext());
                       String res = com.pmahz.util.AutoOverclockManager.getCurrentResolution(requireContext());
                       tvOCCur.setText("当前刷新率: " + Math.round(r) + " Hz  分辨率: " + res);
                   });
@@ -1552,9 +1648,18 @@ jobs:
                               switchOC.setChecked(false);
                               return;
                           }
-                          List<com.pmahz.model.DisplayMode> modes =
-                              com.pmahz.util.AutoOverclockManager.getSupportedModes(requireContext());
-                          com.pmahz.util.AutoOverclockManager.start(requireContext(), mode, modes);
+                          // 读取用户选择的目标
+                          String ocRes = prefs.getString("oc_target_res", resKeys.isEmpty() ? "" : resKeys.get(0));
+                          int    ocHz  = prefs.getInt("oc_target_hz", -1);
+                          if (ocRes.isEmpty() || ocHz < 0) {
+                              Toast.makeText(getContext(), "请先选择目标分辨率和刷新率", Toast.LENGTH_SHORT).show();
+                              switchOC.setChecked(false);
+                              return;
+                          }
+                          String[] wh = ocRes.split("x");
+                          int tw = Integer.parseInt(wh[0]), th = Integer.parseInt(wh[1]);
+                          com.pmahz.util.AutoOverclockManager.start(
+                              requireContext(), mode, allModes, tw, th, ocHz);
                           tvOCStatus.setText("自动启动守护已开启");
                           tvOCStatus.setTextColor(0xFF2ECC71);
                           startOverclockStatusUpdater(tvOCStatus, tvOCCur);
@@ -1566,9 +1671,7 @@ jobs:
                       }
                   });
 
-                  // ── 调整位置：applySettingTransparency 移到 SeekBar 初始化之后 ──
-                  // 下面的代码块会初始化所有 SeekBar，然后调用 applySettingTransparency()
-
+                  // ── 以下为壁纸等原有初始化，applySettingTransparency 已移至 SeekBar 初始化之后
                   rgWallpaper = v.findViewById(R.id.rg_wallpaper);
                   sbAlpha = v.findViewById(R.id.sb_alpha);
                   sbCardAlpha = v.findViewById(R.id.sb_card_alpha);
@@ -1643,8 +1746,6 @@ jobs:
                   };
                   sbSettingCardAlpha.setOnSeekBarChangeListener(settingTransparencyListener);
                   sbSettingTextAlpha.setOnSeekBarChangeListener(settingTransparencyListener);
-
-                  // 不必再次调用 applySettingTransparency，因为上面已经调用过了
 
                   pickImageLauncher = registerForActivityResult(
                           new ActivityResultContracts.StartActivityForResult(),
@@ -2086,7 +2187,7 @@ jobs:
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
-                  <!-- ===== 自动超频卡片 ===== -->
+                  <!-- ===== 自动超频卡片（含选择器） ===== -->
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
@@ -2122,6 +2223,22 @@ jobs:
                               android:text="自动启动守护未开启" android:textSize="13sp"
                               android:layout_marginTop="8dp"
                               android:textColor="#E74C3C"/>
+
+                          <!-- 目标分辨率选择 -->
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="目标分辨率" android:textSize="13sp"
+                              android:textColor="@color/text_muted" android:layout_marginTop="14dp"/>
+                          <Spinner android:id="@+id/spinner_oc_resolution"
+                              android:layout_width="match_parent" android:layout_height="48dp"
+                              android:layout_marginTop="4dp"/>
+
+                          <!-- 目标刷新率选择 -->
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="目标刷新率" android:textSize="13sp"
+                              android:textColor="@color/text_muted" android:layout_marginTop="10dp"/>
+                          <Spinner android:id="@+id/spinner_oc_rate"
+                              android:layout_width="match_parent" android:layout_height="48dp"
+                              android:layout_marginTop="4dp"/>
 
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
