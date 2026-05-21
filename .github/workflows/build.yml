@@ -1768,7 +1768,7 @@ jobs:
           }
           EOF
 
-          # ====== SettingsFragment.java（含无障碍跳转） ======
+          # ====== SettingsFragment.java（含无障碍跳转及酷安链接） ======
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -2063,6 +2063,28 @@ jobs:
                       }
                   });
 
+                  // ── 酷安作者链接 ──
+                  TextView author = v.findViewById(R.id.tv_author);
+                  String fullText = "酷安:爱好者ahh 前往关注";
+                  SpannableString spannable = new SpannableString(fullText);
+                  ClickableSpan clickableSpan = new ClickableSpan() {
+                      @Override
+                      public void onClick(@NonNull View widget) {
+                          String url = "https://www.coolapk.com/u/31452988";
+                          try {
+                              startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                      .setPackage("com.coolapk.market"));
+                          } catch (Exception e) {
+                              startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                          }
+                      }
+                  };
+                  int start = fullText.indexOf("前往关注");
+                  spannable.setSpan(clickableSpan, start, start + "前往关注".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                  author.setText(spannable);
+                  author.setMovementMethod(LinkMovementMethod.getInstance());
+                  author.setHighlightColor(Color.TRANSPARENT);
+
                   // ── 壁纸等初始化 ──
                   rgWallpaper = v.findViewById(R.id.rg_wallpaper);
                   sbAlpha = v.findViewById(R.id.sb_alpha);
@@ -2167,7 +2189,6 @@ jobs:
               @Override
               public void onResume() {
                   super.onResume();
-                  // 从无障碍设置返回后刷新状态
                   View v = getView();
                   if (v != null) {
                       TextView tvA11yStatus = v.findViewById(R.id.tv_accessibility_status);
