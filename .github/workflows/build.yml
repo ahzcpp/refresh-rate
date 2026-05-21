@@ -938,7 +938,6 @@ jobs:
           import android.os.Build;
           import android.os.IBinder;
           import androidx.core.app.NotificationCompat;
-          import com.pmahz.MainActivity;
           import com.pmahz.R;
           import com.pmahz.util.AutoOverclockManager;
 
@@ -962,8 +961,12 @@ jobs:
                   // 创建停止按钮的 PendingIntent
                   Intent stopIntent = new Intent(this, OverclockService.class);
                   stopIntent.setAction("STOP");
+                  int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+                  if (Build.VERSION.SDK_INT >= 31) {
+                      pendingFlags |= PendingIntent.FLAG_IMMUTABLE;
+                  }
                   PendingIntent stopPendingIntent = PendingIntent.getService(
-                          this, 0, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_IMMUTABLE : 0));
+                          this, 0, stopIntent, pendingFlags);
 
                   Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                           .setContentTitle("自动超频守护运行中")
@@ -1023,13 +1026,14 @@ jobs:
           }
           EOF
 
-          # ====== 修改 AutoOverclockManager.java ======
+          # ====== 修改 AutoOverclockManager.java（已修复 Build 导入） ======
           cat > app/src/main/java/com/pmahz/util/AutoOverclockManager.java << 'EOF'
           package com.pmahz.util;
 
           import android.content.Context;
           import android.content.Intent;
           import android.hardware.display.DisplayManager;
+          import android.os.Build;
           import android.util.Log;
           import android.view.Display;
           import com.pmahz.model.DisplayMode;
@@ -1192,6 +1196,355 @@ jobs:
                       }
                   } catch (Exception ignored) {}
                   return list;
+              }
+          }
+          EOF
+
+          # ====== 修改 RateAdapter.java ======
+          cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
+          package com.pmahz.adapter;
+
+          import android.content.Context;
+          import android.graphics.Color;
+          import android.view.*;
+          import android.view.animation.AnimationUtils;
+          import android.widget.TextView;
+          import androidx.recyclerview.widget.RecyclerView;
+          import com.google.android.material.card.MaterialCardView;
+          import com.pmahz.R;
+          import com.pmahz.model.DisplayMode;
+          import java.util.List;
+
+          public class RateAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+              public static final int TYPE_HEADER = 0, TYPE_RATE = 1;
+              public interface OnRateClick { void onClick(DisplayMode m); }
+              private List<Object> items; private Context ctx; private OnRateClick listener;
+              private DisplayMode current;
+              private int lastCurrentPos = -1;
+
+              public RateAdapter(Context c, List<Object> i, OnRateClick l) { ctx=c; items=i; listener=l; }
+              public void update(List<Object> i) { items=i; notifyDataSetChanged(); }
+
+              public void setCurrent(DisplayMode m) {
+                  int oldPos = lastCurrentPos;
+                  int newPos = findPosition(m);
+                  if (oldPos != newPos) {
+                      if (oldPos >= 0) notifyItemChanged(oldPos);
+                      if (newPos >= 0) notifyItemChanged(newPos);
+                  }
+                  current = m;
+                  lastCurrentPos = newPos;
+              }
+
+              private int findPosition(DisplayMode target) {
+                  for (int i = 0; i < items.size(); i++) {
+                      Object obj = items.get(i);
+                      if (obj instanceof DisplayMode) {
+                          DisplayMode dm = (DisplayMode) obj;
+                          if (dm.getModeId() == target.getModeId() && dm.getRateInt() == target.getRateInt()) {
+                              return i;
+                          }
+                      }
+                  }
+                  return -1;
+              }
+
+              @Override public int getItemViewType(int p) { return items.get(p) instanceof String ? TYPE_HEADER : TYPE_RATE; }
+              @Override public int getItemCount() { return items==null ? 0 : items.size(); }
+              @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup p, int t) {
+                  LayoutInflater inf = LayoutInflater.from(ctx);
+                  if (t == TYPE_HEADER) return new HVH(inf.inflate(R.layout.item_res_header, p, false));
+                  return new RVH(inf.inflate(R.layout.item_rate_card, p, false));
+              }
+              @Override public void onBindViewHolder(RecyclerView.ViewHolder h, int pos) {
+                  h.itemView.startAnimation(AnimationUtils.loadAnimation(ctx, R.anim.item_animation));
+                  if (getItemViewType(pos) == TYPE_HEADER) {
+                      ((HVH) h).title.setText((String) items.get(pos));
+                  } else {
+                      DisplayMode m = (DisplayMode) items.get(pos); RVH r = (RVH) h;
+                      r.name.setText(m.getRateName(ctx));
+                      r.hz.setText(m.getRateInt() + " Hz");
+                      r.desc.setText(m.getRateDesc(ctx));
+                      int color = colorFor(m.getRateInt());
+                      boolean act = current != null && current.getModeId() == m.getModeId() && current.getRateInt() == m.getRateInt();
+                      if (act) {
+                          r.card.setCardBackgroundColor(darkenColor(color, 0.7f));
+                          r.card.setStrokeColor(color);
+                          r.card.setStrokeWidth(dpToPx(3));
+                      } else {
+                          r.card.setCardBackgroundColor(color);
+                          r.card.setStrokeWidth(0);
+                      }
+                      r.card.setOnClickListener(v -> { if (listener != null) listener.onClick(m); });
+                  }
+              }
+
+              private int colorFor(int hz) {
+                  if (hz >= 170) return Color.parseColor("#1565C0");
+                  if (hz >= 144) return Color.parseColor("#1E88E5");
+                  if (hz >= 120) return Color.parseColor("#2196F3");
+                  if (hz >= 90)  return Color.parseColor("#00ACC1");
+                  return Color.parseColor("#00897B");
+              }
+
+              private int darkenColor(int color, float factor) {
+                  int a = Color.alpha(color);
+                  int r = Math.round(Color.red(color) * factor);
+                  int g = Math.round(Color.green(color) * factor);
+                  int b = Math.round(Color.blue(color) * factor);
+                  return Color.argb(a, Math.min(r, 255), Math.min(g, 255), Math.min(b, 255));
+              }
+
+              private int dpToPx(int dp) {
+                  return (int) (dp * ctx.getResources().getDisplayMetrics().density);
+              }
+
+              static class HVH extends RecyclerView.ViewHolder { TextView title; HVH(View v) { super(v); title = v.findViewById(R.id.tv_header_title); } }
+              static class RVH extends RecyclerView.ViewHolder {
+                  MaterialCardView card; TextView name, hz, desc;
+                  RVH(View v) { super(v); card=v.findViewById(R.id.card_rate); name=v.findViewById(R.id.tv_rate_name); hz=v.findViewById(R.id.tv_rate_hz); desc=v.findViewById(R.id.tv_rate_desc); }
+              }
+          }
+          EOF
+
+          # ====== 修改 HomeFragment.java ======
+          cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
+          package com.pmahz.fragment;
+
+          import android.content.Context;
+          import android.content.SharedPreferences;
+          import android.graphics.Color;
+          import android.graphics.drawable.GradientDrawable;
+          import android.os.Bundle;
+          import android.view.*;
+          import android.widget.*;
+          import androidx.fragment.app.Fragment;
+          import androidx.recyclerview.widget.*;
+          import com.pmahz.R;
+          import com.pmahz.adapter.RateAdapter;
+          import com.pmahz.model.DisplayMode;
+          import com.pmahz.util.LanguageUtils;
+          import com.pmahz.util.RootUtils;
+          import java.util.*;
+
+          public class HomeFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+              private RateAdapter adapter;
+              private boolean hasRoot = false;
+              private List<Object> dataItems = new ArrayList<>();
+              private RecyclerView recyclerView;
+              private SharedPreferences prefs;
+              private View titleBar;
+              private TextView titleText;
+              private ImageView btnLanguage;
+              private PopupWindow languagePopup;
+
+              @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
+                  View v = inf.inflate(R.layout.fragment_home, c, false);
+                  recyclerView = v.findViewById(R.id.recycler_rates);
+                  titleBar = v.findViewById(R.id.home_title_bar);
+                  titleText = v.findViewById(R.id.home_title_text);
+                  btnLanguage = v.findViewById(R.id.btn_language_switch);
+
+                  titleText.setText(R.string.home_title);
+                  btnLanguage.setOnClickListener(view -> showLanguagePopup());
+
+                  recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                  recyclerView.setItemAnimator(null);
+                  adapter = new RateAdapter(getContext(), dataItems, this::onRateSelected);
+                  recyclerView.setAdapter(adapter);
+
+                  prefs = requireActivity().getSharedPreferences("s", Context.MODE_PRIVATE);
+                  prefs.registerOnSharedPreferenceChangeListener(this);
+                  updateUI();
+
+                  loadData();
+                  return v;
+              }
+
+              private void showLanguagePopup() {
+                  if (languagePopup != null && languagePopup.isShowing()) {
+                      languagePopup.dismiss();
+                  }
+
+                  String[] languages = {
+                      getString(R.string.language_zh),
+                      getString(R.string.language_zh_tw),
+                      getString(R.string.language_en),
+                      getString(R.string.language_ja),
+                      getString(R.string.language_ug)
+                  };
+                  String[] langCodes = {LanguageUtils.LANG_ZH, LanguageUtils.LANG_ZH_TW, LanguageUtils.LANG_EN, LanguageUtils.LANG_JA, LanguageUtils.LANG_UG};
+                  String currentLang = LanguageUtils.getCurrentLang(getContext());
+
+                  ListView listView = new ListView(getContext());
+                  ArrayAdapter<String> listAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, languages);
+                  listView.setAdapter(listAdapter);
+                  listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+                  for (int i = 0; i < langCodes.length; i++) {
+                      if (langCodes[i].equals(currentLang)) {
+                          listView.setItemChecked(i, true);
+                          break;
+                      }
+                  }
+                  listView.setOnItemClickListener((parent, view, position, id) -> {
+                      String selectedLang = langCodes[position];
+                      if (!selectedLang.equals(LanguageUtils.getCurrentLang(getContext()))) {
+                          LanguageUtils.setLanguageAndRecreate(requireActivity(), selectedLang);
+                      }
+                      languagePopup.dismiss();
+                  });
+
+                  GradientDrawable bg = new GradientDrawable();
+                  bg.setShape(GradientDrawable.RECTANGLE);
+                  bg.setCornerRadius(dpToPx(16));
+                  bg.setColor(Color.WHITE);
+                  listView.setBackground(bg);
+                  listView.setClipToOutline(true);
+
+                  int width = (int) (150 * getResources().getDisplayMetrics().density);
+                  languagePopup = new PopupWindow(listView, width, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+                  languagePopup.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
+                  languagePopup.setElevation(12);
+                  languagePopup.showAsDropDown(btnLanguage, 0, 8);
+              }
+
+              private int dpToPx(int dp) {
+                  return (int) (dp * getResources().getDisplayMetrics().density);
+              }
+
+              private void updateUI() {
+                  float wallpaperAlpha = prefs.getFloat("wallpaper_alpha", 0.3f);
+                  float titleAlpha = 1f - wallpaperAlpha;
+                  titleBar.setAlpha(titleAlpha);
+                  titleText.setAlpha(titleAlpha);
+                  btnLanguage.setAlpha(1f);
+                  int cardAlpha = prefs.getInt("card_alpha", 0);
+                  float cardAlphaF = 1f - (cardAlpha / 100f);
+                  recyclerView.setAlpha(cardAlphaF);
+              }
+
+              @Override public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                  if ("wallpaper_alpha".equals(key) || "card_alpha".equals(key)) {
+                      updateUI();
+                  }
+              }
+
+              @Override public void onDestroyView() {
+                  super.onDestroyView();
+                  prefs.unregisterOnSharedPreferenceChangeListener(this);
+                  if (languagePopup != null) {
+                      languagePopup.dismiss();
+                      languagePopup = null;
+                  }
+              }
+
+              private void loadData() {
+                  new Thread(() -> {
+                      hasRoot = RootUtils.isRooted();
+                      List<DisplayMode> modes;
+                      if (hasRoot) {
+                          modes = RootUtils.getDisplayModesFromDumpsys();
+                          if (modes.isEmpty()) hasRoot = false;
+                      } else {
+                          modes = new ArrayList<>();
+                      }
+                      if (!hasRoot) {
+                          modes = getFallbackFromDisplayManager();
+                      }
+                      List<Object> built = buildSortedList(modes);
+                      if (getActivity() != null) {
+                          getActivity().runOnUiThread(() -> {
+                              dataItems.clear();
+                              dataItems.addAll(built);
+                              adapter.notifyDataSetChanged();
+                          });
+                      }
+                  }).start();
+              }
+
+              private List<DisplayMode> getFallbackFromDisplayManager() {
+                  List<DisplayMode> list = new ArrayList<>();
+                  try {
+                      android.hardware.display.DisplayManager dm = (android.hardware.display.DisplayManager)
+                              requireActivity().getSystemService(Context.DISPLAY_SERVICE);
+                      android.view.Display d = dm.getDisplay(android.view.Display.DEFAULT_DISPLAY);
+                      android.view.Display.Mode[] modes = d.getSupportedModes();
+                      for (android.view.Display.Mode m : modes) {
+                          list.add(new DisplayMode(m.getPhysicalWidth(), m.getPhysicalHeight(),
+                                  m.getRefreshRate(), m.getModeId()));
+                      }
+                  } catch (Exception ignored) {}
+                  return list;
+              }
+
+              private List<Object> buildSortedList(List<DisplayMode> dumpedModes) {
+                  if (dumpedModes == null || dumpedModes.isEmpty()) return fallback();
+                  Map<String, List<DisplayMode>> grouped = new LinkedHashMap<>();
+                  for (DisplayMode m : dumpedModes) {
+                      String k = m.getWidth() + "x" + m.getHeight();
+                      grouped.computeIfAbsent(k, x -> new ArrayList<>()).add(m);
+                  }
+                  List<String> keys = new ArrayList<>(grouped.keySet());
+                  keys.sort((a, b) -> {
+                      String[] pa = a.split("x"), pb = b.split("x");
+                      int resA = Integer.parseInt(pa[0]) * Integer.parseInt(pa[1]);
+                      int resB = Integer.parseInt(pb[0]) * Integer.parseInt(pb[1]);
+                      return Integer.compare(resB, resA);
+                  });
+                  List<Object> items = new ArrayList<>();
+                  Context ctx = getContext();
+                  for (int i = 0; i < keys.size(); i++) {
+                      List<DisplayMode> ms = grouped.get(keys.get(i));
+                      ms.sort((a, b) -> Float.compare(b.getRefreshRate(), a.getRefreshRate()));
+                      String label = (i == 0) ? ctx.getString(R.string.high_resolution) + keys.get(i)
+                                              : ctx.getString(R.string.low_resolution) + keys.get(i);
+                      items.add(label);
+                      items.addAll(ms);
+                  }
+                  return items;
+              }
+
+              private List<Object> fallback() {
+                  int[] highResRates = {60, 90, 120, 144, 165, 170, 175, 177};
+                  int[] lowResRates  = {60, 90, 120, 144, 165, 170, 175, 177};
+                  List<Object> l = new ArrayList<>();
+                  l.add(getString(R.string.fallback_high_res));
+                  for (int r : highResRates) l.add(new DisplayMode(1272, 2772, r, -1));
+                  l.add(getString(R.string.fallback_low_res));
+                  for (int r : lowResRates) l.add(new DisplayMode(1080, 2354, r, -1));
+                  return l;
+              }
+
+              private void onRateSelected(DisplayMode mode) {
+                  String authMode = prefs.getString("auth_mode", "");
+                  boolean useRoot    = "root".equals(authMode) && hasRoot;
+                  boolean useShizuku = "shizuku".equals(authMode)
+                          && com.pmahz.util.ShizukuUtils.isAvailable()
+                          && com.pmahz.util.ShizukuUtils.hasPermission();
+
+                  if (!useRoot && !useShizuku) {
+                      Toast.makeText(getContext(), R.string.no_root_toast, Toast.LENGTH_SHORT).show();
+                      return;
+                  }
+                  new Thread(() -> {
+                      boolean ok = false;
+                      if (useRoot) {
+                          ok = RootUtils.setRefreshRate(mode.getModeId(), mode.getRateInt());
+                      } else if (useShizuku) {
+                          ok = com.pmahz.util.ShizukuUtils.setRefreshRate(mode.getModeId(), mode.getRateInt());
+                      }
+                      final boolean success = ok;
+                      if (getActivity() != null) {
+                          getActivity().runOnUiThread(() -> {
+                              if (success) {
+                                  adapter.setCurrent(mode);
+                                  Toast.makeText(getContext(), getString(R.string.switch_success, mode.getRateInt()), Toast.LENGTH_SHORT).show();
+                              } else {
+                                  Toast.makeText(getContext(), R.string.switch_fail, Toast.LENGTH_SHORT).show();
+                              }
+                          });
+                      }
+                  }).start();
               }
           }
           EOF
