@@ -902,7 +902,7 @@ jobs:
           }
           EOF
 
-          # AdbUtils.java（常驻模式，脚本执行后立即返回）
+          # ====== 修正版 AdbUtils.java ======
           cat > app/src/main/java/com/pmahz/util/AdbUtils.java << 'EOF'
           package com.pmahz.util;
           import android.content.Context;
@@ -933,13 +933,22 @@ jobs:
                   File parent = script.getParentFile();
                   if (parent != null && !parent.exists()) parent.mkdirs();
                   try (FileWriter fw = new FileWriter(script)) {
-                      fw.write("#!/system/bin/sh\n");
-                      fw.write("DIR=" + CMD_DIR + "\n");
-                      fw.write("mkdir -p $DIR\n");
-                      fw.write("chmod 777 $DIR\n");
-                      // 后台循环，并立即退出当前脚本
-                      fw.write("nohup sh -c 'while true; do date +%s > $DIR/heartbeat; if [ -s \"$DIR/cmd\" ]; then CMD=$(cat \"$DIR/cmd\"); truncate -s 0 \"$DIR/cmd\"; eval \"$CMD\" > \"$DIR/result\" 2>&1; echo \"---DONE---\" >> \"$DIR/result\"; fi; sleep 0.5; done' > /dev/null 2>&1 &\n");
-                      fw.write("echo 'OK'\n");
+                      // 构建脚本内容，守护循环放入后台并脱离终端
+                      String scriptContent = 
+                          "#!/system/bin/sh\n" +
+                          "DIR=" + CMD_DIR + "\n" +
+                          "mkdir -p $DIR\n" +
+                          "chmod 777 $DIR\n" +
+                          // 使用 nohup 启动后台循环，循环内正确引用 DIR
+                          "nohup sh -c 'while true; do date +%s > " + CMD_DIR + "/heartbeat; " +
+                          "if [ -s " + CMD_DIR + "/cmd ]; then " +
+                          "CMD=$(cat " + CMD_DIR + "/cmd); " +
+                          "truncate -s 0 " + CMD_DIR + "/cmd; " +
+                          "eval \"$CMD\" > " + CMD_DIR + "/result 2>&1; " +
+                          "echo \"---DONE---\" >> " + CMD_DIR + "/result; " +
+                          "fi; sleep 0.5; done' > /dev/null 2>&1 &\n" +
+                          "echo 'OK'\n";
+                      fw.write(scriptContent);
                   } catch (IOException e) {
                       Log.e(TAG, "generateScript", e);
                   }
@@ -952,6 +961,7 @@ jobs:
 
               public static boolean isRunning() {
                   if (!HB_FILE.exists()) return false;
+                  // 心跳文件在3秒内有更新即认为守护在运行
                   return System.currentTimeMillis() - HB_FILE.lastModified() < 3000;
               }
 
