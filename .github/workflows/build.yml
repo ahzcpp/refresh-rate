@@ -50,6 +50,7 @@ jobs:
           mkdir -p app/src/main/res/anim
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/mipmap-anydpi-v26
+          mkdir -p app/src/main/res/xml
 
           # ----- 基础构建文件 -----
           cat > settings.gradle << 'EOF'
@@ -169,8 +170,33 @@ jobs:
                           <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
                       </intent-filter>
                   </receiver>
+
+                  <!-- 无障碍服务（用于保活） -->
+                  <service
+                      android:name=".service.KeepAliveAccessibilityService"
+                      android:exported="true"
+                      android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+                      <intent-filter>
+                          <action android:name="android.accessibilityservice.AccessibilityService" />
+                      </intent-filter>
+                      <meta-data
+                          android:name="android.accessibilityservice"
+                          android:resource="@xml/accessibility_service_config" />
+                  </service>
               </application>
           </manifest>
+          EOF
+
+          # ========== 无障碍服务配置 ==========
+          cat > app/src/main/res/xml/accessibility_service_config.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+              android:accessibilityEventTypes="typeAllMask"
+              android:accessibilityFeedbackType="feedbackGeneric"
+              android:accessibilityFlags="flagDefault|flagRequestEnhancedWebAccessibility"
+              android:canPerformGestures="true"
+              android:canRetrieveWindowContent="true"
+              android:notificationTimeout="100" />
           EOF
 
           # ----- 动画资源 -----
@@ -384,6 +410,7 @@ jobs:
               <string name="permission_cancel">取消</string>
               <string name="permission_denied_title">需要存储权限</string>
               <string name="permission_denied_message">您已拒绝权限，请前往系统设置手动授予，否则无法选择图片。</string>
+              <string name="accessibility_prompt">为确保自动超频守护常驻，请开启无障碍服务</string>
           </resources>
           EOF
 
@@ -450,6 +477,7 @@ jobs:
               <string name="permission_cancel">Cancel</string>
               <string name="permission_denied_title">Storage Permission</string>
               <string name="permission_denied_message">You have denied the permission. Please grant it manually in system settings.</string>
+              <string name="accessibility_prompt">Enable Accessibility Service to keep the daemon alive</string>
           </resources>
           EOF
 
@@ -516,6 +544,7 @@ jobs:
               <string name="permission_cancel">キャンセル</string>
               <string name="permission_denied_title">ストレージ権限</string>
               <string name="permission_denied_message">権限が拒否されました。システム設定で手動で許可してください。</string>
+              <string name="accessibility_prompt">自動オーバークロックデーモンを常駐させるため、アクセシビリティを有効にしてください</string>
           </resources>
           EOF
 
@@ -582,6 +611,7 @@ jobs:
               <string name="permission_cancel">بىكار قىلىش</string>
               <string name="permission_denied_title">ساقلاش ھوقۇقى</string>
               <string name="permission_denied_message">سىز ھوقۇقنى رەت قىلدىڭىز. ئۇنى سىستېما تەڭشىكىدە قولدا بېرىڭ.</string>
+              <string name="accessibility_prompt">ئاپتوماتىك قوزغىتىش خىزمىتىنىڭ ئىزدىنىشى ئۈچۈن ياردەمچى ئىقتىدارىنى قوزغىتىڭ</string>
           </resources>
           EOF
 
@@ -648,6 +678,7 @@ jobs:
               <string name="permission_cancel">取消</string>
               <string name="permission_denied_title">需要儲存權限</string>
               <string name="permission_denied_message">您已拒絕權限，請前往系統設定手動授予，否則無法選擇圖片。</string>
+              <string name="accessibility_prompt">為確保自動超頻守護常駐，請開啟輔助服務</string>
           </resources>
           EOF
 
@@ -937,7 +968,75 @@ jobs:
           }
           EOF
 
-          # ====== OverclockService.java（添加 onTaskRemoved） ======
+          # ====== 新增无障碍服务 ======
+          cat > app/src/main/java/com/pmahz/service/KeepAliveAccessibilityService.java << 'EOF'
+          package com.pmahz.service;
+
+          import android.accessibilityservice.AccessibilityService;
+          import android.content.Intent;
+          import android.content.SharedPreferences;
+          import android.os.Build;
+          import android.util.Log;
+          import android.view.accessibility.AccessibilityEvent;
+
+          public class KeepAliveAccessibilityService extends AccessibilityService {
+              private static final String TAG = "KeepAliveA11y";
+
+              @Override
+              public void onServiceConnected() {
+                  super.onServiceConnected();
+                  Log.d(TAG, "无障碍服务已连接");
+                  checkAndRestartService();
+              }
+
+              @Override
+              public void onAccessibilityEvent(AccessibilityEvent event) {
+                  // 不需要处理事件，仅用于保活
+              }
+
+              @Override
+              public void onInterrupt() {
+                  Log.d(TAG, "无障碍服务中断，尝试重启");
+                  checkAndRestartService();
+              }
+
+              @Override
+              public void onDestroy() {
+                  super.onDestroy();
+                  Log.d(TAG, "无障碍服务被销毁，尝试重启服务");
+                  // 某些系统上销毁后可能自动重启，这里也尝试重启
+                  checkAndRestartService();
+              }
+
+              private void checkAndRestartService() {
+                  SharedPreferences prefs = getSharedPreferences("s", MODE_PRIVATE);
+                  if (!prefs.getBoolean("auto_overclock", false)) return;
+                  String authMode = prefs.getString("auth_mode", "");
+                  String ocRes    = prefs.getString("oc_target_res", "");
+                  int    ocHz     = prefs.getInt("oc_target_hz", -1);
+                  if (authMode.isEmpty() || ocRes.isEmpty() || ocHz < 0) return;
+                  String[] wh = ocRes.split("x");
+                  if (wh.length < 2) return;
+                  try {
+                      int tw = Integer.parseInt(wh[0]);
+                      int th = Integer.parseInt(wh[1]);
+                      Intent si = new Intent(this, OverclockService.class);
+                      si.putExtra("auth_mode", authMode);
+                      si.putExtra("targetW", tw);
+                      si.putExtra("targetH", th);
+                      si.putExtra("targetHz", ocHz);
+                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                          startForegroundService(si);
+                      else
+                          startService(si);
+                  } catch (Exception e) {
+                      Log.e(TAG, "重启服务失败: " + e.getMessage());
+                  }
+              }
+          }
+          EOF
+
+          # ====== OverclockService.java ======
           cat > app/src/main/java/com/pmahz/service/OverclockService.java << 'EOF'
           package com.pmahz.service;
 
@@ -984,7 +1083,6 @@ jobs:
 
               @Override
               public void onTaskRemoved(Intent rootIntent) {
-                  // App 被划掉后，用 AlarmManager 延迟 1s 重启服务
                   android.app.PendingIntent restartPi;
                   Intent restartIntent = new Intent(getApplicationContext(),
                           OverclockRestartReceiver.class);
@@ -1070,7 +1168,7 @@ jobs:
           }
           EOF
 
-          # ====== 新增 OverclockRestartReceiver.java ======
+          # ====== OverclockRestartReceiver.java ======
           cat > app/src/main/java/com/pmahz/service/OverclockRestartReceiver.java << 'EOF'
           package com.pmahz.service;
 
@@ -1123,7 +1221,7 @@ jobs:
           }
           EOF
 
-          # ====== AutoOverclockManager.java（完整替换） ======
+          # ====== AutoOverclockManager.java ======
           cat > app/src/main/java/com/pmahz/util/AutoOverclockManager.java << 'EOF'
           package com.pmahz.util;
 
@@ -1146,7 +1244,6 @@ jobs:
               private static volatile boolean running  = false;
               private static volatile String  lastLog  = "就绪";
 
-              // 目标参数：volatile，运行中可随时修改
               private static volatile int    targetW   = 0;
               private static volatile int    targetH   = 0;
               private static volatile int    targetHz  = 0;
@@ -1155,7 +1252,6 @@ jobs:
               public static String getLastLog()  { return lastLog; }
               public static boolean isRunning()  { return running; }
 
-              /** 启动前台服务（从 UI 调用） */
               public static void startService(Context ctx, String mode,
                                               int tw, int th, int hz) {
                   if (running) return;
@@ -1170,17 +1266,11 @@ jobs:
                       ctx.startService(intent);
               }
 
-              /** 停止服务（从 UI 调用） */
               public static void stopService(Context ctx) {
                   stop();
                   ctx.stopService(new Intent(ctx, OverclockService.class));
               }
 
-              /**
-               * 动态更新目标（守护运行中也可调用，立即生效）
-               * 若新目标 Hz 低于当前 Hz，守护会顺序降档；
-               * 若新目标 Hz 高于当前 Hz，守护会顺序升档。
-               */
               public static void updateTarget(int tw, int th, int hz) {
                   targetW  = tw;
                   targetH  = th;
@@ -1189,7 +1279,6 @@ jobs:
                   Log.d(TAG, lastLog);
               }
 
-              /** 由 OverclockService.onStartCommand 调用 */
               public static void start(Context ctx, String mode,
                                        int tw, int th, int hz) {
                   if (running) return;
@@ -1203,12 +1292,10 @@ jobs:
                   daemonThread = new Thread(() -> {
                       while (running) {
                           try {
-                              // 每次循环重新读取 volatile 目标（支持动态修改）
                               int curTargetW  = targetW;
                               int curTargetH  = targetH;
                               int curTargetHz = targetHz;
 
-                              // 获取该分辨率下所有档位（升序）
                               List<DisplayMode> all = getSupportedModes(ctx);
                               List<DisplayMode> filtered = new ArrayList<>();
                               for (DisplayMode m : all) {
@@ -1223,7 +1310,6 @@ jobs:
                               filtered.sort((a, b) ->
                                       Float.compare(a.getRefreshRate(), b.getRefreshRate()));
 
-                              // 找目标档位（精确匹配，找不到取最高）
                               DisplayMode finalTarget = filtered.get(filtered.size() - 1);
                               for (DisplayMode m : filtered) {
                                   if (m.getRateInt() == curTargetHz) { finalTarget = m; break; }
@@ -1243,7 +1329,6 @@ jobs:
                                   continue;
                               }
 
-                              // 找当前档位在列表中的索引
                               int curIdx = 0;
                               if (resOk) {
                                   for (int i = filtered.size() - 1; i >= 0; i--) {
@@ -1255,7 +1340,6 @@ jobs:
 
                               DisplayMode next;
                               if (curInt < finalTarget.getRateInt()) {
-                                  // 需要升档：顺序往上切一格，不超过目标
                                   int nextIdx = Math.min(curIdx + 1, filtered.size() - 1);
                                   while (nextIdx < filtered.size() - 1
                                           && filtered.get(nextIdx).getRateInt() > finalTarget.getRateInt())
@@ -1264,7 +1348,6 @@ jobs:
                                   lastLog = (!resOk ? "分辨率校正，" : "") +
                                             curInt + " Hz ↑ → " + next.getRateInt() + " Hz";
                               } else {
-                                  // 需要降档：顺序往下切一格，不低于目标
                                   int nextIdx = Math.max(curIdx - 1, 0);
                                   while (nextIdx > 0
                                           && filtered.get(nextIdx).getRateInt() < finalTarget.getRateInt())
@@ -1683,7 +1766,7 @@ jobs:
           }
           EOF
 
-          # ====== SettingsFragment.java（含修改后的 Spinner 监听器） ======
+          # ====== SettingsFragment.java（含无障碍引导） ======
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -1870,12 +1953,10 @@ jobs:
                   };
                   populateRates.run();
 
-                  // 修改后的分辨率 Spinner 监听器
                   spinnerRes.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
                       @Override public void onItemSelected(android.widget.AdapterView<?> p, android.view.View vv, int pos, long id) {
                           prefs.edit().putString("oc_target_res", resKeys.get(pos)).apply();
                           populateRates.run();
-                          // 守护运行中立即同步新分辨率
                           if (com.pmahz.util.AutoOverclockManager.isRunning()) {
                               int hz = prefs.getInt("oc_target_hz", -1);
                               String[] wh = resKeys.get(pos).split("x");
@@ -1890,13 +1971,11 @@ jobs:
                       @Override public void onNothingSelected(android.widget.AdapterView<?> p) {}
                   });
 
-                  // 修改后的刷新率 Spinner 监听器
                   spinnerRate.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
                       @Override public void onItemSelected(android.widget.AdapterView<?> p, android.view.View vv, int pos, long id) {
                           if (pos >= rateHolder[0].size()) return;
                           int hz = rateHolder[0].get(pos);
                           prefs.edit().putInt("oc_target_hz", hz).apply();
-                          // 守护运行中立即同步新目标刷新率（支持升降档）
                           if (com.pmahz.util.AutoOverclockManager.isRunning()) {
                               String ocRes = prefs.getString("oc_target_res",
                                       resKeys.isEmpty() ? "" : resKeys.get(0));
@@ -1937,6 +2016,12 @@ jobs:
                                   switchOC.setChecked(false);
                                   return;
                               }
+                          }
+
+                          // 检查并提示开启无障碍服务
+                          if (!isAccessibilityServiceEnabled()) {
+                              Toast.makeText(getContext(), R.string.accessibility_prompt, Toast.LENGTH_LONG).show();
+                              // 不阻断启动，但建议用户开启
                           }
 
                           String mode = prefs.getString("auth_mode", "");
@@ -2067,6 +2152,21 @@ jobs:
                   return v;
               }
 
+              private boolean isAccessibilityServiceEnabled() {
+                  try {
+                      int accessibilityEnabled = 0;
+                      final String service = getContext().getPackageName() + "/" + com.pmahz.service.KeepAliveAccessibilityService.class.getCanonicalName();
+                      accessibilityEnabled = Settings.Secure.getInt(getContext().getContentResolver(), Settings.Secure.ACCESSIBILITY_ENABLED);
+                      if (accessibilityEnabled == 1) {
+                          String settingValue = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+                          if (settingValue != null) {
+                              return settingValue.contains(service);
+                          }
+                      }
+                  } catch (Exception e) {}
+                  return false;
+              }
+
               private void updateShizukuStatus(TextView tv, Button btn) {
                   boolean avail = com.pmahz.util.ShizukuUtils.isAvailable();
                   boolean perm  = com.pmahz.util.ShizukuUtils.hasPermission();
@@ -2136,7 +2236,6 @@ jobs:
                   }
                   if (requestCode == 200) {
                       if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                          // 用户授予后不做额外操作
                       } else {
                           Toast.makeText(getContext(), "通知权限被拒绝，守护通知可能无法显示", Toast.LENGTH_LONG).show();
                       }
@@ -2507,7 +2606,7 @@ jobs:
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
-                  <!-- 自动超频卡片（Spinner 并排，分辨率在左，刷新率在右） -->
+                  <!-- 自动超频卡片 -->
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
