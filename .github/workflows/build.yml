@@ -1566,39 +1566,8 @@ jobs:
                       }
                   });
 
-                  applySettingTransparency();
-
-                  TextView author = v.findViewById(R.id.tv_author);
-                  String fullText = "酷安:爱好者ahh 前往关注";
-                  SpannableString spannable = new SpannableString(fullText);
-                  ClickableSpan clickableSpan = new ClickableSpan() {
-                      @Override public void onClick(@NonNull View widget) {
-                          String url = "https://www.coolapk.com/u/31452988";
-                          try {
-                              startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                                      .setPackage("com.coolapk.market"));
-                          } catch (Exception e) {
-                              startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-                          }
-                      }
-                  };
-                  int start = fullText.indexOf("前往关注");
-                  spannable.setSpan(clickableSpan, start, start + "前往关注".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                  author.setText(spannable);
-                  author.setMovementMethod(LinkMovementMethod.getInstance());
-                  author.setHighlightColor(Color.TRANSPARENT);
-
-                  Button btnGenerateLog = v.findViewById(R.id.btn_generate_log);
-                  btnGenerateLog.setText(R.string.generate_log_btn);
-                  btnGenerateLog.setOnClickListener(view -> {
-                      Toast.makeText(getContext(), R.string.log_extracting, Toast.LENGTH_SHORT).show();
-                      new Thread(() -> {
-                          String log = RootUtils.generateRuntimeLog();
-                          if (getActivity() != null) {
-                              getActivity().runOnUiThread(() -> showLogDialog(log));
-                          }
-                      }).start();
-                  });
+                  // ── 调整位置：applySettingTransparency 移到 SeekBar 初始化之后 ──
+                  // 下面的代码块会初始化所有 SeekBar，然后调用 applySettingTransparency()
 
                   rgWallpaper = v.findViewById(R.id.rg_wallpaper);
                   sbAlpha = v.findViewById(R.id.sb_alpha);
@@ -1627,6 +1596,9 @@ jobs:
                   sbCardAlpha.setProgress(prefs.getInt("card_alpha", 0));
                   sbSettingCardAlpha.setProgress(prefs.getInt("setting_card_alpha", 0));
                   sbSettingTextAlpha.setProgress(prefs.getInt("setting_text_alpha", 0));
+
+                  // 现在所有 SeekBar 都已初始化，安全调用
+                  applySettingTransparency();
 
                   rgWallpaper.setOnCheckedChangeListener((group, checkedId) -> {
                       int type;
@@ -1672,7 +1644,7 @@ jobs:
                   sbSettingCardAlpha.setOnSeekBarChangeListener(settingTransparencyListener);
                   sbSettingTextAlpha.setOnSeekBarChangeListener(settingTransparencyListener);
 
-                  applySettingTransparency();
+                  // 不必再次调用 applySettingTransparency，因为上面已经调用过了
 
                   pickImageLauncher = registerForActivityResult(
                           new ActivityResultContracts.StartActivityForResult(),
