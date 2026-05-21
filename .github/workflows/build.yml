@@ -924,7 +924,7 @@ jobs:
           }
           EOF
 
-          # ====== 新增 OverclockService.java ======
+          # ====== OverclockService.java ======
           cat > app/src/main/java/com/pmahz/service/OverclockService.java << 'EOF'
           package com.pmahz.service;
 
@@ -958,7 +958,6 @@ jobs:
                       return START_NOT_STICKY;
                   }
 
-                  // 创建停止按钮的 PendingIntent
                   Intent stopIntent = new Intent(this, OverclockService.class);
                   stopIntent.setAction("STOP");
                   int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
@@ -1026,7 +1025,7 @@ jobs:
           }
           EOF
 
-          # ====== 修改 AutoOverclockManager.java（已修复 Build 导入） ======
+          # ====== AutoOverclockManager.java ======
           cat > app/src/main/java/com/pmahz/util/AutoOverclockManager.java << 'EOF'
           package com.pmahz.util;
 
@@ -1051,7 +1050,6 @@ jobs:
 
               public static String getLastLog() { return lastLog; }
 
-              /** 通过前台服务启动守护 */
               public static void startService(Context ctx, String authMode, int targetW, int targetH, int targetHz) {
                   if (running) return;
                   Intent intent = new Intent(ctx, OverclockService.class);
@@ -1067,14 +1065,12 @@ jobs:
                   }
               }
 
-              /** 停止服务并销毁守护 */
               public static void stopService(Context ctx) {
                   stop();
                   Intent intent = new Intent(ctx, OverclockService.class);
                   ctx.stopService(intent);
               }
 
-              /** 内部启动守护逻辑（由服务调用） */
               public static void start(Context ctx, String authMode, int targetW, int targetH, int targetHz) {
                   if (running) return;
                   List<DisplayMode> allModes = getSupportedModes(ctx);
@@ -1200,7 +1196,7 @@ jobs:
           }
           EOF
 
-          # ====== 修改 RateAdapter.java ======
+          # ====== RateAdapter.java ======
           cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
           package com.pmahz.adapter;
 
@@ -1307,7 +1303,7 @@ jobs:
           }
           EOF
 
-          # ====== 修改 HomeFragment.java ======
+          # ====== HomeFragment.java ======
           cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
           package com.pmahz.fragment;
 
@@ -1549,7 +1545,7 @@ jobs:
           }
           EOF
 
-          # ====== 修改 SettingsFragment.java ======
+          # ====== SettingsFragment.java ======
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -1996,7 +1992,7 @@ jobs:
           }
           EOF
 
-          # ====== MainActivity.java（添加通知渠道） ======
+          # ====== MainActivity.java（含通知渠道创建） ======
           cat > app/src/main/java/com/pmahz/MainActivity.java << 'EOF'
           package com.pmahz;
 
@@ -2329,7 +2325,7 @@ jobs:
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
-                  <!-- ===== 自动超频卡片（含选择器） ===== -->
+                  <!-- ===== 自动超频卡片（Spinner 并排） ===== -->
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
@@ -2366,21 +2362,28 @@ jobs:
                               android:layout_marginTop="8dp"
                               android:textColor="#E74C3C"/>
 
-                          <!-- 目标分辨率选择 -->
-                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                              android:text="目标分辨率" android:textSize="13sp"
-                              android:textColor="@color/text_muted" android:layout_marginTop="14dp"/>
-                          <Spinner android:id="@+id/spinner_oc_resolution"
-                              android:layout_width="match_parent" android:layout_height="48dp"
-                              android:layout_marginTop="4dp"/>
-
-                          <!-- 目标刷新率选择 -->
-                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                              android:text="目标刷新率" android:textSize="13sp"
-                              android:textColor="@color/text_muted" android:layout_marginTop="10dp"/>
-                          <Spinner android:id="@+id/spinner_oc_rate"
-                              android:layout_width="match_parent" android:layout_height="48dp"
-                              android:layout_marginTop="4dp"/>
+                          <!-- 目标分辨率和刷新率并排 -->
+                          <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:orientation="horizontal" android:layout_marginTop="14dp">
+                              <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                                  android:layout_weight="1" android:orientation="vertical"
+                                  android:layout_marginEnd="8dp">
+                                  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                      android:text="目标刷新率" android:textSize="13sp"
+                                      android:textColor="@color/text_muted"/>
+                                  <Spinner android:id="@+id/spinner_oc_rate"
+                                      android:layout_width="match_parent" android:layout_height="48dp"/>
+                              </LinearLayout>
+                              <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                                  android:layout_weight="1" android:orientation="vertical"
+                                  android:layout_marginStart="8dp">
+                                  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                      android:text="目标分辨率" android:textSize="13sp"
+                                      android:textColor="@color/text_muted"/>
+                                  <Spinner android:id="@+id/spinner_oc_resolution"
+                                      android:layout_width="match_parent" android:layout_height="48dp"/>
+                              </LinearLayout>
+                          </LinearLayout>
 
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
