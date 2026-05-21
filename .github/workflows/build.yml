@@ -76,8 +76,8 @@ jobs:
                   applicationId "com.pmahz"
                   minSdk 24
                   targetSdk 34
-                  versionCode 160
-                  versionName "1.6.0"
+                  versionCode 161
+                  versionName "1.6.1"
               }
               signingConfigs {
                   debug {
@@ -342,7 +342,7 @@ jobs:
               <string name="root_running_label">Root 运行</string>
               <string name="shizuku_running_label">Shizuku 运行</string>
               <string name="about_title">关于</string>
-              <string name="version_label">版本: 1.6.0</string>
+              <string name="version_label">版本: 1.6.1</string>
               <string name="generate_log_btn">生成日志</string>
               <string name="language_dialog_title">选择语言</string>
               <string name="language_zh">简体中文</string>
@@ -408,7 +408,7 @@ jobs:
               <string name="root_running_label">Root Running</string>
               <string name="shizuku_running_label">Shizuku Running</string>
               <string name="about_title">About</string>
-              <string name="version_label">Version: 1.6.0</string>
+              <string name="version_label">Version: 1.6.1</string>
               <string name="generate_log_btn">Generate Log</string>
               <string name="language_dialog_title">Choose Language</string>
               <string name="language_zh">简体中文</string>
@@ -474,7 +474,7 @@ jobs:
               <string name="root_running_label">Root 実行</string>
               <string name="shizuku_running_label">Shizuku 実行</string>
               <string name="about_title">について</string>
-              <string name="version_label">バージョン: 1.6.0</string>
+              <string name="version_label">バージョン: 1.6.1</string>
               <string name="generate_log_btn">ログ生成</string>
               <string name="language_dialog_title">言語を選択</string>
               <string name="language_zh">简体中文</string>
@@ -540,7 +540,7 @@ jobs:
               <string name="root_running_label">Root ئىجرا</string>
               <string name="shizuku_running_label">Shizuku ئىجرا</string>
               <string name="about_title">ھەققىدە</string>
-              <string name="version_label">نەشرى: 1.6.0</string>
+              <string name="version_label">نەشرى: 1.6.1</string>
               <string name="generate_log_btn">خاتىرە ھاسىل قىلىش</string>
               <string name="language_dialog_title">تىل تاللاش</string>
               <string name="language_zh">简体中文</string>
@@ -606,7 +606,7 @@ jobs:
               <string name="root_running_label">Root 執行</string>
               <string name="shizuku_running_label">Shizuku 執行</string>
               <string name="about_title">關於</string>
-              <string name="version_label">版本: 1.6.0</string>
+              <string name="version_label">版本: 1.6.1</string>
               <string name="generate_log_btn">產生記錄</string>
               <string name="language_dialog_title">選擇語言</string>
               <string name="language_zh">简体中文</string>
@@ -911,6 +911,138 @@ jobs:
                       "newProcess", String[].class, String[].class, String.class);
                   method.setAccessible(true);
                   return (Process) method.invoke(null, new String[]{"sh", "-c", cmd}, null, null);
+              }
+          }
+          EOF
+
+          # ====== 新增 AutoOverclockManager.java ======
+          cat > app/src/main/java/com/pmahz/util/AutoOverclockManager.java << 'EOF'
+          package com.pmahz.util;
+
+          import android.content.Context;
+          import android.hardware.display.DisplayManager;
+          import android.util.Log;
+          import android.view.Display;
+          import com.pmahz.model.DisplayMode;
+          import java.util.*;
+
+          public class AutoOverclockManager {
+              private static final String TAG = "AutoOverclock";
+              private static final long STEP_DELAY_MS  = 900;   // 每步等待时间
+              private static final long POLL_DELAY_MS  = 2500;  // 正常轮询间隔
+
+              private static Thread  daemonThread;
+              private static volatile boolean running = false;
+              private static volatile String  lastLog = "";
+
+              /** 启动守护线程 */
+              public static void start(Context ctx, String authMode, List<DisplayMode> sortedModes) {
+                  if (running || sortedModes == null || sortedModes.isEmpty()) return;
+                  running = true;
+                  lastLog = "守护启动中...";
+
+                  // 按 fps 从低到高排序（保证顺序切）
+                  List<DisplayMode> asc = new ArrayList<>(sortedModes);
+                  asc.sort((a, b) -> Float.compare(a.getRefreshRate(), b.getRefreshRate()));
+
+                  daemonThread = new Thread(() -> {
+                      while (running) {
+                          try {
+                              // 读取当前刷新率
+                              float curRate = getCurrentRate(ctx);
+                              int   curInt  = Math.round(curRate);
+                              DisplayMode maxMode = asc.get(asc.size() - 1);
+
+                              if (curInt >= maxMode.getRateInt()) {
+                                  // 已在最高档，正常轮询
+                                  lastLog = "已在最高档 " + maxMode.getRateInt() + " Hz，守护中...";
+                                  Thread.sleep(POLL_DELAY_MS);
+                                  continue;
+                              }
+
+                              // 找到当前档位在列表中的位置
+                              int curIdx = -1;
+                              for (int i = 0; i < asc.size(); i++) {
+                                  if (Math.abs(asc.get(i).getRefreshRate() - curRate) < 2.0f) {
+                                      curIdx = i; break;
+                                  }
+                              }
+                              // 找不到精确档位时，找最近的低档
+                              if (curIdx < 0) {
+                                  for (int i = asc.size() - 1; i >= 0; i--) {
+                                      if (asc.get(i).getRateInt() <= curInt) {
+                                          curIdx = i; break;
+                                      }
+                                  }
+                              }
+                              if (curIdx < 0) curIdx = 0;
+
+                              // 顺着往上切一格
+                              int nextIdx = Math.min(curIdx + 1, asc.size() - 1);
+                              DisplayMode next = asc.get(nextIdx);
+                              lastLog = "检测到 " + curInt + " Hz，正在切 → " + next.getRateInt() + " Hz";
+                              Log.d(TAG, lastLog);
+
+                              if ("root".equals(authMode)) {
+                                  RootUtils.setRefreshRate(next.getModeId(), next.getRateInt());
+                              } else if ("shizuku".equals(authMode)) {
+                                  ShizukuUtils.setRefreshRate(next.getModeId(), next.getRateInt());
+                              }
+
+                              Thread.sleep(STEP_DELAY_MS);
+
+                          } catch (InterruptedException e) {
+                              break;
+                          } catch (Exception e) {
+                              Log.e(TAG, "daemon error: " + e.getMessage());
+                              try { Thread.sleep(POLL_DELAY_MS); } catch (InterruptedException ex) { break; }
+                          }
+                      }
+                      lastLog = "守护已停止";
+                      Log.d(TAG, "daemon stopped");
+                  });
+                  daemonThread.setDaemon(true);
+                  daemonThread.start();
+              }
+
+              /** 停止守护 */
+              public static void stop() {
+                  running = false;
+                  if (daemonThread != null) { daemonThread.interrupt(); daemonThread = null; }
+              }
+
+              public static boolean isRunning() { return running; }
+              public static String  getLastLog() { return lastLog; }
+
+              /** 读当前刷新率（不需要 root） */
+              public static float getCurrentRate(Context ctx) {
+                  try {
+                      DisplayManager dm = (DisplayManager) ctx.getSystemService(Context.DISPLAY_SERVICE);
+                      return dm.getDisplay(Display.DEFAULT_DISPLAY).getRefreshRate();
+                  } catch (Exception e) { return 0f; }
+              }
+
+              /** 读当前分辨率 */
+              public static String getCurrentResolution(Context ctx) {
+                  try {
+                      DisplayManager dm = (DisplayManager) ctx.getSystemService(Context.DISPLAY_SERVICE);
+                      Display.Mode m = dm.getDisplay(Display.DEFAULT_DISPLAY).getMode();
+                      return m.getPhysicalWidth() + "×" + m.getPhysicalHeight();
+                  } catch (Exception e) { return "--"; }
+              }
+
+              /** 从 DisplayManager 拿支持的模式列表（无需 root） */
+              public static List<DisplayMode> getSupportedModes(Context ctx) {
+                  List<DisplayMode> list = new ArrayList<>();
+                  try {
+                      DisplayManager dm = (DisplayManager) ctx.getSystemService(Context.DISPLAY_SERVICE);
+                      Display.Mode[] modes = dm.getDisplay(Display.DEFAULT_DISPLAY).getSupportedModes();
+                      for (Display.Mode m : modes) {
+                          list.add(new DisplayMode(m.getPhysicalWidth(), m.getPhysicalHeight(),
+                                  m.getRefreshRate(), m.getModeId()));
+                      }
+                  } catch (Exception ignored) {}
+                  return list;
               }
           }
           EOF
@@ -1299,6 +1431,34 @@ jobs:
               private ActivityResultLauncher<Intent> pickImageLauncher;
               private View rootView;
 
+              // ── 超频守护状态刷新 ──────────────────────────────────────────
+              private android.os.Handler overclockHandler;
+              private Runnable overclockUpdater;
+
+              private void startOverclockStatusUpdater(TextView tvStatus, TextView tvCur) {
+                  overclockHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+                  overclockUpdater = new Runnable() {
+                      @Override public void run() {
+                          if (!isAdded()) return;
+                          float rate = com.pmahz.util.AutoOverclockManager.getCurrentRate(requireContext());
+                          String res  = com.pmahz.util.AutoOverclockManager.getCurrentResolution(requireContext());
+                          tvCur.setText("当前刷新率: " + Math.round(rate) + " Hz  分辨率: " + res);
+                          if (com.pmahz.util.AutoOverclockManager.isRunning()) {
+                              tvStatus.setText("自动启动守护已开启  " + com.pmahz.util.AutoOverclockManager.getLastLog());
+                              tvStatus.setTextColor(0xFF2ECC71);
+                              overclockHandler.postDelayed(this, 1500);
+                          }
+                      }
+                  };
+                  overclockHandler.post(overclockUpdater);
+              }
+
+              private void stopOverclockStatusUpdater() {
+                  if (overclockHandler != null && overclockUpdater != null) {
+                      overclockHandler.removeCallbacks(overclockUpdater);
+                  }
+              }
+
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_settings, c, false);
                   rootView = v;
@@ -1359,6 +1519,54 @@ jobs:
                           btnRequestShizuku.setVisibility(android.view.View.GONE);
                       }
                   });
+
+                  // ── 自动超频开关 ──────────────────────────────────────────
+                  com.google.android.material.switchmaterial.SwitchMaterial switchOC =
+                      v.findViewById(R.id.switch_auto_overclock);
+                  TextView tvOCStatus = v.findViewById(R.id.tv_overclock_status);
+                  TextView tvOCCur    = v.findViewById(R.id.tv_overclock_cur);
+
+                  // 恢复开关状态
+                  boolean ocWasOn = prefs.getBoolean("auto_overclock", false);
+                  switchOC.setChecked(ocWasOn);
+                  if (ocWasOn && com.pmahz.util.AutoOverclockManager.isRunning()) {
+                      tvOCStatus.setText("自动启动守护已开启");
+                      tvOCStatus.setTextColor(0xFF2ECC71);
+                      startOverclockStatusUpdater(tvOCStatus, tvOCCur);
+                  }
+
+                  // 初始显示一次当前状态
+                  new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                      if (!isAdded()) return;
+                      float r = com.pmahz.util.AutoOverclockManager.getCurrentRate(requireContext());
+                      String res = com.pmahz.util.AutoOverclockManager.getCurrentResolution(requireContext());
+                      tvOCCur.setText("当前刷新率: " + Math.round(r) + " Hz  分辨率: " + res);
+                  });
+
+                  switchOC.setOnCheckedChangeListener((btn, checked) -> {
+                      prefs.edit().putBoolean("auto_overclock", checked).apply();
+                      if (checked) {
+                          String mode = prefs.getString("auth_mode", "");
+                          if (mode.isEmpty()) {
+                              Toast.makeText(getContext(), "请先在上方选择 Root 或 Shizuku 授权", Toast.LENGTH_SHORT).show();
+                              switchOC.setChecked(false);
+                              return;
+                          }
+                          List<com.pmahz.model.DisplayMode> modes =
+                              com.pmahz.util.AutoOverclockManager.getSupportedModes(requireContext());
+                          com.pmahz.util.AutoOverclockManager.start(requireContext(), mode, modes);
+                          tvOCStatus.setText("自动启动守护已开启");
+                          tvOCStatus.setTextColor(0xFF2ECC71);
+                          startOverclockStatusUpdater(tvOCStatus, tvOCCur);
+                      } else {
+                          com.pmahz.util.AutoOverclockManager.stop();
+                          stopOverclockStatusUpdater();
+                          tvOCStatus.setText("自动启动守护未开启");
+                          tvOCStatus.setTextColor(0xFFE74C3C);
+                      }
+                  });
+
+                  applySettingTransparency();
 
                   TextView author = v.findViewById(R.id.tv_author);
                   String fullText = "酷安:爱好者ahh 前往关注";
@@ -1580,6 +1788,12 @@ jobs:
                               startActivity(Intent.createChooser(share, getString(R.string.log_dialog_share)));
                           })
                           .show();
+              }
+
+              @Override public void onDestroyView() {
+                  super.onDestroyView();
+                  stopOverclockStatusUpdater();
+                  rootView = null;
               }
           }
           EOF
@@ -1900,6 +2114,46 @@ jobs:
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
+                  <!-- ===== 自动超频卡片 ===== -->
+                  <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                      android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+                      app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
+                      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="vertical" android:padding="16dp">
+
+                          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="屏幕刷新率自动超频" android:textStyle="bold"
+                              android:textSize="18sp" android:textColor="@color/text_dark"
+                              android:paddingBottom="12dp"/>
+
+                          <!-- 开关行 -->
+                          <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:orientation="horizontal" android:gravity="center_vertical">
+                              <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                                  android:layout_weight="1" android:orientation="vertical">
+                                  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                      android:text="⚡ 自动启动守护" android:textSize="15sp"
+                                      android:textColor="@color/text_dark"/>
+                                  <TextView android:id="@+id/tv_overclock_cur"
+                                      android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                      android:text="当前刷新率: -- Hz  分辨率: --"
+                                      android:textSize="12sp" android:textColor="@color/text_muted"/>
+                              </LinearLayout>
+                              <com.google.android.material.switchmaterial.SwitchMaterial
+                                  android:id="@+id/switch_auto_overclock"
+                                  android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                          </LinearLayout>
+
+                          <!-- 守护状态 -->
+                          <TextView android:id="@+id/tv_overclock_status"
+                              android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="自动启动守护未开启" android:textSize="13sp"
+                              android:layout_marginTop="8dp"
+                              android:textColor="#E74C3C"/>
+
+                      </LinearLayout>
+                  </androidx.cardview.widget.CardView>
+
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp"
@@ -2047,5 +2301,5 @@ jobs:
       - name: 6. 提炼并分发 APK 产物
         uses: actions/upload-artifact@v4
         with:
-          name: RefreshRate-v1.6.0
+          name: RefreshRate-v1.6.1
           path: app/build/outputs/apk/debug/app-debug.apk
