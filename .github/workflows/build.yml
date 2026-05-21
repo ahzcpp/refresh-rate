@@ -131,6 +131,7 @@ jobs:
               <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
               <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
               <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+              <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
               <application
                   android:allowBackup="true"
@@ -157,6 +158,17 @@ jobs:
                       android:exported="false"
                       android:foregroundServiceType="specialUse"
                       android:stopWithTask="false" />
+                  <receiver
+                      android:name=".service.OverclockRestartReceiver"
+                      android:exported="false"/>
+                  <receiver
+                      android:name=".service.BootReceiver"
+                      android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                          <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                      </intent-filter>
+                  </receiver>
               </application>
           </manifest>
           EOF
@@ -925,7 +937,7 @@ jobs:
           }
           EOF
 
-          # ====== OverclockService.java ======
+          # ====== OverclockService.java（添加 onTaskRemoved） ======
           cat > app/src/main/java/com/pmahz/service/OverclockService.java << 'EOF'
           package com.pmahz.service;
 
@@ -968,6 +980,25 @@ jobs:
 
                   AutoOverclockManager.start(this, authMode, targetW, targetH, targetHz);
                   return START_STICKY;
+              }
+
+              @Override
+              public void onTaskRemoved(Intent rootIntent) {
+                  // App 被划掉后，用 AlarmManager 延迟 1s 重启服务
+                  android.app.PendingIntent restartPi;
+                  Intent restartIntent = new Intent(getApplicationContext(),
+                          OverclockRestartReceiver.class);
+                  int flags = android.app.PendingIntent.FLAG_ONE_SHOT;
+                  if (android.os.Build.VERSION.SDK_INT >= 23)
+                      flags |= android.app.PendingIntent.FLAG_IMMUTABLE;
+                  restartPi = android.app.PendingIntent.getBroadcast(
+                          getApplicationContext(), 1, restartIntent, flags);
+                  android.app.AlarmManager am =
+                          (android.app.AlarmManager) getSystemService(ALARM_SERVICE);
+                  if (am != null)
+                      am.set(android.app.AlarmManager.ELAPSED_REALTIME,
+                              android.os.SystemClock.elapsedRealtime() + 1000, restartPi);
+                  super.onTaskRemoved(rootIntent);
               }
 
               @Override
@@ -1039,7 +1070,60 @@ jobs:
           }
           EOF
 
-          # ====== AutoOverclockManager.java ======
+          # ====== 新增 OverclockRestartReceiver.java ======
+          cat > app/src/main/java/com/pmahz/service/OverclockRestartReceiver.java << 'EOF'
+          package com.pmahz.service;
+
+          import android.content.BroadcastReceiver;
+          import android.content.Context;
+          import android.content.Intent;
+          import android.content.SharedPreferences;
+          import android.os.Build;
+
+          public class OverclockRestartReceiver extends BroadcastReceiver {
+              @Override
+              public void onReceive(Context context, Intent intent) {
+                  SharedPreferences prefs = context.getSharedPreferences("s", Context.MODE_PRIVATE);
+                  if (!prefs.getBoolean("auto_overclock", false)) return;
+                  String authMode = prefs.getString("auth_mode", "");
+                  String ocRes    = prefs.getString("oc_target_res", "");
+                  int    ocHz     = prefs.getInt("oc_target_hz", -1);
+                  if (authMode.isEmpty() || ocRes.isEmpty() || ocHz < 0) return;
+                  String[] wh = ocRes.split("x");
+                  if (wh.length < 2) return;
+                  try {
+                      int tw = Integer.parseInt(wh[0]);
+                      int th = Integer.parseInt(wh[1]);
+                      Intent si = new Intent(context, OverclockService.class);
+                      si.putExtra("auth_mode", authMode);
+                      si.putExtra("targetW", tw);
+                      si.putExtra("targetH", th);
+                      si.putExtra("targetHz", ocHz);
+                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                          context.startForegroundService(si);
+                      else
+                          context.startService(si);
+                  } catch (Exception ignored) {}
+              }
+          }
+          EOF
+
+          cat > app/src/main/java/com/pmahz/service/BootReceiver.java << 'EOF'
+          package com.pmahz.service;
+
+          import android.content.BroadcastReceiver;
+          import android.content.Context;
+          import android.content.Intent;
+
+          public class BootReceiver extends BroadcastReceiver {
+              @Override
+              public void onReceive(Context context, Intent intent) {
+                  new OverclockRestartReceiver().onReceive(context, intent);
+              }
+          }
+          EOF
+
+          # ====== AutoOverclockManager.java（完整替换） ======
           cat > app/src/main/java/com/pmahz/util/AutoOverclockManager.java << 'EOF'
           package com.pmahz.util;
 
@@ -1055,80 +1139,111 @@ jobs:
 
           public class AutoOverclockManager {
               private static final String TAG = "AutoOverclock";
-              private static final long STEP_DELAY_MS = 900;
-              private static final long POLL_DELAY_MS = 2500;
+              private static final long STEP_DELAY_MS = 800;
+              private static final long POLL_DELAY_MS = 2000;
 
-              private static Thread daemonThread;
-              private static volatile boolean running = false;
-              private static volatile String lastLog = "就绪";
+              private static Thread  daemonThread;
+              private static volatile boolean running  = false;
+              private static volatile String  lastLog  = "就绪";
 
-              public static String getLastLog() { return lastLog; }
+              // 目标参数：volatile，运行中可随时修改
+              private static volatile int    targetW   = 0;
+              private static volatile int    targetH   = 0;
+              private static volatile int    targetHz  = 0;
+              private static volatile String authMode  = "";
 
-              public static void startService(Context ctx, String authMode, int targetW, int targetH, int targetHz) {
+              public static String getLastLog()  { return lastLog; }
+              public static boolean isRunning()  { return running; }
+
+              /** 启动前台服务（从 UI 调用） */
+              public static void startService(Context ctx, String mode,
+                                              int tw, int th, int hz) {
                   if (running) return;
                   Intent intent = new Intent(ctx, OverclockService.class);
-                  intent.putExtra("auth_mode", authMode);
-                  intent.putExtra("targetW", targetW);
-                  intent.putExtra("targetH", targetH);
-                  intent.putExtra("targetHz", targetHz);
-
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                  intent.putExtra("auth_mode", mode);
+                  intent.putExtra("targetW", tw);
+                  intent.putExtra("targetH", th);
+                  intent.putExtra("targetHz", hz);
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                       ctx.startForegroundService(intent);
-                  } else {
+                  else
                       ctx.startService(intent);
-                  }
               }
 
+              /** 停止服务（从 UI 调用） */
               public static void stopService(Context ctx) {
                   stop();
-                  Intent intent = new Intent(ctx, OverclockService.class);
-                  ctx.stopService(intent);
+                  ctx.stopService(new Intent(ctx, OverclockService.class));
               }
 
-              public static void start(Context ctx, String authMode, int targetW, int targetH, int targetHz) {
+              /**
+               * 动态更新目标（守护运行中也可调用，立即生效）
+               * 若新目标 Hz 低于当前 Hz，守护会顺序降档；
+               * 若新目标 Hz 高于当前 Hz，守护会顺序升档。
+               */
+              public static void updateTarget(int tw, int th, int hz) {
+                  targetW  = tw;
+                  targetH  = th;
+                  targetHz = hz;
+                  lastLog  = "目标已更新 → " + tw + "×" + th + " @ " + hz + " Hz";
+                  Log.d(TAG, lastLog);
+              }
+
+              /** 由 OverclockService.onStartCommand 调用 */
+              public static void start(Context ctx, String mode,
+                                       int tw, int th, int hz) {
                   if (running) return;
-                  List<DisplayMode> allModes = getSupportedModes(ctx);
-                  if (allModes.isEmpty()) return;
-
-                  List<DisplayMode> filtered = new ArrayList<>();
-                  for (DisplayMode m : allModes) {
-                      if (m.getWidth() == targetW && m.getHeight() == targetH) {
-                          filtered.add(m);
-                      }
-                  }
-                  if (filtered.isEmpty()) {
-                      lastLog = "未找到目标分辨率";
-                      return;
-                  }
-                  filtered.sort((a, b) -> Float.compare(a.getRefreshRate(), b.getRefreshRate()));
-
-                  DisplayMode targetMode = filtered.get(filtered.size() - 1);
-                  for (DisplayMode m : filtered) {
-                      if (m.getRateInt() == targetHz) { targetMode = m; break; }
-                  }
-                  final DisplayMode finalTarget = targetMode;
-
-                  running = true;
-                  lastLog = "守护启动，目标：" + targetW + "x" + targetH + " @ " + finalTarget.getRateInt() + " Hz";
+                  authMode = mode;
+                  targetW  = tw;
+                  targetH  = th;
+                  targetHz = hz;
+                  running  = true;
+                  lastLog  = "守护启动，目标：" + tw + "×" + th + " @ " + hz + " Hz";
 
                   daemonThread = new Thread(() -> {
                       while (running) {
                           try {
+                              // 每次循环重新读取 volatile 目标（支持动态修改）
+                              int curTargetW  = targetW;
+                              int curTargetH  = targetH;
+                              int curTargetHz = targetHz;
+
+                              // 获取该分辨率下所有档位（升序）
+                              List<DisplayMode> all = getSupportedModes(ctx);
+                              List<DisplayMode> filtered = new ArrayList<>();
+                              for (DisplayMode m : all) {
+                                  if (m.getWidth() == curTargetW && m.getHeight() == curTargetH)
+                                      filtered.add(m);
+                              }
+                              if (filtered.isEmpty()) {
+                                  lastLog = "未找到分辨率 " + curTargetW + "×" + curTargetH;
+                                  Thread.sleep(POLL_DELAY_MS);
+                                  continue;
+                              }
+                              filtered.sort((a, b) ->
+                                      Float.compare(a.getRefreshRate(), b.getRefreshRate()));
+
+                              // 找目标档位（精确匹配，找不到取最高）
+                              DisplayMode finalTarget = filtered.get(filtered.size() - 1);
+                              for (DisplayMode m : filtered) {
+                                  if (m.getRateInt() == curTargetHz) { finalTarget = m; break; }
+                              }
+
                               float curRate = getCurrentRate(ctx);
                               int   curInt  = Math.round(curRate);
                               String curRes = getCurrentResolution(ctx);
-                              String tgtRes = targetW + "×" + targetH;
-
+                              String tgtRes = curTargetW + "×" + curTargetH;
                               boolean resOk  = tgtRes.equals(curRes);
-                              boolean rateOk = curInt >= finalTarget.getRateInt();
+                              boolean rateOk = (curInt == finalTarget.getRateInt());
 
                               if (resOk && rateOk) {
-                                  lastLog = "已在目标 " + finalTarget.getRateInt() + " Hz，守护中...";
+                                  lastLog = "守护中 @ " + finalTarget.getRateInt() + " Hz";
                                   OverclockService.updateNotification(ctx);
                                   Thread.sleep(POLL_DELAY_MS);
                                   continue;
                               }
 
+                              // 找当前档位在列表中的索引
                               int curIdx = 0;
                               if (resOk) {
                                   for (int i = filtered.size() - 1; i >= 0; i--) {
@@ -1138,16 +1253,27 @@ jobs:
                                   }
                               }
 
-                              int nextIdx = Math.min(curIdx + 1, filtered.size() - 1);
-                              if (filtered.get(nextIdx).getRateInt() > finalTarget.getRateInt()) {
-                                  nextIdx = filtered.indexOf(finalTarget);
-                                  if (nextIdx < 0) nextIdx = filtered.size() - 1;
+                              DisplayMode next;
+                              if (curInt < finalTarget.getRateInt()) {
+                                  // 需要升档：顺序往上切一格，不超过目标
+                                  int nextIdx = Math.min(curIdx + 1, filtered.size() - 1);
+                                  while (nextIdx < filtered.size() - 1
+                                          && filtered.get(nextIdx).getRateInt() > finalTarget.getRateInt())
+                                      nextIdx--;
+                                  next = filtered.get(nextIdx);
+                                  lastLog = (!resOk ? "分辨率校正，" : "") +
+                                            curInt + " Hz ↑ → " + next.getRateInt() + " Hz";
+                              } else {
+                                  // 需要降档：顺序往下切一格，不低于目标
+                                  int nextIdx = Math.max(curIdx - 1, 0);
+                                  while (nextIdx > 0
+                                          && filtered.get(nextIdx).getRateInt() < finalTarget.getRateInt())
+                                      nextIdx++;
+                                  next = filtered.get(nextIdx);
+                                  lastLog = curInt + " Hz ↓ → " + next.getRateInt() + " Hz";
                               }
-                              DisplayMode next = filtered.get(nextIdx);
-                              lastLog = (!resOk ? "分辨率不符，" : "") +
-                                        "检测到 " + curInt + " Hz，切 → " + next.getRateInt() + " Hz";
-                              Log.d(TAG, lastLog);
 
+                              Log.d(TAG, lastLog);
                               if ("root".equals(authMode)) {
                                   RootUtils.setRefreshRate(next.getModeId(), next.getRateInt());
                               } else if ("shizuku".equals(authMode)) {
@@ -1172,24 +1298,21 @@ jobs:
 
               public static void stop() {
                   running = false;
-                  if (daemonThread != null) {
-                      daemonThread.interrupt();
-                      daemonThread = null;
-                  }
+                  if (daemonThread != null) { daemonThread.interrupt(); daemonThread = null; }
               }
-
-              public static boolean isRunning() { return running; }
 
               public static float getCurrentRate(Context ctx) {
                   try {
-                      DisplayManager dm = (DisplayManager) ctx.getSystemService(Context.DISPLAY_SERVICE);
+                      DisplayManager dm = (DisplayManager)
+                              ctx.getSystemService(Context.DISPLAY_SERVICE);
                       return dm.getDisplay(Display.DEFAULT_DISPLAY).getRefreshRate();
                   } catch (Exception e) { return 0f; }
               }
 
               public static String getCurrentResolution(Context ctx) {
                   try {
-                      DisplayManager dm = (DisplayManager) ctx.getSystemService(Context.DISPLAY_SERVICE);
+                      DisplayManager dm = (DisplayManager)
+                              ctx.getSystemService(Context.DISPLAY_SERVICE);
                       Display.Mode m = dm.getDisplay(Display.DEFAULT_DISPLAY).getMode();
                       return m.getPhysicalWidth() + "×" + m.getPhysicalHeight();
                   } catch (Exception e) { return "--"; }
@@ -1198,12 +1321,13 @@ jobs:
               public static List<DisplayMode> getSupportedModes(Context ctx) {
                   List<DisplayMode> list = new ArrayList<>();
                   try {
-                      DisplayManager dm = (DisplayManager) ctx.getSystemService(Context.DISPLAY_SERVICE);
-                      Display.Mode[] modes = dm.getDisplay(Display.DEFAULT_DISPLAY).getSupportedModes();
-                      for (Display.Mode m : modes) {
+                      DisplayManager dm = (DisplayManager)
+                              ctx.getSystemService(Context.DISPLAY_SERVICE);
+                      Display.Mode[] modes =
+                              dm.getDisplay(Display.DEFAULT_DISPLAY).getSupportedModes();
+                      for (Display.Mode m : modes)
                           list.add(new DisplayMode(m.getPhysicalWidth(), m.getPhysicalHeight(),
                                   m.getRefreshRate(), m.getModeId()));
-                      }
                   } catch (Exception ignored) {}
                   return list;
               }
@@ -1559,7 +1683,7 @@ jobs:
           }
           EOF
 
-          # ====== SettingsFragment.java（完整版，无省略） ======
+          # ====== SettingsFragment.java（含修改后的 Spinner 监听器） ======
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -1746,17 +1870,44 @@ jobs:
                   };
                   populateRates.run();
 
+                  // 修改后的分辨率 Spinner 监听器
                   spinnerRes.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
                       @Override public void onItemSelected(android.widget.AdapterView<?> p, android.view.View vv, int pos, long id) {
                           prefs.edit().putString("oc_target_res", resKeys.get(pos)).apply();
                           populateRates.run();
+                          // 守护运行中立即同步新分辨率
+                          if (com.pmahz.util.AutoOverclockManager.isRunning()) {
+                              int hz = prefs.getInt("oc_target_hz", -1);
+                              String[] wh = resKeys.get(pos).split("x");
+                              if (wh.length == 2 && hz > 0) {
+                                  try {
+                                      com.pmahz.util.AutoOverclockManager.updateTarget(
+                                          Integer.parseInt(wh[0]), Integer.parseInt(wh[1]), hz);
+                                  } catch (Exception ignored) {}
+                              }
+                          }
                       }
                       @Override public void onNothingSelected(android.widget.AdapterView<?> p) {}
                   });
+
+                  // 修改后的刷新率 Spinner 监听器
                   spinnerRate.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
                       @Override public void onItemSelected(android.widget.AdapterView<?> p, android.view.View vv, int pos, long id) {
-                          if (pos < rateHolder[0].size())
-                              prefs.edit().putInt("oc_target_hz", rateHolder[0].get(pos)).apply();
+                          if (pos >= rateHolder[0].size()) return;
+                          int hz = rateHolder[0].get(pos);
+                          prefs.edit().putInt("oc_target_hz", hz).apply();
+                          // 守护运行中立即同步新目标刷新率（支持升降档）
+                          if (com.pmahz.util.AutoOverclockManager.isRunning()) {
+                              String ocRes = prefs.getString("oc_target_res",
+                                      resKeys.isEmpty() ? "" : resKeys.get(0));
+                              String[] wh = ocRes.split("x");
+                              if (wh.length == 2) {
+                                  try {
+                                      com.pmahz.util.AutoOverclockManager.updateTarget(
+                                          Integer.parseInt(wh[0]), Integer.parseInt(wh[1]), hz);
+                                  } catch (Exception ignored) {}
+                              }
+                          }
                       }
                       @Override public void onNothingSelected(android.widget.AdapterView<?> p) {}
                   });
