@@ -171,7 +171,6 @@ jobs:
                       </intent-filter>
                   </receiver>
 
-                  <!-- 无障碍服务（用于保活） -->
                   <service
                       android:name=".service.KeepAliveAccessibilityService"
                       android:exported="true"
@@ -410,7 +409,8 @@ jobs:
               <string name="permission_cancel">取消</string>
               <string name="permission_denied_title">需要存储权限</string>
               <string name="permission_denied_message">您已拒绝权限，请前往系统设置手动授予，否则无法选择图片。</string>
-              <string name="accessibility_prompt">为确保自动超频守护常驻，请开启无障碍服务</string>
+              <string name="accessibility_enabled">✅ 无障碍已开启</string>
+              <string name="accessibility_disabled">⚠️ 无障碍未开启（点击开关将引导开启）</string>
           </resources>
           EOF
 
@@ -477,7 +477,8 @@ jobs:
               <string name="permission_cancel">Cancel</string>
               <string name="permission_denied_title">Storage Permission</string>
               <string name="permission_denied_message">You have denied the permission. Please grant it manually in system settings.</string>
-              <string name="accessibility_prompt">Enable Accessibility Service to keep the daemon alive</string>
+              <string name="accessibility_enabled">✅ Accessibility enabled</string>
+              <string name="accessibility_disabled">⚠️ Accessibility not enabled (tap switch to enable)</string>
           </resources>
           EOF
 
@@ -544,7 +545,8 @@ jobs:
               <string name="permission_cancel">キャンセル</string>
               <string name="permission_denied_title">ストレージ権限</string>
               <string name="permission_denied_message">権限が拒否されました。システム設定で手動で許可してください。</string>
-              <string name="accessibility_prompt">自動オーバークロックデーモンを常駐させるため、アクセシビリティを有効にしてください</string>
+              <string name="accessibility_enabled">✅ アクセシビリティ有効</string>
+              <string name="accessibility_disabled">⚠️ アクセシビリティ無効（スイッチを押すと設定へ）</string>
           </resources>
           EOF
 
@@ -611,7 +613,8 @@ jobs:
               <string name="permission_cancel">بىكار قىلىش</string>
               <string name="permission_denied_title">ساقلاش ھوقۇقى</string>
               <string name="permission_denied_message">سىز ھوقۇقنى رەت قىلدىڭىز. ئۇنى سىستېما تەڭشىكىدە قولدا بېرىڭ.</string>
-              <string name="accessibility_prompt">ئاپتوماتىك قوزغىتىش خىزمىتىنىڭ ئىزدىنىشى ئۈچۈن ياردەمچى ئىقتىدارىنى قوزغىتىڭ</string>
+              <string name="accessibility_enabled">✅ ياردەمچى ئىقتىدار ئوچۇق</string>
+              <string name="accessibility_disabled">⚠️ ياردەمچى ئىقتىدار ئوچۇق ئەمەس (سىلىش ئارقىلىق ئېچىڭ)</string>
           </resources>
           EOF
 
@@ -678,7 +681,8 @@ jobs:
               <string name="permission_cancel">取消</string>
               <string name="permission_denied_title">需要儲存權限</string>
               <string name="permission_denied_message">您已拒絕權限，請前往系統設定手動授予，否則無法選擇圖片。</string>
-              <string name="accessibility_prompt">為確保自動超頻守護常駐，請開啟輔助服務</string>
+              <string name="accessibility_enabled">✅ 輔助服務已啟用</string>
+              <string name="accessibility_disabled">⚠️ 輔助服務未啟用（點擊開關將引導啟用）</string>
           </resources>
           EOF
 
@@ -968,7 +972,7 @@ jobs:
           }
           EOF
 
-          # ====== 新增无障碍服务 ======
+          # ====== KeepAliveAccessibilityService.java ======
           cat > app/src/main/java/com/pmahz/service/KeepAliveAccessibilityService.java << 'EOF'
           package com.pmahz.service;
 
@@ -991,20 +995,18 @@ jobs:
 
               @Override
               public void onAccessibilityEvent(AccessibilityEvent event) {
-                  // 不需要处理事件，仅用于保活
               }
 
               @Override
               public void onInterrupt() {
-                  Log.d(TAG, "无障碍服务中断，尝试重启");
+                  Log.d(TAG, "无障碍服务中断");
                   checkAndRestartService();
               }
 
               @Override
               public void onDestroy() {
                   super.onDestroy();
-                  Log.d(TAG, "无障碍服务被销毁，尝试重启服务");
-                  // 某些系统上销毁后可能自动重启，这里也尝试重启
+                  Log.d(TAG, "无障碍服务销毁");
                   checkAndRestartService();
               }
 
@@ -1766,7 +1768,7 @@ jobs:
           }
           EOF
 
-          # ====== SettingsFragment.java（含无障碍引导） ======
+          # ====== SettingsFragment.java（含无障碍跳转） ======
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -1902,6 +1904,10 @@ jobs:
                   TextView tvOCCur    = v.findViewById(R.id.tv_overclock_cur);
                   Spinner spinnerRes  = v.findViewById(R.id.spinner_oc_resolution);
                   Spinner spinnerRate = v.findViewById(R.id.spinner_oc_rate);
+                  TextView tvA11yStatus = v.findViewById(R.id.tv_accessibility_status);
+
+                  // 初始无障碍状态
+                  updateAccessibilityStatus(tvA11yStatus);
 
                   List<com.pmahz.model.DisplayMode> allModes = AutoOverclockManager.getSupportedModes(requireContext());
 
@@ -2018,10 +2024,16 @@ jobs:
                               }
                           }
 
-                          // 检查并提示开启无障碍服务
+                          // 检查无障碍服务
                           if (!isAccessibilityServiceEnabled()) {
-                              Toast.makeText(getContext(), R.string.accessibility_prompt, Toast.LENGTH_LONG).show();
-                              // 不阻断启动，但建议用户开启
+                              Toast.makeText(getContext(), "请先开启无障碍服务以确保守护常驻", Toast.LENGTH_LONG).show();
+                              try {
+                                  startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                              } catch (Exception e) {
+                                  Toast.makeText(getContext(), "无法打开无障碍设置", Toast.LENGTH_SHORT).show();
+                              }
+                              switchOC.setChecked(false);
+                              return;
                           }
 
                           String mode = prefs.getString("auth_mode", "");
@@ -2152,19 +2164,34 @@ jobs:
                   return v;
               }
 
+              @Override
+              public void onResume() {
+                  super.onResume();
+                  // 从无障碍设置返回后刷新状态
+                  View v = getView();
+                  if (v != null) {
+                      TextView tvA11yStatus = v.findViewById(R.id.tv_accessibility_status);
+                      updateAccessibilityStatus(tvA11yStatus);
+                  }
+              }
+
               private boolean isAccessibilityServiceEnabled() {
                   try {
-                      int accessibilityEnabled = 0;
-                      final String service = getContext().getPackageName() + "/" + com.pmahz.service.KeepAliveAccessibilityService.class.getCanonicalName();
-                      accessibilityEnabled = Settings.Secure.getInt(getContext().getContentResolver(), Settings.Secure.ACCESSIBILITY_ENABLED);
+                      int accessibilityEnabled = Settings.Secure.getInt(getContext().getContentResolver(), Settings.Secure.ACCESSIBILITY_ENABLED);
                       if (accessibilityEnabled == 1) {
                           String settingValue = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-                          if (settingValue != null) {
-                              return settingValue.contains(service);
-                          }
+                          String service = getContext().getPackageName() + "/" + com.pmahz.service.KeepAliveAccessibilityService.class.getCanonicalName();
+                          return settingValue != null && settingValue.contains(service);
                       }
                   } catch (Exception e) {}
                   return false;
+              }
+
+              private void updateAccessibilityStatus(TextView tv) {
+                  if (tv == null) return;
+                  boolean enabled = isAccessibilityServiceEnabled();
+                  tv.setText(enabled ? R.string.accessibility_enabled : R.string.accessibility_disabled);
+                  tv.setTextColor(enabled ? 0xFF2ECC71 : 0xFFE74C3C);
               }
 
               private void updateShizukuStatus(TextView tv, Button btn) {
@@ -2639,6 +2666,14 @@ jobs:
                               android:layout_width="wrap_content" android:layout_height="wrap_content"
                               android:text="自动启动守护未开启" android:textSize="13sp"
                               android:layout_marginTop="8dp"
+                              android:textColor="#E74C3C"/>
+
+                          <!-- 无障碍状态 -->
+                          <TextView android:id="@+id/tv_accessibility_status"
+                              android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/accessibility_disabled"
+                              android:textSize="12sp"
+                              android:layout_marginTop="4dp"
                               android:textColor="#E74C3C"/>
 
                           <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
