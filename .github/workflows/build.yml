@@ -299,6 +299,15 @@ jobs:
           </vector>
           EOF
 
+          # ====== 新增白色小球 drawable ======
+          cat > app/src/main/res/drawable/ic_white_ball.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+              <solid android:color="#FFFFFF"/>
+              <size android:width="24dp" android:height="24dp"/>
+          </shape>
+          EOF
+
           # ----- 壁纸资源 -----
           cat > app/src/main/res/drawable/wallpaper_gradient_1.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
@@ -409,8 +418,8 @@ jobs:
               <string name="permission_cancel">取消</string>
               <string name="permission_denied_title">需要存储权限</string>
               <string name="permission_denied_message">您已拒绝权限，请前往系统设置手动授予，否则无法选择图片。</string>
-              <string name="accessibility_enabled">✅ 无障碍已开启</string>
-              <string name="accessibility_disabled">⚠️ 无障碍未开启（点击开关将引导开启）</string>
+              <string name="accessibility_enabled">无障碍已开启</string>
+              <string name="accessibility_disabled">无障碍未开启（点击开关将引导开启）</string>
           </resources>
           EOF
 
@@ -477,8 +486,8 @@ jobs:
               <string name="permission_cancel">Cancel</string>
               <string name="permission_denied_title">Storage Permission</string>
               <string name="permission_denied_message">You have denied the permission. Please grant it manually in system settings.</string>
-              <string name="accessibility_enabled">✅ Accessibility enabled</string>
-              <string name="accessibility_disabled">⚠️ Accessibility not enabled (tap switch to enable)</string>
+              <string name="accessibility_enabled">Accessibility enabled</string>
+              <string name="accessibility_disabled">Accessibility not enabled (tap switch to enable)</string>
           </resources>
           EOF
 
@@ -545,8 +554,8 @@ jobs:
               <string name="permission_cancel">キャンセル</string>
               <string name="permission_denied_title">ストレージ権限</string>
               <string name="permission_denied_message">権限が拒否されました。システム設定で手動で許可してください。</string>
-              <string name="accessibility_enabled">✅ アクセシビリティ有効</string>
-              <string name="accessibility_disabled">⚠️ アクセシビリティ無効（スイッチを押すと設定へ）</string>
+              <string name="accessibility_enabled">アクセシビリティ有効</string>
+              <string name="accessibility_disabled">アクセシビリティ無効（スイッチを押すと設定へ）</string>
           </resources>
           EOF
 
@@ -613,8 +622,8 @@ jobs:
               <string name="permission_cancel">بىكار قىلىش</string>
               <string name="permission_denied_title">ساقلاش ھوقۇقى</string>
               <string name="permission_denied_message">سىز ھوقۇقنى رەت قىلدىڭىز. ئۇنى سىستېما تەڭشىكىدە قولدا بېرىڭ.</string>
-              <string name="accessibility_enabled">✅ ياردەمچى ئىقتىدار ئوچۇق</string>
-              <string name="accessibility_disabled">⚠️ ياردەمچى ئىقتىدار ئوچۇق ئەمەس (سىلىش ئارقىلىق ئېچىڭ)</string>
+              <string name="accessibility_enabled">ياردەمچى ئىقتىدار ئوچۇق</string>
+              <string name="accessibility_disabled">ياردەمچى ئىقتىدار ئوچۇق ئەمەس (سىلىش ئارقىلىق ئېچىڭ)</string>
           </resources>
           EOF
 
@@ -681,8 +690,8 @@ jobs:
               <string name="permission_cancel">取消</string>
               <string name="permission_denied_title">需要儲存權限</string>
               <string name="permission_denied_message">您已拒絕權限，請前往系統設定手動授予，否則無法選擇圖片。</string>
-              <string name="accessibility_enabled">✅ 輔助服務已啟用</string>
-              <string name="accessibility_disabled">⚠️ 輔助服務未啟用（點擊開關將引導啟用）</string>
+              <string name="accessibility_enabled">輔助服務已啟用</string>
+              <string name="accessibility_disabled">輔助服務未啟用（點擊開關將引導啟用）</string>
           </resources>
           EOF
 
@@ -767,20 +776,24 @@ jobs:
 
               public String getRateName(Context ctx) {
                   int r = getRateInt();
-                  if(r>=144) return ctx.getString(R.string.rate_name_high);
-                  if(r>=120) return ctx.getString(R.string.rate_name_extreme);
-                  if(r>=90)  return ctx.getString(R.string.rate_name_excellent);
-                  if(r>=60)  return ctx.getString(R.string.rate_name_smooth);
-                  return ctx.getString(R.string.rate_name_standard);
+                  if (r >= 185) return "鎏金超限";
+                  if (r >= 165) return "极限";
+                  if (r >= 144) return "高刷";
+                  if (r >= 120) return "极致";
+                  if (r >= 90)  return "极佳";
+                  if (r >= 60)  return "流畅";
+                  return "标准";
               }
 
               public String getRateDesc(Context ctx) {
                   int r = getRateInt();
-                  if(r>=144) return ctx.getString(R.string.rate_desc_high);
-                  if(r>=120) return ctx.getString(R.string.rate_desc_extreme);
-                  if(r>=90)  return ctx.getString(R.string.rate_desc_excellent);
-                  if(r>=60)  return ctx.getString(R.string.rate_desc_smooth);
-                  return ctx.getString(R.string.rate_desc_standard);
+                  if (r >= 185) return "金芒破限，视界抵达巅峰";
+                  if (r >= 165) return "巅峰画面质感，诠释极限视觉体验";
+                  if (r >= 144) return "画面瞬时响应，无拖影卡顿";
+                  if (r >= 120) return "极致的画面体验，画面快人一步";
+                  if (r >= 90)  return "高等刷新率，拥有超流畅的画面体验";
+                  if (r >= 60)  return "高的刷新率，画面流畅";
+                  return "常规刷新率，延长续航";
               }
           }
           EOF
@@ -1499,11 +1512,13 @@ jobs:
               }
 
               private int colorFor(int hz) {
-                  if (hz >= 170) return Color.parseColor("#1565C0");
-                  if (hz >= 144) return Color.parseColor("#1E88E5");
-                  if (hz >= 120) return Color.parseColor("#2196F3");
-                  if (hz >= 90)  return Color.parseColor("#00ACC1");
-                  return Color.parseColor("#00897B");
+                  if (hz >= 185) return Color.parseColor("#FFD700");
+                  if (hz >= 165) return Color.parseColor("#F44336");
+                  if (hz >= 144) return Color.parseColor("#3F51B5");
+                  if (hz >= 120) return Color.parseColor("#9C27B0");
+                  if (hz >= 90)  return Color.parseColor("#FFEB3B");
+                  if (hz >= 60)  return Color.parseColor("#03A9F4");
+                  return Color.parseColor("#4CAF50");
               }
 
               private int darkenColor(int color, float factor) {
@@ -1536,6 +1551,8 @@ jobs:
           import android.graphics.drawable.GradientDrawable;
           import android.os.Bundle;
           import android.view.*;
+          import android.view.animation.Animation;
+          import android.view.animation.TranslateAnimation;
           import android.widget.*;
           import androidx.fragment.app.Fragment;
           import androidx.recyclerview.widget.*;
@@ -1575,6 +1592,18 @@ jobs:
                   prefs = requireActivity().getSharedPreferences("s", Context.MODE_PRIVATE);
                   prefs.registerOnSharedPreferenceChangeListener(this);
                   updateUI();
+
+                  // 白色小球左右移动动画
+                  ImageView ball = v.findViewById(R.id.ball_animation);
+                  TranslateAnimation anim = new TranslateAnimation(
+                      Animation.RELATIVE_TO_PARENT, 0f,
+                      Animation.RELATIVE_TO_PARENT, 0.8f,
+                      Animation.RELATIVE_TO_PARENT, 0f,
+                      Animation.RELATIVE_TO_PARENT, 0f);
+                  anim.setDuration(2000);
+                  anim.setRepeatMode(Animation.REVERSE);
+                  anim.setRepeatCount(Animation.INFINITE);
+                  ball.startAnimation(anim);
 
                   loadData();
                   return v;
@@ -1768,7 +1797,7 @@ jobs:
           }
           EOF
 
-          # ====== SettingsFragment.java（含无障碍跳转及酷安链接） ======
+          # ====== SettingsFragment.java ======
           cat > app/src/main/java/com/pmahz/fragment/SettingsFragment.java << 'EOF'
           package com.pmahz.fragment;
           import android.Manifest;
@@ -1906,7 +1935,6 @@ jobs:
                   Spinner spinnerRate = v.findViewById(R.id.spinner_oc_rate);
                   TextView tvA11yStatus = v.findViewById(R.id.tv_accessibility_status);
 
-                  // 初始无障碍状态
                   updateAccessibilityStatus(tvA11yStatus);
 
                   List<com.pmahz.model.DisplayMode> allModes = AutoOverclockManager.getSupportedModes(requireContext());
@@ -2024,7 +2052,6 @@ jobs:
                               }
                           }
 
-                          // 检查无障碍服务
                           if (!isAccessibilityServiceEnabled()) {
                               Toast.makeText(getContext(), "请先开启无障碍服务以确保守护常驻", Toast.LENGTH_LONG).show();
                               try {
@@ -2068,8 +2095,7 @@ jobs:
                   String fullText = "酷安:爱好者ahh 前往关注";
                   SpannableString spannable = new SpannableString(fullText);
                   ClickableSpan clickableSpan = new ClickableSpan() {
-                      @Override
-                      public void onClick(@NonNull View widget) {
+                      @Override public void onClick(@NonNull View widget) {
                           String url = "https://www.coolapk.com/u/31452988";
                           try {
                               startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -2498,42 +2524,63 @@ jobs:
 
           cat > app/src/main/res/layout/fragment_home.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
-          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent" android:layout_height="match_parent"
-              android:orientation="vertical"
+          <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
               android:background="@android:color/transparent"
               android:fitsSystemWindows="true">
-              <RelativeLayout
-                  android:id="@+id/home_title_bar"
-                  android:layout_width="match_parent" android:layout_height="wrap_content"
-                  android:padding="20dp"
-                  android:background="#88FFFFFF">
-                  <TextView
-                      android:id="@+id/home_title_text"
-                      android:layout_width="wrap_content" android:layout_height="wrap_content"
-                      android:text="@string/home_title"
-                      android:textSize="26sp" android:textStyle="bold"
-                      android:textColor="@color/text_dark"
-                      android:layout_centerVertical="true"/>
-                  <ImageView
-                      android:id="@+id/btn_language_switch"
-                      android:layout_width="32dp"
-                      android:layout_height="32dp"
-                      android:src="@drawable/ic_language_earth"
-                      android:layout_alignParentEnd="true"
-                      android:layout_centerVertical="true"
-                      android:padding="4dp"
-                      android:clickable="true"
-                      android:focusable="true"
-                      android:background="?attr/selectableItemBackgroundBorderless"
-                      android:contentDescription="@string/language_dialog_title"/>
-              </RelativeLayout>
-              <androidx.recyclerview.widget.RecyclerView
-                  android:id="@+id/recycler_rates"
-                  android:layout_width="match_parent" android:layout_height="match_parent"
-                  android:padding="10dp"
-                  android:background="@android:color/transparent"/>
-          </LinearLayout>
+
+              <LinearLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical"
+                  android:background="@android:color/transparent">
+
+                  <RelativeLayout
+                      android:id="@+id/home_title_bar"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:padding="20dp"
+                      android:background="#88FFFFFF">
+                      <TextView
+                          android:id="@+id/home_title_text"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:text="@string/home_title"
+                          android:textSize="26sp"
+                          android:textStyle="bold"
+                          android:textColor="@color/text_dark"
+                          android:layout_centerVertical="true"/>
+                      <ImageView
+                          android:id="@+id/btn_language_switch"
+                          android:layout_width="32dp"
+                          android:layout_height="32dp"
+                          android:src="@drawable/ic_language_earth"
+                          android:layout_alignParentEnd="true"
+                          android:layout_centerVertical="true"
+                          android:padding="4dp"
+                          android:clickable="true"
+                          android:focusable="true"
+                          android:background="?attr/selectableItemBackgroundBorderless"
+                          android:contentDescription="@string/language_dialog_title"/>
+                  </RelativeLayout>
+
+                  <androidx.recyclerview.widget.RecyclerView
+                      android:id="@+id/recycler_rates"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:padding="10dp"
+                      android:background="@android:color/transparent"/>
+              </LinearLayout>
+
+              <ImageView
+                  android:id="@+id/ball_animation"
+                  android:layout_width="24dp"
+                  android:layout_height="24dp"
+                  android:src="@drawable/ic_white_ball"
+                  android:layout_gravity="center_vertical"
+                  android:contentDescription="刷新率测试小球"/>
+          </FrameLayout>
           EOF
 
           cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
@@ -2671,7 +2718,7 @@ jobs:
                               <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                                   android:layout_weight="1" android:orientation="vertical">
                                   <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                      android:text="⚡ 自动启动守护" android:textSize="15sp"
+                                      android:text="自动启动守护" android:textSize="15sp"
                                       android:textColor="@color/text_dark"/>
                                   <TextView android:id="@+id/tv_overclock_cur"
                                       android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -2689,7 +2736,6 @@ jobs:
                               android:layout_marginTop="8dp"
                               android:textColor="#E74C3C"/>
 
-                          <!-- 无障碍状态 -->
                           <TextView android:id="@+id/tv_accessibility_status"
                               android:layout_width="wrap_content" android:layout_height="wrap_content"
                               android:text="@string/accessibility_disabled"
