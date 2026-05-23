@@ -1573,27 +1573,6 @@ jobs:
                           r.card.setStrokeWidth(0);
                       }
                       r.card.setOnClickListener(v -> { if (listener != null) listener.onClick(m); });
-                      if (r.ballAnimSet != null) r.ballAnimSet.cancel();
-                      r.ballContainer.post(() -> {
-                          float maxX = r.ballContainer.getWidth() - r.ballView.getWidth();
-                          float maxY = r.ballContainer.getHeight() - r.ballView.getHeight();
-                          if (maxX <= 0) return;
-                          long dur = Math.max(300L, 2400L - m.getRateInt() * 8L);
-                          android.animation.ObjectAnimator ax = android.animation.ObjectAnimator
-                              .ofFloat(r.ballView, "translationX", 0f, maxX);
-                          ax.setDuration(dur);
-                          ax.setRepeatCount(android.animation.ObjectAnimator.INFINITE);
-                          ax.setRepeatMode(android.animation.ObjectAnimator.REVERSE);
-                          ax.setInterpolator(new android.view.animation.LinearInterpolator());
-                          android.animation.ObjectAnimator ay = android.animation.ObjectAnimator
-                              .ofFloat(r.ballView, "translationY", 0f, Math.max(1f, maxY));
-                          ay.setDuration(dur / 2);
-                          ay.setRepeatCount(android.animation.ObjectAnimator.INFINITE);
-                          ay.setRepeatMode(android.animation.ObjectAnimator.REVERSE);
-                          ay.setInterpolator(new android.view.animation.LinearInterpolator());
-                          r.ballAnimSet = new android.animation.AnimatorSet();
-                          r.ballAnimSet.playTogether(ax, ay);
-                          r.ballAnimSet.start();
                       });
                   }
               }
@@ -1628,26 +1607,17 @@ jobs:
               static class RVH extends RecyclerView.ViewHolder {
                   MaterialCardView card;
                   TextView name, hz, desc;
-                  View ballView;
-                  android.widget.FrameLayout ballContainer;
-                  android.animation.AnimatorSet ballAnimSet;
                   RVH(View v) {
                       super(v);
                       card = v.findViewById(R.id.card_rate);
                       name = v.findViewById(R.id.tv_rate_name);
                       hz = v.findViewById(R.id.tv_rate_hz);
                       desc = v.findViewById(R.id.tv_rate_desc);
-                      ballView = v.findViewById(R.id.ball_view);
-                      ballContainer = v.findViewById(R.id.ball_container);
                   }
               }
 
               @Override public void onViewRecycled(RecyclerView.ViewHolder holder) {
                   super.onViewRecycled(holder);
-                  if (holder instanceof RVH) {
-                      RVH r = (RVH) holder;
-                      if (r.ballAnimSet != null) { r.ballAnimSet.cancel(); r.ballAnimSet = null; }
-                  }
               }
           }
           EOF
@@ -2622,53 +2592,55 @@ jobs:
           cat > app/src/main/res/layout/fragment_home.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
+             android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="@android:color/transparent"
               android:fitsSystemWindows="true">
 
-              <LinearLayout
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:orientation="vertical"
-                  android:background="@android:color/transparent">
+         <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@android:color/transparent">
 
-                  <RelativeLayout
-                      android:id="@+id/home_title_bar"
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:padding="20dp"
-                      android:background="#88FFFFFF">
-                      <TextView
-                          android:id="@+id/home_title_text"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:text="@string/home_title"
-                          android:textSize="26sp"
-                          android:textStyle="bold"
-                          android:textColor="@color/text_dark"
-                          android:layout_centerVertical="true"/>
-                      <ImageView
-                          android:id="@+id/btn_language_switch"
-                          android:layout_width="32dp"
-                          android:layout_height="32dp"
-                          android:src="@drawable/ic_language_earth"
-                          android:layout_alignParentEnd="true"
-                          android:layout_centerVertical="true"
-                          android:padding="4dp"
-                          android:clickable="true"
-                          android:focusable="true"
-                          android:background="?attr/selectableItemBackgroundBorderless"
-                          android:contentDescription="@string/language_dialog_title"/>
-                  </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/home_title_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:background="#88FFFFFF">
+            <TextView
+                android:id="@+id/home_title_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/home_title"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/btn_language_switch"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_language_earth"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:padding="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/language_dialog_title"/>
+        </RelativeLayout>
 
-                  <androidx.recyclerview.widget.RecyclerView
-                      android:id="@+id/recycler_rates"
-                      android:layout_width="match_parent"
-                      android:layout_height="match_parent"
-                      android:padding="10dp"
-                      android:background="@android:color/transparent"/>
-              </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_rates"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:background="@android:color/transparent"/>
+            </LinearLayout>
+
+      </FrameLayout>
           EOF
 
           cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
@@ -2703,23 +2675,6 @@ jobs:
                               android:textSize="11sp" android:layout_alignParentBottom="true"
                               android:layout_below="@id/tv_rate_hz" android:layout_marginTop="4dp"/>
                       </RelativeLayout>
-
-                      <!-- 小球动画轨道 -->
-                            <FrameLayout
-                            android:id="@+id/ball_container"
-                            android:layout_width="match_parent"
-                            android:layout_height="28dp"
-                            android:clipChildren="false"
-                            android:layout_marginBottom="8dp"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginEnd="8dp">
-                          <View
-                             android:id="@+id/ball_view"
-                             android:layout_width="14dp"
-                             android:layout_height="14dp"
-                             android:background="@drawable/ball_circle"
-                             android:elevation="2dp"/>
-                      </FrameLayout>
 
                   </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -3016,12 +2971,12 @@ jobs:
           SCRIPTEOF
           chmod +x generate.sh
           ./generate.sh
-
+          
       - name: 4. 用官方标准 Action 建立合规的 Gradle 包装器
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.0'
-          generate-job-summary: true
+        gradle-version: '8.0'
+        generate-job-summary: true
 
       - name: 5. 编译生成 Debug APK
         run: gradle assembleDebug
