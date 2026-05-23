@@ -935,6 +935,7 @@ jobs:
               sb.append("\n══════════════════════════════════\n");
               return sb.toString();
           }
+          }
           EOF
 
           # ShizukuUtils.java（反射）
