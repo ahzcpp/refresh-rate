@@ -888,7 +888,7 @@ jobs:
                   }
               }
 
-public static String generateRuntimeLog() {
+              public static String generateRuntimeLog() {
               StringBuilder sb = new StringBuilder();
               String ts = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
                       .format(new java.util.Date());
