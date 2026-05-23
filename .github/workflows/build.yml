@@ -1,4 +1,4 @@
-name: 自动编译生成 APK
+Name: 自动编译生成 APK
 
 on:
   push:
@@ -373,15 +373,19 @@ jobs:
               <string name="low_resolution">低分辨率  </string>
               <string name="fallback_high_res">高分辨率</string>
               <string name="fallback_low_res">低分辨率</string>
+              <string name="rate_name_supreme">鎏金超限</string>
+              <string name="rate_name_limit">极限</string>
               <string name="rate_name_high">高刷</string>
               <string name="rate_name_extreme">极致</string>
               <string name="rate_name_excellent">极佳</string>
               <string name="rate_name_smooth">流畅</string>
               <string name="rate_name_standard">标准</string>
-              <string name="rate_desc_high">臻享视界，完美观感</string>
-              <string name="rate_desc_extreme">画面流畅动人，舒适体验</string>
-              <string name="rate_desc_excellent">提高刷新率，极致体验</string>
-              <string name="rate_desc_smooth">较高刷新率，画面流畅</string>
+              <string name="rate_desc_supreme">金芒破限，视界抵达巅峰</string>
+              <string name="rate_desc_limit">巅峰画面质感，诠释极限视觉体验</string>
+              <string name="rate_desc_high">画面瞬时响应，无拖影卡顿</string>
+              <string name="rate_desc_extreme">极致的画面体验，画面快人一步</string>
+              <string name="rate_desc_excellent">高等刷新率，拥有超流畅的画面体验</string>
+              <string name="rate_desc_smooth">高的刷新率，画面流畅</string>
               <string name="rate_desc_standard">常规刷新率，延长续航</string>
               <string name="no_root_toast">未获取root权限</string>
               <string name="switch_success">已切换至 %d Hz</string>
@@ -425,7 +429,7 @@ jobs:
               <string name="permission_go_settings">去设置</string>
               <string name="permission_cancel">取消</string>
               <string name="permission_denied_title">需要存储权限</string>
-              <string name="permission_denied_message">您已拒绝权限，请前往系统设置手动授予，否则无法选择图片。</string>
+              <string name="permission_denied_message">您已拒绝权限，请前往系统设定手动授予，否则无法选择图片。</string>
               <string name="accessibility_enabled">无障碍已开启</string>
               <string name="accessibility_disabled">无障碍未开启（点击开关将引导开启）</string>
           </resources>
@@ -441,15 +445,19 @@ jobs:
               <string name="low_resolution">Low Resolution  </string>
               <string name="fallback_high_res">High Resolution</string>
               <string name="fallback_low_res">Low Resolution</string>
+              <string name="rate_name_supreme">Supreme</string>
+              <string name="rate_name_limit">Limit</string>
               <string name="rate_name_high">High</string>
               <string name="rate_name_extreme">Extreme</string>
               <string name="rate_name_excellent">Excellent</string>
               <string name="rate_name_smooth">Smooth</string>
               <string name="rate_name_standard">Standard</string>
-              <string name="rate_desc_high">Ultimate immersion, perfect visuals</string>
-              <string name="rate_desc_extreme">Fluid and delightful experience</string>
-              <string name="rate_desc_excellent">Enhanced refresh, premium feel</string>
-              <string name="rate_desc_smooth">Smooth display, extended battery</string>
+              <string name="rate_desc_supreme">Beyond limits, ultimate visual peak</string>
+              <string name="rate_desc_limit">Peak visuals, ultimate experience</string>
+              <string name="rate_desc_high">Instant response, no ghosting</string>
+              <string name="rate_desc_extreme">Ultimate visuals, one step ahead</string>
+              <string name="rate_desc_excellent">High refresh, ultra smooth</string>
+              <string name="rate_desc_smooth">High refresh, smooth display</string>
               <string name="rate_desc_standard">Standard refresh, long battery life</string>
               <string name="no_root_toast">No root access</string>
               <string name="switch_success">Switched to %d Hz</string>
@@ -509,15 +517,19 @@ jobs:
               <string name="low_resolution">低解像度  </string>
               <string name="fallback_high_res">高解像度</string>
               <string name="fallback_low_res">低解像度</string>
-              <string name="rate_name_high">高</string>
+              <string name="rate_name_supreme">至高</string>
+              <string name="rate_name_limit">限界</string>
+              <string name="rate_name_high">高速</string>
               <string name="rate_name_extreme">極致</string>
               <string name="rate_name_excellent">極佳</string>
               <string name="rate_name_smooth">滑らか</string>
               <string name="rate_name_standard">標準</string>
-              <string name="rate_desc_high">至高の没入感、完璧な視覚</string>
-              <string name="rate_desc_extreme">流動的で快適な体験</string>
-              <string name="rate_desc_excellent">リフレッシュレート向上、至高の体験</string>
-              <string name="rate_desc_smooth">高いリフレッシュレート、滑らかな表示</string>
+              <string name="rate_desc_supreme">限界突破、究極の視覚体験</string>
+              <string name="rate_desc_limit">究極の画面、限界視覚体験</string>
+              <string name="rate_desc_high">瞬時応答、残像なし</string>
+              <string name="rate_desc_extreme">究極の画面体験、一歩先へ</string>
+              <string name="rate_desc_excellent">高リフレッシュレート、超滑らか</string>
+              <string name="rate_desc_smooth">高リフレッシュレート、滑らかな表示</string>
               <string name="rate_desc_standard">通常のリフレッシュレート、長持ちバッテリー</string>
               <string name="no_root_toast">Root権限がありません</string>
               <string name="switch_success">%d Hz に切り替えました</string>
@@ -577,15 +589,19 @@ jobs:
               <string name="low_resolution">تۆۋەن ئېنىقلىق  </string>
               <string name="fallback_high_res">يۇقىرى ئېنىقلىق</string>
               <string name="fallback_low_res">تۆۋەن ئېنىقلىق</string>
+              <string name="rate_name_supreme">ئېشىپ كەتكەن</string>
+              <string name="rate_name_limit">چەكلىك</string>
               <string name="rate_name_high">يۇقىرى</string>
               <string name="rate_name_extreme">ئېسىل</string>
               <string name="rate_name_excellent">ناھايىتى ياخشى</string>
               <string name="rate_name_smooth">سىلىق</string>
               <string name="rate_name_standard">ئۆلچەملىك</string>
-              <string name="rate_desc_high">ئەڭ يۇقىرى سۈزۈلۈش، مۇكەممەل كۆرۈنۈش</string>
-              <string name="rate_desc_extreme">سىلىق ۋە خۇشاللىنارلىق تەجرىبە</string>
-              <string name="rate_desc_excellent">يېڭىلاش دەرىجىسىنى ئۆستۈرۈش، ئېسىل ھېس</string>
-              <string name="rate_desc_smooth">يۇقىرى يېڭىلاش دەرىجىسى، سىلىق كۆرۈنۈش</string>
+              <string name="rate_desc_supreme">چەكنى بۇزۇپ، ئەڭ يۇقىرى كۆرۈنۈش</string>
+              <string name="rate_desc_limit">ئەڭ يۇقىرى كۆرۈنۈش، چەكلىك تەجرىبە</string>
+              <string name="rate_desc_high">شۇئان جاۋاب، تارتما يوق</string>
+              <string name="rate_desc_extreme">ئەڭ ياخشى كۆرۈنۈش، بىر قەدەم ئالدىدا</string>
+              <string name="rate_desc_excellent">يۇقىرى يېڭىلاش، ئىنتايىن سىلىق</string>
+              <string name="rate_desc_smooth">يۇقىرى يېڭىلاش، سىلىق كۆرۈنۈش</string>
               <string name="rate_desc_standard">ئۆلچەملىك يېڭىلاش، ئۇزۇن باتارېيە</string>
               <string name="no_root_toast">Root ھوقۇقى يوق</string>
               <string name="switch_success">%d Hz غا ئالماشتۇرۇلدى</string>
@@ -645,15 +661,19 @@ jobs:
               <string name="low_resolution">低解析度  </string>
               <string name="fallback_high_res">高解析度</string>
               <string name="fallback_low_res">低解析度</string>
+              <string name="rate_name_supreme">鎏金超限</string>
+              <string name="rate_name_limit">極限</string>
               <string name="rate_name_high">高刷</string>
               <string name="rate_name_extreme">極致</string>
               <string name="rate_name_excellent">極佳</string>
               <string name="rate_name_smooth">流暢</string>
               <string name="rate_name_standard">標準</string>
-              <string name="rate_desc_high">臻享視界，完美觀感</string>
-              <string name="rate_desc_extreme">畫面流暢動人，舒適體驗</string>
-              <string name="rate_desc_excellent">提高更新率，極致體驗</string>
-              <string name="rate_desc_smooth">較高更新率，畫面流暢</string>
+              <string name="rate_desc_supreme">金芒破限，視界抵達巔峰</string>
+              <string name="rate_desc_limit">巔峰畫面質感，詮釋極限視覺體驗</string>
+              <string name="rate_desc_high">畫面瞬時響應，無拖影卡頓</string>
+              <string name="rate_desc_extreme">極致的畫面體驗，畫面快人一步</string>
+              <string name="rate_desc_excellent">高等更新率，擁有超流暢的畫面體驗</string>
+              <string name="rate_desc_smooth">高的更新率，畫面流暢</string>
               <string name="rate_desc_standard">常規更新率，延長續航</string>
               <string name="no_root_toast">未取得root權限</string>
               <string name="switch_success">已切換至 %d Hz</string>
@@ -784,24 +804,24 @@ jobs:
 
               public String getRateName(Context ctx) {
                   int r = getRateInt();
-                  if (r >= 185) return "鎏金超限";
-                  if (r >= 165) return "极限";
-                  if (r >= 144) return "高刷";
-                  if (r >= 120) return "极致";
-                  if (r >= 90)  return "极佳";
-                  if (r >= 60)  return "流畅";
-                  return "标准";
+                  if (r >= 185) return ctx.getString(R.string.rate_name_supreme);
+                  if (r >= 165) return ctx.getString(R.string.rate_name_limit);
+                  if (r >= 144) return ctx.getString(R.string.rate_name_high);
+                  if (r >= 120) return ctx.getString(R.string.rate_name_extreme);
+                  if (r >= 90)  return ctx.getString(R.string.rate_name_excellent);
+                  if (r >= 60)  return ctx.getString(R.string.rate_name_smooth);
+                  return ctx.getString(R.string.rate_name_standard);
               }
 
               public String getRateDesc(Context ctx) {
                   int r = getRateInt();
-                  if (r >= 185) return "金芒破限，视界抵达巅峰";
-                  if (r >= 165) return "巅峰画面质感，诠释极限视觉体验";
-                  if (r >= 144) return "画面瞬时响应，无拖影卡顿";
-                  if (r >= 120) return "极致的画面体验，画面快人一步";
-                  if (r >= 90)  return "高等刷新率，拥有超流畅的画面体验";
-                  if (r >= 60)  return "高的刷新率，画面流畅";
-                  return "常规刷新率，延长续航";
+                  if (r >= 185) return ctx.getString(R.string.rate_desc_supreme);
+                  if (r >= 165) return ctx.getString(R.string.rate_desc_limit);
+                  if (r >= 144) return ctx.getString(R.string.rate_desc_high);
+                  if (r >= 120) return ctx.getString(R.string.rate_desc_extreme);
+                  if (r >= 90)  return ctx.getString(R.string.rate_desc_excellent);
+                  if (r >= 60)  return ctx.getString(R.string.rate_desc_smooth);
+                  return ctx.getString(R.string.rate_desc_standard);
               }
           }
           EOF
@@ -888,7 +908,7 @@ jobs:
                   }
               }
 
-          public static String generateRuntimeLog() {
+              public static String generateRuntimeLog() {
                   StringBuilder sb = new StringBuilder();
                   String ts = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
                           .format(new java.util.Date());
@@ -910,33 +930,44 @@ jobs:
                   boolean rooted = isRooted();
                   sb.append("Root: ").append(rooted ? "✅ 已获取" : "❌ 未获取").append("\n\n");
 
-                  // ── 当前显示信息（无需Root）──
+                  // ── 当前显示信息（无需Root） ──
+                  // 通过反射获取 Application Context，避免直接引用隐藏 API android.app.ActivityThread
                   sb.append("【当前显示状态】\n");
                   try {
-                      android.hardware.display.DisplayManager dm =
-                          (android.hardware.display.DisplayManager)
-                          android.app.ActivityThread.currentApplication()
-                              .getSystemService(android.content.Context.DISPLAY_SERVICE);
-                      android.view.Display d = dm.getDisplay(android.view.Display.DEFAULT_DISPLAY);
-                      android.view.Display.Mode cur = d.getMode();
-                      sb.append("当前分辨率: ").append(cur.getPhysicalWidth()).append("×").append(cur.getPhysicalHeight()).append("\n");
-                      sb.append("当前刷新率: ").append(Math.round(d.getRefreshRate())).append(" Hz\n");
-                      sb.append("\n【所有支持模式】\n");
-                      android.view.Display.Mode[] modes = d.getSupportedModes();
-                      java.util.Arrays.sort(modes, (a, b) -> {
-                          int resA = a.getPhysicalWidth() * a.getPhysicalHeight();
-                          int resB = b.getPhysicalWidth() * b.getPhysicalHeight();
-                          if (resA != resB) return Integer.compare(resB, resA);
-                          return Float.compare(b.getRefreshRate(), a.getRefreshRate());
-                      });
-                      for (android.view.Display.Mode m : modes) {
-                          boolean isCur = (m.getModeId() == cur.getModeId());
-                          sb.append(isCur ? "  ▶ " : "    ");
-                          sb.append("ID=").append(m.getModeId())
-                            .append("  ").append(m.getPhysicalWidth()).append("×").append(m.getPhysicalHeight())
-                            .append("  ").append(Math.round(m.getRefreshRate())).append(" Hz");
-                          if (isCur) sb.append("  ← 当前");
-                          sb.append("\n");
+                      android.content.Context appCtx = null;
+                      try {
+                          Class<?> atClass = Class.forName("android.app.ActivityThread");
+                          java.lang.reflect.Method method = atClass.getMethod("currentApplication");
+                          appCtx = (android.content.Context) method.invoke(null);
+                      } catch (Throwable ignored) {}
+
+                      if (appCtx == null) {
+                          sb.append("无法获取 Application Context，跳过显示信息\n");
+                      } else {
+                          android.hardware.display.DisplayManager dm =
+                              (android.hardware.display.DisplayManager)
+                              appCtx.getSystemService(android.content.Context.DISPLAY_SERVICE);
+                          android.view.Display d = dm.getDisplay(android.view.Display.DEFAULT_DISPLAY);
+                          android.view.Display.Mode cur = d.getMode();
+                          sb.append("当前分辨率: ").append(cur.getPhysicalWidth()).append("×").append(cur.getPhysicalHeight()).append("\n");
+                          sb.append("当前刷新率: ").append(Math.round(d.getRefreshRate())).append(" Hz\n");
+                          sb.append("\n【所有支持模式】\n");
+                          android.view.Display.Mode[] modes = d.getSupportedModes();
+                          java.util.Arrays.sort(modes, (a, b) -> {
+                              int resA = a.getPhysicalWidth() * a.getPhysicalHeight();
+                              int resB = b.getPhysicalWidth() * b.getPhysicalHeight();
+                              if (resA != resB) return Integer.compare(resB, resA);
+                              return Float.compare(b.getRefreshRate(), a.getRefreshRate());
+                          });
+                          for (android.view.Display.Mode mm : modes) {
+                              boolean isCur = (mm.getModeId() == cur.getModeId());
+                              sb.append(isCur ? "  ▶ " : "    ");
+                              sb.append("ID=").append(mm.getModeId())
+                                .append("  ").append(mm.getPhysicalWidth()).append("×").append(mm.getPhysicalHeight())
+                                .append("  ").append(Math.round(mm.getRefreshRate())).append(" Hz");
+                              if (isCur) sb.append("  ← 当前");
+                              sb.append("\n");
+                          }
                       }
                   } catch (Exception e) {
                       sb.append("读取显示信息失败: ").append(e.getMessage()).append("\n");
@@ -1704,7 +1735,6 @@ jobs:
                   prefs.registerOnSharedPreferenceChangeListener(this);
                   updateUI();
 
-                  // 白色小球左右移动动画
                   ImageView ball = v.findViewById(R.id.ball_animation);
                   TranslateAnimation anim = new TranslateAnimation(
                       Animation.RELATIVE_TO_PARENT, 0f,
@@ -2037,7 +2067,6 @@ jobs:
                       }
                   });
 
-                  // ── 自动超频开关 + 选择器 ──
                   com.google.android.material.switchmaterial.SwitchMaterial switchOC =
                       v.findViewById(R.id.switch_auto_overclock);
                   TextView tvOCStatus = v.findViewById(R.id.tv_overclock_status);
@@ -2201,7 +2230,6 @@ jobs:
                       }
                   });
 
-                  // ── 酷安作者链接 ──
                   TextView author = v.findViewById(R.id.tv_author);
                   String fullText = "酷安:爱好者ahh 前往关注";
                   SpannableString spannable = new SpannableString(fullText);
@@ -2222,7 +2250,6 @@ jobs:
                   author.setMovementMethod(LinkMovementMethod.getInstance());
                   author.setHighlightColor(Color.TRANSPARENT);
 
-                  // ── 壁纸等初始化 ──
                   rgWallpaper = v.findViewById(R.id.rg_wallpaper);
                   sbAlpha = v.findViewById(R.id.sb_alpha);
                   sbCardAlpha = v.findViewById(R.id.sb_card_alpha);
@@ -2492,7 +2519,7 @@ jobs:
                   LanguageUtils.applyLanguage(this);
                   createNotificationChannel();
                   setContentView(R.layout.activity_main);
-                  
+
                   getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                   getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
                   if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
@@ -2727,15 +2754,14 @@ jobs:
                               android:layout_below="@id/tv_rate_hz" android:layout_marginTop="4dp"/>
                       </RelativeLayout>
 
-                      <!-- 小球动画轨道 -->
-                            <FrameLayout
-                            android:id="@+id/ball_container"
-                            android:layout_width="match_parent"
-                            android:layout_height="28dp"
-                            android:clipChildren="false"
-                            android:layout_marginBottom="8dp"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginEnd="8dp">
+                      <FrameLayout
+                          android:id="@+id/ball_container"
+                          android:layout_width="match_parent"
+                          android:layout_height="28dp"
+                          android:clipChildren="false"
+                          android:layout_marginBottom="8dp"
+                          android:layout_marginStart="8dp"
+                          android:layout_marginEnd="8dp">
                           <View
                              android:id="@+id/ball_view"
                              android:layout_width="14dp"
@@ -2771,7 +2797,6 @@ jobs:
               <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                   android:orientation="vertical" android:padding="16dp">
 
-                  <!-- 授权状态卡片 -->
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
@@ -2834,7 +2859,6 @@ jobs:
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
-                  <!-- 自动超频卡片 -->
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
@@ -2901,7 +2925,6 @@ jobs:
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
-                  <!-- 壁纸美化卡片 -->
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp"
@@ -2933,7 +2956,6 @@ jobs:
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
-                  <!-- 档位显示卡片 -->
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp"
@@ -2952,7 +2974,6 @@ jobs:
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
-                  <!-- 设置页美化卡片 -->
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp"
@@ -2977,7 +2998,6 @@ jobs:
                       </LinearLayout>
                   </androidx.cardview.widget.CardView>
 
-                  <!-- 关于卡片 -->
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp"
