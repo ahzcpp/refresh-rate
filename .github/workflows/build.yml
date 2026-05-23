@@ -1500,7 +1500,6 @@ jobs:
           # ====== RateAdapter.java ======
           cat > app/src/main/java/com/pmahz/adapter/RateAdapter.java << 'EOF'
           package com.pmahz.adapter;
-
           import android.content.Context;
           import android.graphics.Color;
           import android.view.*;
@@ -1616,13 +1615,7 @@ jobs:
               }
           }
           EOF
-
-              @Override public void onViewRecycled(RecyclerView.ViewHolder holder) {
-                  super.onViewRecycled(holder);
-              }
-          }
-          EOF
-
+          
           # ====== HomeFragment.java ======
           cat > app/src/main/java/com/pmahz/fragment/HomeFragment.java << 'EOF'
           package com.pmahz.fragment;
