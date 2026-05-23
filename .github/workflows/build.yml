@@ -34,7 +34,7 @@ jobs:
 
           cat > generate.sh << 'SCRIPTEOF'
           #!/bin/bash
-set -e
+          set -e
 mkdir -p app/src/main/java/com/pmahz/fragment
 mkdir -p app/src/main/java/com/pmahz/adapter
 mkdir -p app/src/main/java/com/pmahz/model
