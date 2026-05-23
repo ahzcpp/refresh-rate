@@ -1573,7 +1573,6 @@ jobs:
                           r.card.setStrokeWidth(0);
                       }
                       r.card.setOnClickListener(v -> { if (listener != null) listener.onClick(m); });
-                      });
                   }
               }
 
@@ -1615,6 +1614,8 @@ jobs:
                       desc = v.findViewById(R.id.tv_rate_desc);
                   }
               }
+          }
+          EOF
 
               @Override public void onViewRecycled(RecyclerView.ViewHolder holder) {
                   super.onViewRecycled(holder);
@@ -2649,31 +2650,25 @@ jobs:
               <com.google.android.material.card.MaterialCardView
                   android:id="@+id/card_rate"
                   android:layout_width="match_parent" android:layout_height="wrap_content"
-                  android:minHeight="100dp"
                   app:cardCornerRadius="16dp"
                   app:strokeWidth="0dp"
-                  app:strokeColor="#00000000"
-                  android:background="@android:color/transparent">
+                  app:strokeColor="#00000000">
 
-                  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:orientation="vertical" android:minHeight="110dp">
+                  <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                      android:padding="16dp">
+                      <TextView android:id="@+id/tv_rate_name" android:layout_width="wrap_content"
+                          android:layout_height="wrap_content" android:textColor="#FFFFFF" android:textSize="13sp"/>
+                      <TextView android:id="@+id/tv_rate_hz" android:layout_width="wrap_content"
+                          android:layout_height="wrap_content" android:textSize="32sp"
+                          android:textStyle="bold" android:textColor="#FFFFFF"
+                          android:layout_below="@id/tv_rate_name"/>
+                      <TextView android:id="@+id/tv_rate_desc" android:layout_width="wrap_content"
+                          android:layout_height="wrap_content" android:textColor="#EEEEEE"
+                          android:textSize="11sp"
+                          android:layout_below="@id/tv_rate_hz" android:layout_marginTop="4dp"/>
+                  </RelativeLayout>
 
-                      <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                          android:padding="16dp">
-                          <TextView android:id="@+id/tv_rate_name" android:layout_width="wrap_content"
-                              android:layout_height="wrap_content" android:textColor="#FFFFFF" android:textSize="13sp"/>
-                          <TextView android:id="@+id/tv_rate_hz" android:layout_width="wrap_content"
-                              android:layout_height="wrap_content" android:textSize="32sp"
-                              android:textStyle="bold" android:textColor="#FFFFFF"
-                              android:layout_below="@id/tv_rate_name"/>
-                          <TextView android:id="@+id/tv_rate_desc" android:layout_width="wrap_content"
-                              android:layout_height="wrap_content" android:textColor="#EEEEEE"
-                              android:textSize="11sp" android:layout_alignParentBottom="true"
-                              android:layout_below="@id/tv_rate_hz" android:layout_marginTop="4dp"/>
-                      </RelativeLayout>
-
-                  </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+              </com.google.android.material.card.MaterialCardView>
           </LinearLayout>
           EOF
 
