@@ -888,88 +888,52 @@ jobs:
                   }
               }
 
-          public static String generateRuntimeLog() {
-                  StringBuilder sb = new StringBuilder();
-                  String ts = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
-                          .format(new java.util.Date());
-                  sb.append("╔══════════════════════════════════╗\n");
-                  sb.append("║    屏幕刷新率工具  运行调试日志    ║\n");
-                  sb.append("╚══════════════════════════════════╝\n");
-                  sb.append("生成时间: ").append(ts).append("\n\n");
+public static String generateRuntimeLog() {
+              StringBuilder sb = new StringBuilder();
+              String ts = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+                      .format(new java.util.Date());
+              sb.append("╔══════════════════════════════════╗\n");
+              sb.append("║    屏幕刷新率工具  运行调试日志    ║\n");
+              sb.append("╚══════════════════════════════════╝\n");
+              sb.append("生成时间: ").append(ts).append("\n\n");
 
-                  // ── 设备信息 ──
-                  sb.append("【设备信息】\n");
-                  sb.append("品牌: ").append(android.os.Build.BRAND).append("\n");
-                  sb.append("型号: ").append(android.os.Build.MODEL).append("\n");
-                  sb.append("Android: ").append(android.os.Build.VERSION.RELEASE)
-                    .append("  (API ").append(android.os.Build.VERSION.SDK_INT).append(")\n");
-                  sb.append("ROM: ").append(android.os.Build.DISPLAY).append("\n\n");
+              sb.append("【设备信息】\n");
+              sb.append("品牌: ").append(android.os.Build.BRAND).append("\n");
+              sb.append("型号: ").append(android.os.Build.MODEL).append("\n");
+              sb.append("Android: ").append(android.os.Build.VERSION.RELEASE)
+                .append("  (API ").append(android.os.Build.VERSION.SDK_INT).append(")\n");
+              sb.append("ROM: ").append(android.os.Build.DISPLAY).append("\n\n");
 
-                  // ── Root 状态 ──
-                  sb.append("【授权状态】\n");
-                  boolean rooted = isRooted();
-                  sb.append("Root: ").append(rooted ? "✅ 已获取" : "❌ 未获取").append("\n\n");
+              sb.append("【授权状态】\n");
+              boolean rooted = isRooted();
+              sb.append("Root: ").append(rooted ? "✅ 已获取" : "❌ 未获取").append("\n\n");
 
-                  // ── 当前显示信息（无需Root）──
-                  sb.append("【当前显示状态】\n");
+              sb.append("【Raw dumpsys】\n");
+              if (!rooted) {
+                  sb.append("（需要Root权限才能读取）\n");
+              } else {
+                  Process p = null; DataOutputStream os = null; BufferedReader r = null;
                   try {
-                      android.hardware.display.DisplayManager dm =
-                          (android.hardware.display.DisplayManager)
-                          android.app.ActivityThread.currentApplication()
-                              .getSystemService(android.content.Context.DISPLAY_SERVICE);
-                      android.view.Display d = dm.getDisplay(android.view.Display.DEFAULT_DISPLAY);
-                      android.view.Display.Mode cur = d.getMode();
-                      sb.append("当前分辨率: ").append(cur.getPhysicalWidth()).append("×").append(cur.getPhysicalHeight()).append("\n");
-                      sb.append("当前刷新率: ").append(Math.round(d.getRefreshRate())).append(" Hz\n");
-                      sb.append("\n【所有支持模式】\n");
-                      android.view.Display.Mode[] modes = d.getSupportedModes();
-                      java.util.Arrays.sort(modes, (a, b) -> {
-                          int resA = a.getPhysicalWidth() * a.getPhysicalHeight();
-                          int resB = b.getPhysicalWidth() * b.getPhysicalHeight();
-                          if (resA != resB) return Integer.compare(resB, resA);
-                          return Float.compare(b.getRefreshRate(), a.getRefreshRate());
-                      });
-                      for (android.view.Display.Mode m : modes) {
-                          boolean isCur = (m.getModeId() == cur.getModeId());
-                          sb.append(isCur ? "  ▶ " : "    ");
-                          sb.append("ID=").append(m.getModeId())
-                            .append("  ").append(m.getPhysicalWidth()).append("×").append(m.getPhysicalHeight())
-                            .append("  ").append(Math.round(m.getRefreshRate())).append(" Hz");
-                          if (isCur) sb.append("  ← 当前");
-                          sb.append("\n");
+                      p = Runtime.getRuntime().exec("su");
+                      os = new DataOutputStream(p.getOutputStream());
+                      os.writeBytes("dumpsys display | grep 'DisplayModeRecord'\nexit\n");
+                      os.flush();
+                      r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                      String line; int count = 0;
+                      while ((line = r.readLine()) != null) {
+                          sb.append(line.trim()).append("\n"); count++;
                       }
+                      if (count == 0) sb.append("（无输出）\n");
                   } catch (Exception e) {
-                      sb.append("读取显示信息失败: ").append(e.getMessage()).append("\n");
+                      sb.append("提取错误: ").append(e.getMessage()).append("\n");
+                  } finally {
+                      try { if(os!=null)os.close(); }catch(Exception ignored){}
+                      try { if(r!=null)r.close(); }catch(Exception ignored){}
+                      try { if(p!=null)p.destroy(); }catch(Exception ignored){}
                   }
-
-                  // ── Raw dumpsys（需Root）──
-                  sb.append("\n【系统 DisplayModeRecord (Raw)】\n");
-                  if (!rooted) {
-                      sb.append("（需要Root权限才能读取）\n");
-                  } else {
-                      Process p = null; DataOutputStream os = null; BufferedReader r = null;
-                      try {
-                          p = Runtime.getRuntime().exec("su");
-                          os = new DataOutputStream(p.getOutputStream());
-                          os.writeBytes("dumpsys display | grep 'DisplayModeRecord'\nexit\n");
-                          os.flush();
-                          r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                          String line; int count = 0;
-                          while ((line = r.readLine()) != null) {
-                              sb.append(line.trim()).append("\n"); count++;
-                          }
-                          if (count == 0) sb.append("（无输出，可能系统不支持此格式）\n");
-                      } catch (Exception e) {
-                          sb.append("提取错误: ").append(e.getMessage()).append("\n");
-                      } finally {
-                          try { if(os!=null)os.close(); }catch(Exception ignored){}
-                          try { if(r!=null)r.close(); }catch(Exception ignored){}
-                          try { if(p!=null)p.destroy(); }catch(Exception ignored){}
-                      }
-                  }
-                  sb.append("\n══════════════════════════════════\n");
-                  return sb.toString();
               }
+              sb.append("\n══════════════════════════════════\n");
+              return sb.toString();
           }
           EOF
 
