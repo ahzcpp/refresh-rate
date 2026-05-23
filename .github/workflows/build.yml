@@ -1735,17 +1735,6 @@ jobs:
                   prefs.registerOnSharedPreferenceChangeListener(this);
                   updateUI();
 
-                  ImageView ball = v.findViewById(R.id.ball_animation);
-                  TranslateAnimation anim = new TranslateAnimation(
-                      Animation.RELATIVE_TO_PARENT, 0f,
-                      Animation.RELATIVE_TO_PARENT, 0.8f,
-                      Animation.RELATIVE_TO_PARENT, 0f,
-                      Animation.RELATIVE_TO_PARENT, 0f);
-                  anim.setDuration(2000);
-                  anim.setRepeatMode(Animation.REVERSE);
-                  anim.setRepeatCount(Animation.INFINITE);
-                  ball.startAnimation(anim);
-
                   loadData();
                   return v;
               }
@@ -2710,15 +2699,6 @@ jobs:
                       android:padding="10dp"
                       android:background="@android:color/transparent"/>
               </LinearLayout>
-
-              <ImageView
-                  android:id="@+id/ball_animation"
-                  android:layout_width="24dp"
-                  android:layout_height="24dp"
-                  android:src="@drawable/ic_white_ball"
-                  android:layout_gravity="center_vertical"
-                  android:contentDescription="刷新率测试小球"/>
-          </FrameLayout>
           EOF
 
           cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
@@ -2730,7 +2710,7 @@ jobs:
 
               <com.google.android.material.card.MaterialCardView
                   android:id="@+id/card_rate"
-                  android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:layout_width="280dp" android:layout_height="wrap_content"
                   android:minHeight="100dp"
                   app:cardCornerRadius="16dp"
                   app:strokeWidth="0dp"
