@@ -2707,6 +2707,7 @@ jobs:
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent" android:layout_height="wrap_content"
               android:padding="6dp" android:orientation="vertical">
+              android:gravity="center_horizontal">
 
               <com.google.android.material.card.MaterialCardView
                   android:id="@+id/card_rate"
@@ -2733,8 +2734,7 @@ jobs:
                               android:textSize="11sp" android:layout_alignParentBottom="true"
                               android:layout_below="@id/tv_rate_hz" android:layout_marginTop="4dp"/>
                       </RelativeLayout>
-
-                      <FrameLayout
+                      
                           android:id="@+id/ball_container"
                           android:layout_width="match_parent"
                           android:layout_height="28dp"
