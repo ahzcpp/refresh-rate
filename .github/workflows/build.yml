@@ -1,4 +1,4 @@
-Name: 自动编译生成 APK
+name: 自动编译生成 APK
 
 on:
   push:
