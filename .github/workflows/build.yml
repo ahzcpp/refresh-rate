@@ -2592,55 +2592,51 @@ jobs:
           cat > app/src/main/res/layout/fragment_home.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
+              android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="@android:color/transparent"
               android:fitsSystemWindows="true">
-
-         <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@android:color/transparent">
-
-        <RelativeLayout
-            android:id="@+id/home_title_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:background="#88FFFFFF">
-            <TextView
-                android:id="@+id/home_title_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/home_title"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_dark"
-                android:layout_centerVertical="true"/>
-            <ImageView
-                android:id="@+id/btn_language_switch"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_language_earth"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:padding="4dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/language_dialog_title"/>
-        </RelativeLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_rates"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="16dp"
-            android:background="@android:color/transparent"/>
-            </LinearLayout>
-
-      </FrameLayout>
+              <LinearLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical"
+                  android:background="@android:color/transparent">
+                  <RelativeLayout
+                      android:id="@+id/home_title_bar"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:padding="20dp"
+                      android:background="#88FFFFFF">
+                      <TextView
+                          android:id="@+id/home_title_text"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:text="@string/home_title"
+                          android:textSize="26sp"
+                          android:textStyle="bold"
+                          android:textColor="@color/text_dark"
+                          android:layout_centerVertical="true"/>
+                      <ImageView
+                          android:id="@+id/btn_language_switch"
+                          android:layout_width="32dp"
+                          android:layout_height="32dp"
+                          android:src="@drawable/ic_language_earth"
+                          android:layout_alignParentEnd="true"
+                          android:layout_centerVertical="true"
+                          android:padding="4dp"
+                          android:clickable="true"
+                          android:focusable="true"
+                          android:background="?attr/selectableItemBackgroundBorderless"
+                          android:contentDescription="@string/language_dialog_title"/>
+                  </RelativeLayout>
+                  <androidx.recyclerview.widget.RecyclerView
+                      android:id="@+id/recycler_rates"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:padding="16dp"
+                      android:background="@android:color/transparent"/>
+              </LinearLayout>
+          </FrameLayout>
           EOF
 
           cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
@@ -2971,12 +2967,12 @@ jobs:
           SCRIPTEOF
           chmod +x generate.sh
           ./generate.sh
-          
+
       - name: 4. 用官方标准 Action 建立合规的 Gradle 包装器
         uses: gradle/actions/setup-gradle@v4
         with:
-        gradle-version: '8.0'
-        generate-job-summary: true
+          gradle-version: '8.0'
+          generate-job-summary: true
 
       - name: 5. 编译生成 Debug APK
         run: gradle assembleDebug
