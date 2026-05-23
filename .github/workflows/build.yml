@@ -300,6 +300,14 @@ jobs:
           EOF
 
           # ====== 新增白色小球 drawable ======
+          cat > app/src/main/res/drawable/ball_circle.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+              <solid android:color="#FFFFFF"/>
+              <size android:width="14dp" android:height="14dp"/>
+          </shape>
+          EOF
+
           cat > app/src/main/res/drawable/ic_white_ball.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
@@ -1564,14 +1572,12 @@ jobs:
                           r.card.setCardBackgroundColor(color);
                           r.card.setStrokeWidth(0);
                       }
-                      r.card.setOnClickListener(v -> { if (listener != null) listener.onClick(m); });// 取消旧动画
+                      r.card.setOnClickListener(v -> { if (listener != null) listener.onClick(m); });
                       if (r.ballAnimSet != null) r.ballAnimSet.cancel();
-                      // 启动乒乓小球动画
                       r.ballContainer.post(() -> {
                           float maxX = r.ballContainer.getWidth() - r.ballView.getWidth();
                           float maxY = r.ballContainer.getHeight() - r.ballView.getHeight();
                           if (maxX <= 0) return;
-                          // X轴速度按Hz缩放：Hz越高球越快
                           long dur = Math.max(300L, 2400L - m.getRateInt() * 8L);
                           android.animation.ObjectAnimator ax = android.animation.ObjectAnimator
                               .ofFloat(r.ballView, "translationX", 0f, maxX);
@@ -1581,7 +1587,7 @@ jobs:
                           ax.setInterpolator(new android.view.animation.LinearInterpolator());
                           android.animation.ObjectAnimator ay = android.animation.ObjectAnimator
                               .ofFloat(r.ballView, "translationY", 0f, Math.max(1f, maxY));
-                          ay.setDuration(dur / 2); // Y轴频率2倍 → 乒乓效果
+                          ay.setDuration(dur / 2);
                           ay.setRepeatCount(android.animation.ObjectAnimator.INFINITE);
                           ay.setRepeatMode(android.animation.ObjectAnimator.REVERSE);
                           ay.setInterpolator(new android.view.animation.LinearInterpolator());
@@ -1593,13 +1599,13 @@ jobs:
               }
 
               private int colorFor(int hz) {
-                  if (hz >= 185) return Color.parseColor("#FFB300"); // 金色
-                  if (hz >= 165) return Color.parseColor("#E53935"); // 红色
-                  if (hz >= 144) return Color.parseColor("#1565C0"); // 深蓝
-                  if (hz >= 120) return Color.parseColor("#8E24AA"); // 紫色
-                  if (hz >= 90)  return Color.parseColor("#F9A825"); // 黄色
-                  if (hz >= 60)  return Color.parseColor("#29B6F6"); // 浅蓝
-                  return Color.parseColor("#43A047");                 // 绿色
+                  if (hz >= 185) return Color.parseColor("#FFB300");
+                  if (hz >= 165) return Color.parseColor("#E53935");
+                  if (hz >= 144) return Color.parseColor("#1565C0");
+                  if (hz >= 120) return Color.parseColor("#8E24AA");
+                  if (hz >= 90)  return Color.parseColor("#F9A825");
+                  if (hz >= 60)  return Color.parseColor("#29B6F6");
+                  return Color.parseColor("#43A047");
               }
 
               private int darkenColor(int color, float factor) {
@@ -1614,29 +1620,36 @@ jobs:
                   return (int) (dp * ctx.getResources().getDisplayMetrics().density);
               }
 
-              static class HVH extends RecyclerView.ViewHolder { TextView title; HVH(View v) { super(v); title = v.findViewById(R.id.tv_header_title); } }
-          static class RVH extends RecyclerView.ViewHolder {
-                  MaterialCardView card; TextView name, hz, desc;
-                  View ballView; android.widget.FrameLayout ballContainer;
+              static class HVH extends RecyclerView.ViewHolder {
+                  TextView title;
+                  HVH(View v) { super(v); title = v.findViewById(R.id.tv_header_title); }
+              }
+
+              static class RVH extends RecyclerView.ViewHolder {
+                  MaterialCardView card;
+                  TextView name, hz, desc;
+                  View ballView;
+                  android.widget.FrameLayout ballContainer;
                   android.animation.AnimatorSet ballAnimSet;
                   RVH(View v) {
                       super(v);
-                      card=v.findViewById(R.id.card_rate);
-                      name=v.findViewById(R.id.tv_rate_name);
-                      hz=v.findViewById(R.id.tv_rate_hz);
-                      desc=v.findViewById(R.id.tv_rate_desc);
-                      ballView=v.findViewById(R.id.ball_view);
-                      ballContainer=v.findViewById(R.id.ball_container);
+                      card = v.findViewById(R.id.card_rate);
+                      name = v.findViewById(R.id.tv_rate_name);
+                      hz = v.findViewById(R.id.tv_rate_hz);
+                      desc = v.findViewById(R.id.tv_rate_desc);
+                      ballView = v.findViewById(R.id.ball_view);
+                      ballContainer = v.findViewById(R.id.ball_container);
                   }
               }
-              
-          @Override public void onViewRecycled(RecyclerView.ViewHolder holder) {
+
+              @Override public void onViewRecycled(RecyclerView.ViewHolder holder) {
                   super.onViewRecycled(holder);
                   if (holder instanceof RVH) {
                       RVH r = (RVH) holder;
                       if (r.ballAnimSet != null) { r.ballAnimSet.cancel(); r.ballAnimSet = null; }
                   }
               }
+          }
           EOF
 
           # ====== HomeFragment.java ======
@@ -2715,23 +2728,25 @@ jobs:
                       </RelativeLayout>
 
                       <!-- 小球动画轨道 -->
-                      <FrameLayout
-                          android:id="@+id/ball_container"
-                          android:layout_width="match_parent"
-                          android:layout_height="28dp"
-                          android:clipChildren="false"
-                          android:layout_marginBottom="8dp"
-                          android:layout_marginStart="8dp"
-                          android:layout_marginEnd="8dp">
+                            <FrameLayout
+                            android:id="@+id/ball_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="28dp"
+                            android:clipChildren="false"
+                            android:layout_marginBottom="8dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp">
                           <View
-                              android:id="@+id/ball_view"
-                              android:layout_width="14dp"
-                              android:layout_height="14dp"
-                              android:background="@drawable/ball_circle"
-                              android:elevation="2dp"/>
+                             android:id="@+id/ball_view"
+                             android:layout_width="14dp"
+                             android:layout_height="14dp"
+                             android:background="@drawable/ball_circle"
+                             android:elevation="2dp"/>
                       </FrameLayout>
 
                   </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+          </LinearLayout>
           EOF
 
           cat > app/src/main/res/layout/item_res_header.xml << 'EOF'
