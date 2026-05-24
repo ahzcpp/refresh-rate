@@ -443,6 +443,28 @@ jobs:
               <string name="permission_denied_message">您已拒绝权限，请前往系统设置手动授予，否则无法选择图片。</string>
               <string name="accessibility_enabled">无障碍已开启</string>
               <string name="accessibility_disabled">无障碍未开启（点击开关将引导开启）</string>
+              <string name="shizuku_install_hint">请先安装并启动 Shizuku</string>
+              <string name="auto_overclock_title">屏幕刷新率自动超频</string>
+              <string name="auto_guard_label">自动启动守护</string>
+              <string name="guard_enabled">自动启动守护已开启</string>
+              <string name="guard_disabled">自动启动守护未开启</string>
+              <string name="target_resolution_label">目标分辨率</string>
+              <string name="target_rate_label">目标刷新率</string>
+              <string name="shizuku_not_running">Shizuku 未运行（需先安装启动）</string>
+              <string name="shizuku_no_perm">Shizuku 运行中，未授权</string>
+              <string name="shizuku_authorized">Shizuku 已授权</string>
+              <string name="btn_authorize_shizuku">授权 Shizuku</string>
+              <string name="accessibility_required">请先开启无障碍服务以确保守护常驻</string>
+              <string name="accessibility_open_failed">无法打开无障碍设置</string>
+              <string name="select_auth_first">请先在上方选择 Root 或 Shizuku 授权</string>
+              <string name="select_target_first">请先选择目标分辨率和刷新率</string>
+              <string name="select_custom_image_first">请先选择自定义图片</string>
+              <string name="notification_perm_denied">通知权限被拒绝，守护通知可能无法显示</string>
+              <string name="notification_channel_name">自动超频守护</string>
+              <string name="notification_title">自动超频守护运行中</string>
+              <string name="notification_stop">停止</string>
+              <string name="current_rate_format">当前刷新率: %d Hz  分辨率: %s</string>
+              <string name="guard_running_format">自动启动守护已开启  %s</string>
           </resources>
           EOF
 
@@ -515,6 +537,28 @@ jobs:
               <string name="permission_denied_message">You have denied the permission. Please grant it manually in system settings.</string>
               <string name="accessibility_enabled">Accessibility enabled</string>
               <string name="accessibility_disabled">Accessibility not enabled (tap switch to enable)</string>
+              <string name="shizuku_install_hint">Please install and start Shizuku first</string>
+              <string name="auto_overclock_title">Auto Refresh Rate</string>
+              <string name="auto_guard_label">Auto Guard</string>
+              <string name="guard_enabled">Auto guard enabled</string>
+              <string name="guard_disabled">Auto guard not enabled</string>
+              <string name="target_resolution_label">Target Resolution</string>
+              <string name="target_rate_label">Target Rate</string>
+              <string name="shizuku_not_running">Shizuku not running (install first)</string>
+              <string name="shizuku_no_perm">Shizuku running, not authorized</string>
+              <string name="shizuku_authorized">Shizuku authorized</string>
+              <string name="btn_authorize_shizuku">Authorize Shizuku</string>
+              <string name="accessibility_required">Enable accessibility service to keep guard alive</string>
+              <string name="accessibility_open_failed">Cannot open accessibility settings</string>
+              <string name="select_auth_first">Please select Root or Shizuku authorization first</string>
+              <string name="select_target_first">Please select target resolution and rate</string>
+              <string name="select_custom_image_first">Please select a custom image first</string>
+              <string name="notification_perm_denied">Notification permission denied, guard notification may not show</string>
+              <string name="notification_channel_name">Auto Overclock Guard</string>
+              <string name="notification_title">Auto overclock guard running</string>
+              <string name="notification_stop">Stop</string>
+              <string name="current_rate_format">Rate: %d Hz  Res: %s</string>
+              <string name="guard_running_format">Guard enabled  %s</string>
           </resources>
           EOF
 
@@ -587,6 +631,28 @@ jobs:
               <string name="permission_denied_message">権限が拒否されました。システム設定で手動で許可してください。</string>
               <string name="accessibility_enabled">アクセシビリティ有効</string>
               <string name="accessibility_disabled">アクセシビリティ無効（スイッチを押すと設定へ）</string>
+              <string name="shizuku_install_hint">先にShizukuをインストールして起動してください</string>
+              <string name="auto_overclock_title">自動リフレッシュレート</string>
+              <string name="auto_guard_label">自動ガード</string>
+              <string name="guard_enabled">自動ガード有効</string>
+              <string name="guard_disabled">自動ガード無効</string>
+              <string name="target_resolution_label">目標解像度</string>
+              <string name="target_rate_label">目標レート</string>
+              <string name="shizuku_not_running">Shizuku 未起動（先にインストール）</string>
+              <string name="shizuku_no_perm">Shizuku 起動中、未認証</string>
+              <string name="shizuku_authorized">Shizuku 認証済み</string>
+              <string name="btn_authorize_shizuku">Shizuku を認証</string>
+              <string name="accessibility_required">ガードを常駐させるためアクセシビリティを有効にしてください</string>
+              <string name="accessibility_open_failed">アクセシビリティ設定を開けません</string>
+              <string name="select_auth_first">先にRoot またはShizuku 認証を選択してください</string>
+              <string name="select_target_first">目標解像度とレートを選択してください</string>
+              <string name="select_custom_image_first">先にカスタム画像を選択してください</string>
+              <string name="notification_perm_denied">通知権限が拒否されました、通知が表示されない場合があります</string>
+              <string name="notification_channel_name">自動オーバークロックガード</string>
+              <string name="notification_title">自動オーバークロックガード実行中</string>
+              <string name="notification_stop">停止</string>
+              <string name="current_rate_format">レート: %d Hz  解像度: %s</string>
+              <string name="guard_running_format">ガード有効  %s</string>
           </resources>
           EOF
 
@@ -659,6 +725,28 @@ jobs:
               <string name="permission_denied_message">سىز ھوقۇقنى رەت قىلدىڭىز. ئۇنى سىستېما تەڭشىكىدە قولدا بېرىڭ.</string>
               <string name="accessibility_enabled">ياردەمچى ئىقتىدار ئوچۇق</string>
               <string name="accessibility_disabled">ياردەمچى ئىقتىدار ئوچۇق ئەمەس (سىلىش ئارقىلىق ئېچىڭ)</string>
+              <string name="shizuku_install_hint">Shizuku نى ئورنىتىپ ئىجرا قىلىڭ</string>
+              <string name="auto_overclock_title">ئاپتوماتىك يېڭىلاش دەرىجىسى</string>
+              <string name="auto_guard_label">ئاپتوماتىك قوغداش</string>
+              <string name="guard_enabled">ئاپتوماتىك قوغداش ئوچۇق</string>
+              <string name="guard_disabled">ئاپتوماتىك قوغداش ئوچۇق ئەمەس</string>
+              <string name="target_resolution_label">نىشان ئېنىقلىق</string>
+              <string name="target_rate_label">نىشان دەرىجە</string>
+              <string name="shizuku_not_running">Shizuku ئىجرا ئەمەس</string>
+              <string name="shizuku_no_perm">Shizuku ئىجرا، ھوقۇق يوق</string>
+              <string name="shizuku_authorized">Shizuku ھوقۇق بەردى</string>
+              <string name="btn_authorize_shizuku">Shizuku ھوقۇق</string>
+              <string name="accessibility_required">ياردەمچى ئىقتىدارنى ئاچىڭ</string>
+              <string name="accessibility_open_failed">ياردەمچى تەڭشەكنى ئاچالمىدى</string>
+              <string name="select_auth_first">Root ياكى Shizuku تاللاڭ</string>
+              <string name="select_target_first">نىشان ئېنىقلىق ۋە دەرىجە تاللاڭ</string>
+              <string name="select_custom_image_first">ئالدى بىلەن رەسىم تاللاڭ</string>
+              <string name="notification_perm_denied">ئەسكەرتمە ھوقۇقى رەت قىلىندى</string>
+              <string name="notification_channel_name">ئاپتوماتىك قوغداش</string>
+              <string name="notification_title">ئاپتوماتىك قوغداش ئىجرا بولۇۋاتىدۇ</string>
+              <string name="notification_stop">توختاتىش</string>
+              <string name="current_rate_format">دەرىجە: %d Hz  ئېنىقلىق: %s</string>
+              <string name="guard_running_format">قوغداش ئوچۇق  %s</string>
           </resources>
           EOF
 
@@ -731,6 +819,28 @@ jobs:
               <string name="permission_denied_message">您已拒絕權限，請前往系統設定手動授予，否則無法選擇圖片。</string>
               <string name="accessibility_enabled">輔助服務已啟用</string>
               <string name="accessibility_disabled">輔助服務未啟用（點擊開關將引導啟用）</string>
+              <string name="shizuku_install_hint">請先安裝並啟動 Shizuku</string>
+              <string name="auto_overclock_title">螢幕更新率自動超頻</string>
+              <string name="auto_guard_label">自動啟動守護</string>
+              <string name="guard_enabled">自動啟動守護已開啟</string>
+              <string name="guard_disabled">自動啟動守護未開啟</string>
+              <string name="target_resolution_label">目標解析度</string>
+              <string name="target_rate_label">目標更新率</string>
+              <string name="shizuku_not_running">Shizuku 未執行（請先安裝啟動）</string>
+              <string name="shizuku_no_perm">Shizuku 執行中，未授權</string>
+              <string name="shizuku_authorized">Shizuku 已授權</string>
+              <string name="btn_authorize_shizuku">授權 Shizuku</string>
+              <string name="accessibility_required">請先開啟輔助服務以確保守護常駐</string>
+              <string name="accessibility_open_failed">無法開啟輔助功能設定</string>
+              <string name="select_auth_first">請先在上方選擇 Root 或 Shizuku 授權</string>
+              <string name="select_target_first">請先選擇目標解析度和更新率</string>
+              <string name="select_custom_image_first">請先選擇自訂圖片</string>
+              <string name="notification_perm_denied">通知權限被拒絕，守護通知可能無法顯示</string>
+              <string name="notification_channel_name">自動超頻守護</string>
+              <string name="notification_title">自動超頻守護執行中</string>
+              <string name="notification_stop">停止</string>
+              <string name="current_rate_format">當前更新率: %d Hz  解析度: %s</string>
+              <string name="guard_running_format">自動啟動守護已開啟  %s</string>
           </resources>
           EOF
 
@@ -1190,7 +1300,7 @@ jobs:
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                       NotificationChannel channel = new NotificationChannel(
                               CHANNEL_ID,
-                              "自动超频守护",
+                              getString(R.string.notification_channel_name),
                               NotificationManager.IMPORTANCE_LOW
                       );
                       NotificationManager manager = getSystemService(NotificationManager.class);
@@ -1201,46 +1311,54 @@ jobs:
               }
 
               private Notification buildNotification() {
-                  Intent stopIntent = new Intent(this, OverclockService.class);
-                  stopIntent.setAction("STOP");
-                  int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
-                  if (Build.VERSION.SDK_INT >= 31) {
-                      pendingFlags |= PendingIntent.FLAG_IMMUTABLE;
-                  }
-                  PendingIntent stopPendingIntent = PendingIntent.getService(
-                          this, 0, stopIntent, pendingFlags);
+              Intent stopIntent = new Intent(this, OverclockService.class);
+              stopIntent.setAction("STOP");
+              int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+              if (Build.VERSION.SDK_INT >= 31) pendingFlags |= PendingIntent.FLAG_IMMUTABLE;
+              PendingIntent stopPendingIntent = PendingIntent.getService(this, 0, stopIntent, pendingFlags);
 
-                  return new NotificationCompat.Builder(this, CHANNEL_ID)
-                          .setContentTitle("自动超频守护运行中")
-                          .setContentText(AutoOverclockManager.getLastLog())
-                          .setSmallIcon(R.drawable.ic_launcher_foreground)
-                          .addAction(android.R.drawable.ic_media_pause, "停止", stopPendingIntent)
-                          .setOngoing(true)
-                          .build();
-              }
+              Intent openIntent = new Intent(this, com.pmahz.MainActivity.class);
+              openIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+              int openFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+              if (Build.VERSION.SDK_INT >= 31) openFlags |= PendingIntent.FLAG_IMMUTABLE;
+              PendingIntent openPendingIntent = PendingIntent.getActivity(this, 2, openIntent, openFlags);
+
+              return new NotificationCompat.Builder(this, CHANNEL_ID)
+                      .setContentTitle(getString(R.string.notification_title))
+                      .setContentText(AutoOverclockManager.getLastLog())
+                      .setSmallIcon(R.drawable.ic_launcher_foreground)
+                      .setContentIntent(openPendingIntent)
+                      .addAction(android.R.drawable.ic_media_pause, getString(R.string.notification_stop), stopPendingIntent)
+                      .setOngoing(true)
+                      .build();
+          }
 
               public static void updateNotification(Context context) {
-                  NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                  if (nm == null) return;
+              NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+              if (nm == null) return;
 
-                  Intent stopIntent = new Intent(context, OverclockService.class);
-                  stopIntent.setAction("STOP");
-                  int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
-                  if (Build.VERSION.SDK_INT >= 31) {
-                      pendingFlags |= PendingIntent.FLAG_IMMUTABLE;
-                  }
-                  PendingIntent stopPendingIntent = PendingIntent.getService(
-                          context, 0, stopIntent, pendingFlags);
+              Intent stopIntent = new Intent(context, OverclockService.class);
+              stopIntent.setAction("STOP");
+              int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+              if (Build.VERSION.SDK_INT >= 31) pendingFlags |= PendingIntent.FLAG_IMMUTABLE;
+              PendingIntent stopPendingIntent = PendingIntent.getService(context, 0, stopIntent, pendingFlags);
 
-                  Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-                          .setContentTitle("自动超频守护运行中")
-                          .setContentText(AutoOverclockManager.getLastLog())
-                          .setSmallIcon(R.drawable.ic_launcher_foreground)
-                          .addAction(android.R.drawable.ic_media_pause, "停止", stopPendingIntent)
-                          .setOngoing(true)
-                          .build();
-                  nm.notify(NOTIFICATION_ID, notification);
-              }
+              Intent openIntent = new Intent(context, com.pmahz.MainActivity.class);
+              openIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+              int openFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+              if (Build.VERSION.SDK_INT >= 31) openFlags |= PendingIntent.FLAG_IMMUTABLE;
+              PendingIntent openPendingIntent = PendingIntent.getActivity(context, 2, openIntent, openFlags);
+
+              Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                      .setContentTitle(context.getString(R.string.notification_title))
+                      .setContentText(AutoOverclockManager.getLastLog())
+                      .setSmallIcon(R.drawable.ic_launcher_foreground)
+                      .setContentIntent(openPendingIntent)
+                      .addAction(android.R.drawable.ic_media_pause, context.getString(R.string.notification_stop), stopPendingIntent)
+                      .setOngoing(true)
+                      .build();
+              nm.notify(NOTIFICATION_ID, notification);
+          }
           }
           EOF
 
@@ -1906,9 +2024,9 @@ jobs:
                           if (!isAdded()) return;
                           float rate = AutoOverclockManager.getCurrentRate(requireContext());
                           String res  = AutoOverclockManager.getCurrentResolution(requireContext());
-                          tvCur.setText("当前刷新率: " + Math.round(rate) + " Hz  分辨率: " + res);
+                          tvCur.setText(getString(R.string.current_rate_format, Math.round(rate), res));
                           if (AutoOverclockManager.isRunning()) {
-                              tvStatus.setText("自动启动守护已开启  " + AutoOverclockManager.getLastLog());
+                              tvStatus.setText(getString(R.string.guard_running_format, AutoOverclockManager.getLastLog()));
                               tvStatus.setTextColor(0xFF2ECC71);
                               overclockHandler.postDelayed(this, 1500);
                           }
@@ -1956,7 +2074,7 @@ jobs:
                           new Handler(Looper.getMainLooper())
                               .postDelayed(() -> updateShizukuStatus(shizukuStatus, btnRequestShizuku), 1000);
                       } else {
-                          Toast.makeText(getContext(), "请先安装并启动 Shizuku", Toast.LENGTH_LONG).show();
+                          Toast.makeText(getContext(), R.string.shizuku_install_hint, Toast.LENGTH_LONG).show();
                       }
                   });
 
@@ -2086,7 +2204,7 @@ jobs:
                   boolean ocWasOn = prefs.getBoolean("auto_overclock", false);
                   switchOC.setChecked(ocWasOn && AutoOverclockManager.isRunning());
                   if (AutoOverclockManager.isRunning()) {
-                      tvOCStatus.setText("自动启动守护已开启");
+                      tvOCStatus.setText(R.string.guard_enabled);
                       tvOCStatus.setTextColor(0xFF2ECC71);
                       startOverclockStatusUpdater(tvOCStatus, tvOCCur);
                   }
@@ -2095,7 +2213,7 @@ jobs:
                       if (!isAdded()) return;
                       float r   = AutoOverclockManager.getCurrentRate(requireContext());
                       String res = AutoOverclockManager.getCurrentResolution(requireContext());
-                      tvOCCur.setText("当前刷新率: " + Math.round(r) + " Hz  分辨率: " + res);
+                      tvOCCur.setText(getString(R.string.current_rate_format, Math.round(r), res));
                   });
 
                   switchOC.setOnCheckedChangeListener((btn, checked) -> {
@@ -2111,7 +2229,7 @@ jobs:
                           }
 
                           if (!isAccessibilityServiceEnabled()) {
-                              Toast.makeText(getContext(), "请先开启无障碍服务以确保守护常驻", Toast.LENGTH_LONG).show();
+                              Toast.makeText(getContext(), R.string.accessibility_required, Toast.LENGTH_LONG).show();
                               try {
                                   startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
                               } catch (Exception e) {
@@ -2123,27 +2241,27 @@ jobs:
 
                           String mode = prefs.getString("auth_mode", "");
                           if (mode.isEmpty()) {
-                              Toast.makeText(getContext(), "请先在上方选择 Root 或 Shizuku 授权", Toast.LENGTH_SHORT).show();
+                              Toast.makeText(getContext(), R.string.select_auth_first, Toast.LENGTH_SHORT).show();
                               switchOC.setChecked(false);
                               return;
                           }
                           String ocRes = prefs.getString("oc_target_res", resKeys.isEmpty() ? "" : resKeys.get(0));
                           int    ocHz  = prefs.getInt("oc_target_hz", -1);
                           if (ocRes.isEmpty() || ocHz < 0) {
-                              Toast.makeText(getContext(), "请先选择目标分辨率和刷新率", Toast.LENGTH_SHORT).show();
+                              Toast.makeText(getContext(), R.string.select_target_first, Toast.LENGTH_SHORT).show();
                               switchOC.setChecked(false);
                               return;
                           }
                           String[] wh = ocRes.split("x");
                           int tw = Integer.parseInt(wh[0]), th = Integer.parseInt(wh[1]);
                           AutoOverclockManager.startService(requireContext(), mode, tw, th, ocHz);
-                          tvOCStatus.setText("自动启动守护已开启");
+                          tvOCStatus.setText(R.string.guard_enabled);
                           tvOCStatus.setTextColor(0xFF2ECC71);
                           startOverclockStatusUpdater(tvOCStatus, tvOCCur);
                       } else {
                           AutoOverclockManager.stopService(requireContext());
                           stopOverclockStatusUpdater();
-                          tvOCStatus.setText("自动启动守护未开启");
+                          tvOCStatus.setText(R.string.guard_disabled);
                           tvOCStatus.setTextColor(0xFFE74C3C);
                       }
                   });
@@ -2209,7 +2327,7 @@ jobs:
                       else type = 4;
                       prefs.edit().putInt("wallpaper_type", type).apply();
                       if (type == 3 && prefs.getString("wallpaper_uri", null) == null) {
-                          Toast.makeText(getContext(), "请先选择自定义图片", Toast.LENGTH_SHORT).show();
+                          Toast.makeText(getContext(), R.string.select_custom_image_first, Toast.LENGTH_SHORT).show();
                       }
                   });
 
@@ -2315,7 +2433,7 @@ jobs:
                   boolean avail = com.pmahz.util.ShizukuUtils.isAvailable();
                   boolean perm  = com.pmahz.util.ShizukuUtils.hasPermission();
                   if (!avail) {
-                      tv.setText("Shizuku 未运行（需先安装启动）");
+                      tv.setText(R.string.shizuku_no_perm);
                       tv.setTextColor(0xFF888888);
                       btn.setVisibility(android.view.View.GONE);
                   } else if (!perm) {
@@ -2323,7 +2441,7 @@ jobs:
                       tv.setTextColor(0xFFE74C3C);
                       btn.setVisibility(android.view.View.VISIBLE);
                   } else {
-                      tv.setText("Shizuku 已授权");
+                      tv.setText(R.string.shizuku_authorized);
                       tv.setTextColor(0xFF2ECC71);
                       btn.setVisibility(android.view.View.GONE);
                   }
@@ -2381,7 +2499,7 @@ jobs:
                   if (requestCode == 200) {
                       if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                       } else {
-                          Toast.makeText(getContext(), "通知权限被拒绝，守护通知可能无法显示", Toast.LENGTH_LONG).show();
+                          Toast.makeText(getContext(), R.string.notification_perm_denied, Toast.LENGTH_LONG).show();
                       }
                   }
               }
@@ -2485,7 +2603,7 @@ jobs:
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                       NotificationChannel channel = new NotificationChannel(
                               "overclock_channel",
-                              "自动超频守护",
+                              getString(R.string.notification_channel_name),
                               NotificationManager.IMPORTANCE_LOW
                       );
                       NotificationManager manager = getSystemService(NotificationManager.class);
@@ -2760,7 +2878,7 @@ jobs:
 
                           <Button android:id="@+id/btn_request_shizuku"
                               android:layout_width="match_parent" android:layout_height="48dp"
-                              android:text="授权 Shizuku" android:layout_marginTop="10dp"
+                              android:text="@string/btn_authorize_shizuku" android:layout_marginTop="10dp"
                               android:visibility="gone"
                               style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
@@ -2775,7 +2893,7 @@ jobs:
                           android:orientation="vertical" android:padding="16dp">
 
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                              android:text="屏幕刷新率自动超频" android:textStyle="bold"
+                              android:text="@string/auto_overclock_title" android:textStyle="bold"
                               android:textSize="18sp" android:textColor="@color/text_dark"
                               android:paddingBottom="12dp"/>
 
@@ -2784,7 +2902,7 @@ jobs:
                               <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                                   android:layout_weight="1" android:orientation="vertical">
                                   <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                      android:text="自动启动守护" android:textSize="15sp"
+                                      android:text="@string/auto_guard_label" android:textSize="15sp"
                                       android:textColor="@color/text_dark"/>
                                   <TextView android:id="@+id/tv_overclock_cur"
                                       android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -2798,7 +2916,7 @@ jobs:
 
                           <TextView android:id="@+id/tv_overclock_status"
                               android:layout_width="wrap_content" android:layout_height="wrap_content"
-                              android:text="自动启动守护未开启" android:textSize="13sp"
+                              android:text="@string/guard_disabled" android:textSize="13sp"
                               android:layout_marginTop="8dp"
                               android:textColor="#E74C3C"/>
 
@@ -2815,7 +2933,7 @@ jobs:
                                   android:layout_weight="1" android:orientation="vertical"
                                   android:layout_marginEnd="8dp">
                                   <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                      android:text="目标分辨率" android:textSize="13sp"
+                                      android:text="@string/target_resolution_label" android:textSize="13sp"
                                       android:textColor="@color/text_muted"/>
                                   <Spinner android:id="@+id/spinner_oc_resolution"
                                       android:layout_width="match_parent" android:layout_height="48dp"/>
@@ -2824,7 +2942,7 @@ jobs:
                                   android:layout_weight="1" android:orientation="vertical"
                                   android:layout_marginStart="8dp">
                                   <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                      android:text="目标刷新率" android:textSize="13sp"
+                                      android:text="@string/target_rate_label" android:textSize="13sp"
                                       android:textColor="@color/text_muted"/>
                                   <Spinner android:id="@+id/spinner_oc_rate"
                                       android:layout_width="match_parent" android:layout_height="48dp"/>
