@@ -3041,8 +3041,6 @@ jobs:
                               android:text="@string/guard_disabled" android:textSize="13sp"
                               android:layout_marginTop="8dp"
                               android:textColor="#E74C3C"/>
-                              
-                          </LinearLayout>
 
                           <TextView android:id="@+id/tv_accessibility_status"
                               android:layout_width="wrap_content" android:layout_height="wrap_content"
