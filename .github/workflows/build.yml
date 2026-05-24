@@ -2437,7 +2437,7 @@ jobs:
                       tv.setTextColor(0xFF888888);
                       btn.setVisibility(android.view.View.GONE);
                   } else if (!perm) {
-                      tv.setText("R.string.shizuku_no_perm");
+                      tv.setText("Shizuku 运行中，未授权");
                       tv.setTextColor(0xFFE74C3C);
                       btn.setVisibility(android.view.View.VISIBLE);
                   } else {
