@@ -384,15 +384,19 @@ jobs:
               <string name="low_resolution">低分辨率  </string>
               <string name="fallback_high_res">高分辨率</string>
               <string name="fallback_low_res">低分辨率</string>
+              <string name="rate_name_supreme">鎏金超限</string>
+              <string name="rate_name_limit">极限</string>
               <string name="rate_name_high">高刷</string>
               <string name="rate_name_extreme">极致</string>
               <string name="rate_name_excellent">极佳</string>
               <string name="rate_name_smooth">流畅</string>
               <string name="rate_name_standard">标准</string>
-              <string name="rate_desc_high">臻享视界，完美观感</string>
-              <string name="rate_desc_extreme">画面流畅动人，舒适体验</string>
-              <string name="rate_desc_excellent">提高刷新率，极致体验</string>
-              <string name="rate_desc_smooth">较高刷新率，画面流畅</string>
+              <string name="rate_desc_supreme">金芒破限，视界抵达巅峰</string>
+              <string name="rate_desc_limit">巅峰画面质感，诠释极限视觉体验</string>
+              <string name="rate_desc_high">画面瞬时响应，无拖影卡顿</string>
+              <string name="rate_desc_extreme">极致的画面体验，画面快人一步</string>
+              <string name="rate_desc_excellent">高等刷新率，拥有超流畅的画面体验</string>
+              <string name="rate_desc_smooth">高的刷新率，画面流畅</string>
               <string name="rate_desc_standard">常规刷新率，延长续航</string>
               <string name="no_root_toast">未获取root权限</string>
               <string name="switch_success">已切换至 %d Hz</string>
@@ -452,15 +456,19 @@ jobs:
               <string name="low_resolution">Low Resolution  </string>
               <string name="fallback_high_res">High Resolution</string>
               <string name="fallback_low_res">Low Resolution</string>
+              <string name="rate_name_supreme">Supreme</string>
+              <string name="rate_name_limit">Limit</string>
               <string name="rate_name_high">High</string>
               <string name="rate_name_extreme">Extreme</string>
               <string name="rate_name_excellent">Excellent</string>
               <string name="rate_name_smooth">Smooth</string>
               <string name="rate_name_standard">Standard</string>
-              <string name="rate_desc_high">Ultimate immersion, perfect visuals</string>
-              <string name="rate_desc_extreme">Fluid and delightful experience</string>
-              <string name="rate_desc_excellent">Enhanced refresh, premium feel</string>
-              <string name="rate_desc_smooth">Smooth display, extended battery</string>
+              <string name="rate_desc_supreme">Beyond limits, ultimate visual peak</string>
+              <string name="rate_desc_limit">Peak visuals, ultimate experience</string>
+              <string name="rate_desc_high">Instant response, no ghosting</string>
+              <string name="rate_desc_extreme">Ultimate visuals, one step ahead</string>
+              <string name="rate_desc_excellent">High refresh, ultra smooth</string>
+              <string name="rate_desc_smooth">High refresh, smooth display</string>
               <string name="rate_desc_standard">Standard refresh, long battery life</string>
               <string name="no_root_toast">No root access</string>
               <string name="switch_success">Switched to %d Hz</string>
@@ -520,15 +528,19 @@ jobs:
               <string name="low_resolution">低解像度  </string>
               <string name="fallback_high_res">高解像度</string>
               <string name="fallback_low_res">低解像度</string>
+              <string name="rate_name_supreme">至高</string>
+              <string name="rate_name_limit">限界</string>
               <string name="rate_name_high">高</string>
               <string name="rate_name_extreme">極致</string>
               <string name="rate_name_excellent">極佳</string>
               <string name="rate_name_smooth">滑らか</string>
               <string name="rate_name_standard">標準</string>
-              <string name="rate_desc_high">至高の没入感、完璧な視覚</string>
-              <string name="rate_desc_extreme">流動的で快適な体験</string>
-              <string name="rate_desc_excellent">リフレッシュレート向上、至高の体験</string>
-              <string name="rate_desc_smooth">高いリフレッシュレート、滑らかな表示</string>
+              <string name="rate_desc_supreme">限界突破、究極の視覚体験</string>
+              <string name="rate_desc_limit">究極の画面、限界視覚体験</string>
+              <string name="rate_desc_high">瞬時応答、残像なし</string>
+              <string name="rate_desc_extreme">究極の画面体験、一歩先へ</string>
+              <string name="rate_desc_excellent">高リフレッシュレート、超滑らか</string>
+              <string name="rate_desc_smooth">高リフレッシュレート、滑らかな表示</string>
               <string name="rate_desc_standard">通常のリフレッシュレート、長持ちバッテリー</string>
               <string name="no_root_toast">Root権限がありません</string>
               <string name="switch_success">%d Hz に切り替えました</string>
@@ -588,15 +600,19 @@ jobs:
               <string name="low_resolution">تۆۋەن ئېنىقلىق  </string>
               <string name="fallback_high_res">يۇقىرى ئېنىقلىق</string>
               <string name="fallback_low_res">تۆۋەن ئېنىقلىق</string>
+              <string name="rate_name_supreme">ئېشىپ كەتكەن</string>
+              <string name="rate_name_limit">چەكلىك</string>
               <string name="rate_name_high">يۇقىرى</string>
               <string name="rate_name_extreme">ئېسىل</string>
               <string name="rate_name_excellent">ناھايىتى ياخشى</string>
               <string name="rate_name_smooth">سىلىق</string>
               <string name="rate_name_standard">ئۆلچەملىك</string>
-              <string name="rate_desc_high">ئەڭ يۇقىرى سۈزۈلۈش، مۇكەممەل كۆرۈنۈش</string>
-              <string name="rate_desc_extreme">سىلىق ۋە خۇشاللىنارلىق تەجرىبە</string>
-              <string name="rate_desc_excellent">يېڭىلاش دەرىجىسىنى ئۆستۈرۈش، ئېسىل ھېس</string>
-              <string name="rate_desc_smooth">يۇقىرى يېڭىلاش دەرىجىسى، سىلىق كۆرۈنۈش</string>
+              <string name="rate_desc_supreme">چەكنى بۇزۇپ، ئەڭ يۇقىرى كۆرۈنۈش</string>
+              <string name="rate_desc_limit">ئەڭ يۇقىرى كۆرۈنۈش، چەكلىك تەجرىبە</string>
+              <string name="rate_desc_high">شۇئان جاۋاب، تارتما يوق</string>
+              <string name="rate_desc_extreme">ئەڭ ياخشى كۆرۈنۈش، بىر قەدەم ئالدىدا</string>
+              <string name="rate_desc_excellent">يۇقىرى يېڭىلاش، ئىنتايىن سىلىق</string>
+              <string name="rate_desc_smooth">يۇقىرى يېڭىلاش، سىلىق كۆرۈنۈش</string>
               <string name="rate_desc_standard">ئۆلچەملىك يېڭىلاش، ئۇزۇن باتارېيە</string>
               <string name="no_root_toast">Root ھوقۇقى يوق</string>
               <string name="switch_success">%d Hz غا ئالماشتۇرۇلدى</string>
@@ -656,15 +672,19 @@ jobs:
               <string name="low_resolution">低解析度  </string>
               <string name="fallback_high_res">高解析度</string>
               <string name="fallback_low_res">低解析度</string>
+              <string name="rate_name_supreme">鎏金超限</string>
+              <string name="rate_name_limit">極限</string>
               <string name="rate_name_high">高刷</string>
               <string name="rate_name_extreme">極致</string>
               <string name="rate_name_excellent">極佳</string>
               <string name="rate_name_smooth">流暢</string>
               <string name="rate_name_standard">標準</string>
-              <string name="rate_desc_high">臻享視界，完美觀感</string>
-              <string name="rate_desc_extreme">畫面流暢動人，舒適體驗</string>
-              <string name="rate_desc_excellent">提高更新率，極致體驗</string>
-              <string name="rate_desc_smooth">較高更新率，畫面流暢</string>
+              <string name="rate_desc_supreme">金芒破限，視界抵達巔峰</string>
+              <string name="rate_desc_limit">巔峰畫面質感，詮釋極限視覺體驗</string>
+              <string name="rate_desc_high">畫面瞬時響應，無拖影卡頓</string>
+              <string name="rate_desc_extreme">極致的畫面體驗，畫面快人一步</string>
+              <string name="rate_desc_excellent">高等更新率，擁有超流暢的畫面體驗</string>
+              <string name="rate_desc_smooth">高的更新率，畫面流暢</string>
               <string name="rate_desc_standard">常規更新率，延長續航</string>
               <string name="no_root_toast">未取得root權限</string>
               <string name="switch_success">已切換至 %d Hz</string>
@@ -2246,7 +2266,19 @@ jobs:
                           openGallery();
                       }
                   });
-
+                  
+               Button btnGenerateLog = v.findViewById(R.id.btn_generate_log);
+                  if (btnGenerateLog != null) {
+                      btnGenerateLog.setOnClickListener(view -> {
+                          new Thread(() -> {
+                              String log = RootUtils.generateRuntimeLog();
+                              if (getActivity() != null) {
+                                  getActivity().runOnUiThread(() -> showLogDialog(log));
+                              }
+                          }).start();
+                      });
+                  }
+                  
                   return v;
               }
 
