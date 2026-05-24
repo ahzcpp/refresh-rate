@@ -1470,6 +1470,7 @@ jobs:
           import android.os.Build;
           import android.util.Log;
           import android.view.Display;
+          import com.pmahz.R;
           import com.pmahz.model.DisplayMode;
           import com.pmahz.service.OverclockService;
           import java.util.*;
