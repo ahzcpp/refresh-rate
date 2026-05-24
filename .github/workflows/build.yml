@@ -2433,11 +2433,11 @@ jobs:
                   boolean avail = com.pmahz.util.ShizukuUtils.isAvailable();
                   boolean perm  = com.pmahz.util.ShizukuUtils.hasPermission();
                   if (!avail) {
-                      tv.setText(R.string.shizuku_no_perm);
+                      tv.setText(R.string.shizuku_not_running);
                       tv.setTextColor(0xFF888888);
                       btn.setVisibility(android.view.View.GONE);
                   } else if (!perm) {
-                      tv.setText("Shizuku 未运行（需先安装启动）");
+                      tv.setText("R.string.shizuku_no_perm");
                       tv.setTextColor(0xFFE74C3C);
                       btn.setVisibility(android.view.View.VISIBLE);
                   } else {
