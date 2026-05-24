@@ -463,7 +463,7 @@ jobs:
               <string name="notification_channel_name">自动超频守护</string>
               <string name="notification_title">自动超频守护运行中</string>
               <string name="notification_stop">停止</string>
-              <string name="current_rate_format">当前刷新率: %d Hz  分辨率: %s</string>
+              <string name="current_rate_format" formatted="false">当前刷新率: %d Hz  分辨率: %s</string>
               <string name="guard_running_format">自动启动守护已开启  %s</string>
               <string name="guard_watching_format">守护中 @ %d Hz</string>
               <string name="guard_start_format">守护启动，目标：%s @ %d Hz</string>
@@ -566,7 +566,7 @@ jobs:
               <string name="notification_channel_name">Auto Overclock Guard</string>
               <string name="notification_title">Auto overclock guard running</string>
               <string name="notification_stop">Stop</string>
-              <string name="current_rate_format">Rate: %d Hz  Res: %s</string>
+              <string name="current_rate_format" formatted="false">Rate: %d Hz  Res: %s</string>
               <string name="guard_running_format">Guard enabled  %s</string>
               <string name="guard_watching_format">Guarding @ %d Hz</string>
               <string name="guard_start_format">Guard started, target: %s @ %d Hz</string>
@@ -669,7 +669,7 @@ jobs:
               <string name="notification_channel_name">自動オーバークロックガード</string>
               <string name="notification_title">自動オーバークロックガード実行中</string>
               <string name="notification_stop">停止</string>
-              <string name="current_rate_format">レート: %d Hz  解像度: %s</string>
+              <string name="current_rate_format" formatted="false">レート: %d Hz  解像度: %s</string>
               <string name="guard_running_format">ガード有効  %s</string>
               <string name="guard_watching_format">ガード中 @ %d Hz</string>
               <string name="guard_start_format">ガード開始、目標: %s @ %d Hz</string>
@@ -772,7 +772,7 @@ jobs:
               <string name="notification_channel_name">ئاپتوماتىك قوغداش</string>
               <string name="notification_title">ئاپتوماتىك قوغداش ئىجرا بولۇۋاتىدۇ</string>
               <string name="notification_stop">توختاتىش</string>
-              <string name="current_rate_format">دەرىجە: %d Hz  ئېنىقلىق: %s</string>
+              <string name="current_rate_format" formatted="false">دەرىجە: %d Hz  ئېنىقلىق: %s</string>
               <string name="guard_running_format">قوغداش ئوچۇق  %s</string>
               <string name="guard_watching_format">قوغداش @ %d Hz</string>
               <string name="guard_start_format">قوغداش باشلاندى: %s @ %d Hz</string>
@@ -875,7 +875,7 @@ jobs:
               <string name="notification_channel_name">自動超頻守護</string>
               <string name="notification_title">自動超頻守護執行中</string>
               <string name="notification_stop">停止</string>
-              <string name="current_rate_format">當前更新率: %d Hz  解析度: %s</string>
+              <string name="current_rate_format" formatted="false">當前更新率: %d Hz  解析度: %s</string>
               <string name="guard_running_format">自動啟動守護已開啟  %s</string>
               <string name="guard_watching_format">守護中 @ %d Hz</string>
               <string name="guard_start_format">守護啟動，目標：%s @ %d Hz</string>
@@ -2823,8 +2823,8 @@ jobs:
                       android:padding="16dp"
                       android:background="@android:color/transparent"/>
               </LinearLayout>
-          </FrameLayout>
-          <TextView
+              
+              <TextView
               android:id="@+id/tv_live_hz"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
@@ -2839,6 +2839,8 @@ jobs:
               android:shadowDy="1"
               android:shadowRadius="4"
               android:elevation="10dp"/>
+              
+          </FrameLayout>
           EOF
 
           cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
