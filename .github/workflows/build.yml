@@ -1481,7 +1481,7 @@ jobs:
 
               private static Thread  daemonThread;
               private static volatile boolean running  = false;
-              private static volatile String  private static volatile String  lastLog  = "";
+              private static volatile String lastLog = "";
 
               private static volatile int    targetW   = 0;
               private static volatile int    targetH   = 0;
