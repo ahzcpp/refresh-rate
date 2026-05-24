@@ -465,6 +465,15 @@ jobs:
               <string name="notification_stop">停止</string>
               <string name="current_rate_format">当前刷新率: %d Hz  分辨率: %s</string>
               <string name="guard_running_format">自动启动守护已开启  %s</string>
+              <string name="guard_watching_format">守护中 @ %d Hz</string>
+              <string name="guard_start_format">守护启动，目标：%s @ %d Hz</string>
+              <string name="guard_stopped">守护已停止</string>
+              <string name="guard_ready">就绪</string>
+              <string name="guard_no_res_format">未找到分辨率 %s</string>
+              <string name="guard_target_updated">目标已更新 → %s @ %d Hz</string>
+              <string name="guard_res_fix">分辨率校正，</string>
+              <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
+              <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
           </resources>
           EOF
 
@@ -559,6 +568,15 @@ jobs:
               <string name="notification_stop">Stop</string>
               <string name="current_rate_format">Rate: %d Hz  Res: %s</string>
               <string name="guard_running_format">Guard enabled  %s</string>
+              <string name="guard_watching_format">Guarding @ %d Hz</string>
+              <string name="guard_start_format">Guard started, target: %s @ %d Hz</string>
+              <string name="guard_stopped">Guard stopped</string>
+              <string name="guard_ready">Ready</string>
+              <string name="guard_no_res_format">Resolution not found: %s</string>
+              <string name="guard_target_updated">Target updated → %s @ %d Hz</string>
+              <string name="guard_res_fix">Resolution fix, </string>
+              <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
+              <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
           </resources>
           EOF
 
@@ -653,6 +671,15 @@ jobs:
               <string name="notification_stop">停止</string>
               <string name="current_rate_format">レート: %d Hz  解像度: %s</string>
               <string name="guard_running_format">ガード有効  %s</string>
+              <string name="guard_watching_format">ガード中 @ %d Hz</string>
+              <string name="guard_start_format">ガード開始、目標: %s @ %d Hz</string>
+              <string name="guard_stopped">ガード停止</string>
+              <string name="guard_ready">準備完了</string>
+              <string name="guard_no_res_format">解像度が見つかりません: %s</string>
+              <string name="guard_target_updated">目標更新 → %s @ %d Hz</string>
+              <string name="guard_res_fix">解像度修正、</string>
+              <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
+              <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
           </resources>
           EOF
 
@@ -747,6 +774,15 @@ jobs:
               <string name="notification_stop">توختاتىش</string>
               <string name="current_rate_format">دەرىجە: %d Hz  ئېنىقلىق: %s</string>
               <string name="guard_running_format">قوغداش ئوچۇق  %s</string>
+              <string name="guard_watching_format">قوغداش @ %d Hz</string>
+              <string name="guard_start_format">قوغداش باشلاندى: %s @ %d Hz</string>
+              <string name="guard_stopped">قوغداش توختادى</string>
+              <string name="guard_ready">تەييار</string>
+              <string name="guard_no_res_format">ئېنىقلىق تېپىلمىدى: %s</string>
+              <string name="guard_target_updated">نىشان يېڭىلاندى → %s @ %d Hz</string>
+              <string name="guard_res_fix">ئېنىقلىق تۈزەت، </string>
+              <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
+              <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
           </resources>
           EOF
 
@@ -841,6 +877,15 @@ jobs:
               <string name="notification_stop">停止</string>
               <string name="current_rate_format">當前更新率: %d Hz  解析度: %s</string>
               <string name="guard_running_format">自動啟動守護已開啟  %s</string>
+              <string name="guard_watching_format">守護中 @ %d Hz</string>
+              <string name="guard_start_format">守護啟動，目標：%s @ %d Hz</string>
+              <string name="guard_stopped">守護已停止</string>
+              <string name="guard_ready">就緒</string>
+              <string name="guard_no_res_format">未找到解析度 %s</string>
+              <string name="guard_target_updated">目標已更新 → %s @ %d Hz</string>
+              <string name="guard_res_fix">解析度校正，</string>
+              <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
+              <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
           </resources>
           EOF
 
@@ -1436,12 +1481,13 @@ jobs:
 
               private static Thread  daemonThread;
               private static volatile boolean running  = false;
-              private static volatile String  lastLog  = "就绪";
+              private static volatile String  private static volatile String  lastLog  = "";
 
               private static volatile int    targetW   = 0;
               private static volatile int    targetH   = 0;
               private static volatile int    targetHz  = 0;
               private static volatile String authMode  = "";
+              private static Context appContext;
 
               public static String getLastLog()  { return lastLog; }
               public static boolean isRunning()  { return running; }
@@ -1469,19 +1515,19 @@ jobs:
                   targetW  = tw;
                   targetH  = th;
                   targetHz = hz;
-                  lastLog  = "目标已更新 → " + tw + "×" + th + " @ " + hz + " Hz";
+                  if (appContext != null) lastLog = appContext.getString(R.string.guard_target_updated, tw + "×" + th, hz);
                   Log.d(TAG, lastLog);
               }
 
               public static void start(Context ctx, String mode,
                                        int tw, int th, int hz) {
-                  if (running) return;
+                  if (running) return;appContext = ctx.getApplicationContext();
                   authMode = mode;
                   targetW  = tw;
                   targetH  = th;
                   targetHz = hz;
                   running  = true;
-                  lastLog  = "守护启动，目标：" + tw + "×" + th + " @ " + hz + " Hz";
+                  lastLog  = appContext.getString(R.string.guard_start_format, tw + "×" + th, hz);
 
                   daemonThread = new Thread(() -> {
                       while (running) {
@@ -1497,7 +1543,7 @@ jobs:
                                       filtered.add(m);
                               }
                               if (filtered.isEmpty()) {
-                                  lastLog = "未找到分辨率 " + curTargetW + "×" + curTargetH;
+                                  lastLog = appContext.getString(R.string.guard_no_res_format, curTargetW + "×" + curTargetH);
                                   Thread.sleep(POLL_DELAY_MS);
                                   continue;
                               }
@@ -1517,7 +1563,7 @@ jobs:
                               boolean rateOk = (curInt == finalTarget.getRateInt());
 
                               if (resOk && rateOk) {
-                                  lastLog = "守护中 @ " + finalTarget.getRateInt() + " Hz";
+                                  lastLog = appContext.getString(R.string.guard_watching_format, finalTarget.getRateInt());
                                   OverclockService.updateNotification(ctx);
                                   Thread.sleep(POLL_DELAY_MS);
                                   continue;
@@ -1539,15 +1585,15 @@ jobs:
                                           && filtered.get(nextIdx).getRateInt() > finalTarget.getRateInt())
                                       nextIdx--;
                                   next = filtered.get(nextIdx);
-                                  lastLog = (!resOk ? "分辨率校正，" : "") +
-                                            curInt + " Hz ↑ → " + next.getRateInt() + " Hz";
+                                  String prefix = !resOk ? appContext.getString(R.string.guard_res_fix) : "";
+                                  lastLog = appContext.getString(R.string.guard_hz_up, prefix, curInt, next.getRateInt());
                               } else {
                                   int nextIdx = Math.max(curIdx - 1, 0);
                                   while (nextIdx > 0
                                           && filtered.get(nextIdx).getRateInt() < finalTarget.getRateInt())
                                       nextIdx++;
                                   next = filtered.get(nextIdx);
-                                  lastLog = curInt + " Hz ↓ → " + next.getRateInt() + " Hz";
+                                  lastLog = appContext.getString(R.string.guard_hz_down, curInt, next.getRateInt());
                               }
 
                               Log.d(TAG, lastLog);
@@ -1567,7 +1613,7 @@ jobs:
                           }
                       }
                       running = false;
-                      lastLog = "守护已停止";
+                      if (appContext != null) lastLog = appContext.getString(R.string.guard_stopped);
                   });
                   daemonThread.setDaemon(true);
                   daemonThread.start();
@@ -1760,7 +1806,9 @@ jobs:
               private View titleBar;
               private TextView titleText;
               private ImageView btnLanguage;
-              private PopupWindow languagePopup;
+              private PopupWindow languagePopup;private TextView tvLiveHz;
+              private android.os.Handler hzHandler;
+              private Runnable hzRunnable;
 
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_home, c, false);
@@ -1780,6 +1828,23 @@ jobs:
                   prefs = requireActivity().getSharedPreferences("s", Context.MODE_PRIVATE);
                   prefs.registerOnSharedPreferenceChangeListener(this);
                   updateUI();
+                  
+                  tvLiveHz = v.findViewById(R.id.tv_live_hz);
+                  hzHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+                  hzRunnable = new Runnable() {
+                      @Override public void run() {
+                          if (!isAdded() || tvLiveHz == null) return;
+                          try {
+                              android.hardware.display.DisplayManager dm =
+                                  (android.hardware.display.DisplayManager) requireActivity()
+                                  .getSystemService(Context.DISPLAY_SERVICE);
+                              float rate = dm.getDisplay(android.view.Display.DEFAULT_DISPLAY).getRefreshRate();
+                              tvLiveHz.setText(Math.round(rate) + " Hz");
+                          } catch (Exception ignored) {}
+                          hzHandler.postDelayed(this, 1000);
+                      }
+                  };
+                  hzHandler.post(hzRunnable);
 
                   loadData();
                   return v;
@@ -1855,6 +1920,7 @@ jobs:
 
               @Override public void onDestroyView() {
                   super.onDestroyView();
+                  if (hzHandler != null && hzRunnable != null) hzHandler.removeCallbacks(hzRunnable);
                   prefs.unregisterOnSharedPreferenceChangeListener(this);
                   if (languagePopup != null) {
                       languagePopup.dismiss();
@@ -2437,7 +2503,7 @@ jobs:
                       tv.setTextColor(0xFF888888);
                       btn.setVisibility(android.view.View.GONE);
                   } else if (!perm) {
-                      tv.setText("Shizuku 运行中，未授权");
+                      tv.setText(R.string.shizuku_no_perm);
                       tv.setTextColor(0xFFE74C3C);
                       btn.setVisibility(android.view.View.VISIBLE);
                   } else {
@@ -2758,6 +2824,21 @@ jobs:
                       android:background="@android:color/transparent"/>
               </LinearLayout>
           </FrameLayout>
+          <TextView
+              android:id="@+id/tv_live_hz"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="top|start"
+              android:layout_marginStart="10dp"
+              android:layout_marginTop="6dp"
+              android:textSize="22sp"
+              android:textStyle="bold"
+              android:textColor="#00E676"
+              android:shadowColor="#000000"
+              android:shadowDx="1"
+              android:shadowDy="1"
+              android:shadowRadius="4"
+              android:elevation="10dp"/>
           EOF
 
           cat > app/src/main/res/layout/item_rate_card.xml << 'EOF'
