@@ -2437,7 +2437,7 @@ jobs:
                       tv.setTextColor(0xFF888888);
                       btn.setVisibility(android.view.View.GONE);
                   } else if (!perm) {
-                      tv.setText("Shizuku 运行中，未授权");
+                      tv.setText("Shizuku 未运行（需先安装启动）");
                       tv.setTextColor(0xFFE74C3C);
                       btn.setVisibility(android.view.View.VISIBLE);
                   } else {
