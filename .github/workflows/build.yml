@@ -351,6 +351,17 @@ jobs:
               <solid android:color="#000000"/>
           </shape>
           EOF
+          
+          cat > app/src/main/res/drawable/glass_highlight.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+              <gradient
+                  android:startColor="#40FFFFFF"
+                  android:endColor="#00FFFFFF"
+                  android:angle="270"/>
+              <corners android:radius="20dp"/>
+          </shape>
+          EOF
 
           cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
@@ -906,7 +917,7 @@ jobs:
 
               sb.append("【授权状态】\n");
               boolean rooted = isRooted();
-              sb.append("Root: ").append(rooted ? "✅ 已获取" : "❌ 未获取").append("\n\n");
+              sb.append("Root: ").append(rooted ? "已获取" : "未获取").append("\n\n");
 
               sb.append("【Raw dumpsys】\n");
               if (!rooted) {
@@ -1529,25 +1540,26 @@ jobs:
                       int color = colorFor(m.getRateInt());
                       boolean act = current != null && current.getModeId() == m.getModeId() && current.getRateInt() == m.getRateInt();
                       if (act) {
-                          r.card.setCardBackgroundColor(darkenColor(color, 0.7f));
-                          r.card.setStrokeColor(color);
-                          r.card.setStrokeWidth(dpToPx(3));
+                          r.card.setCardBackgroundColor(darkenColor(color, 0.75f));
+                          r.card.setStrokeColor(0xCCFFFFFF);
+                          r.card.setStrokeWidth(dpToPx(2));
                       } else {
                           r.card.setCardBackgroundColor(color);
-                          r.card.setStrokeWidth(0);
+                          r.card.setStrokeColor(0x50FFFFFF);
+                          r.card.setStrokeWidth(dpToPx(1));
                       }
                       r.card.setOnClickListener(v -> { if (listener != null) listener.onClick(m); });
                   }
               }
 
               private int colorFor(int hz) {
-                  if (hz >= 185) return Color.parseColor("#FFB300");
-                  if (hz >= 165) return Color.parseColor("#E53935");
-                  if (hz >= 144) return Color.parseColor("#1565C0");
-                  if (hz >= 120) return Color.parseColor("#8E24AA");
-                  if (hz >= 90)  return Color.parseColor("#F9A825");
-                  if (hz >= 60)  return Color.parseColor("#29B6F6");
-                  return Color.parseColor("#43A047");
+                  if (hz >= 185) return Color.argb(170, 240, 213, 45);
+                  if (hz >= 165) return Color.argb(170, 230, 100, 150);
+                  if (hz >= 144) return Color.argb(170, 242, 140, 56);
+                  if (hz >= 120) return Color.argb(170, 50, 124, 216);
+                  if (hz >= 90)  return Color.argb(170, 40, 169, 160);
+                  if (hz >= 60)  return Color.argb(170, 59, 156, 89);
+                  return Color.argb(170, 67, 160, 71);
               }
 
               private int darkenColor(int color, float factor) {
@@ -2540,7 +2552,7 @@ jobs:
                   app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:menu="@menu/bottom_nav_menu"
-                  android:background="#AAFFFFFF"
+                  android:background="#50FFFFFF"
                   app:itemIconTint="#1976D2"
                   app:itemTextColor="#1976D2"
                   app:elevation="0dp"
@@ -2565,7 +2577,7 @@ jobs:
                       android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:padding="20dp"
-                      android:background="#88FFFFFF">
+                      android:background="#55FFFFFF">
                       <TextView
                           android:id="@+id/home_title_text"
                           android:layout_width="wrap_content"
@@ -2604,28 +2616,36 @@ jobs:
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent" android:layout_height="wrap_content"
               android:padding="16dp" android:orientation="vertical">
-
               <com.google.android.material.card.MaterialCardView
                   android:id="@+id/card_rate"
                   android:layout_width="match_parent" android:layout_height="wrap_content"
-                  app:cardCornerRadius="16dp"
-                  app:strokeWidth="0dp"
-                  app:strokeColor="#00000000">
-
-                  <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:padding="16dp">
-                      <TextView android:id="@+id/tv_rate_name" android:layout_width="wrap_content"
-                          android:layout_height="wrap_content" android:textColor="#FFFFFF" android:textSize="13sp"/>
-                      <TextView android:id="@+id/tv_rate_hz" android:layout_width="wrap_content"
-                          android:layout_height="wrap_content" android:textSize="32sp"
-                          android:textStyle="bold" android:textColor="#FFFFFF"
-                          android:layout_below="@id/tv_rate_name"/>
-                      <TextView android:id="@+id/tv_rate_desc" android:layout_width="wrap_content"
-                          android:layout_height="wrap_content" android:textColor="#EEEEEE"
-                          android:textSize="11sp"
-                          android:layout_below="@id/tv_rate_hz" android:layout_marginTop="4dp"/>
-                  </RelativeLayout>
-
+                  app:cardCornerRadius="20dp"
+                  app:strokeWidth="1dp"
+                  app:strokeColor="#50FFFFFF"
+                  app:cardElevation="0dp">
+                  <FrameLayout
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content">
+                      <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:padding="18dp">
+                          <TextView android:id="@+id/tv_rate_name" android:layout_width="wrap_content"
+                              android:layout_height="wrap_content" android:textColor="#FFFFFF"
+                              android:textSize="13sp" android:alpha="0.85"/>
+                          <TextView android:id="@+id/tv_rate_hz" android:layout_width="wrap_content"
+                              android:layout_height="wrap_content" android:textSize="34sp"
+                              android:textStyle="bold" android:textColor="#FFFFFF"
+                              android:layout_below="@id/tv_rate_name"/>
+                          <TextView android:id="@+id/tv_rate_desc" android:layout_width="wrap_content"
+                              android:layout_height="wrap_content" android:textColor="#DDFFFFFF"
+                              android:textSize="11sp"
+                              android:layout_below="@id/tv_rate_hz" android:layout_marginTop="4dp"/>
+                      </RelativeLayout>
+                      <View
+                          android:layout_width="match_parent"
+                          android:layout_height="70dp"
+                          android:background="@drawable/glass_highlight"
+                          android:layout_gravity="top"/>
+                  </FrameLayout>
               </com.google.android.material.card.MaterialCardView>
           </LinearLayout>
           EOF
