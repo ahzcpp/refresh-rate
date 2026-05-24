@@ -474,6 +474,7 @@ jobs:
               <string name="guard_res_fix">分辨率校正，</string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="show_refresh_rate_label">显示/隐藏刷新率</string>
           </resources>
           EOF
 
@@ -577,6 +578,7 @@ jobs:
               <string name="guard_res_fix">Resolution fix, </string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="show_refresh_rate_label">Show/Hide Refresh Rate</string>
           </resources>
           EOF
 
@@ -680,6 +682,7 @@ jobs:
               <string name="guard_res_fix">解像度修正、</string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="show_refresh_rate_label">リフレッシュレート 表示/非表示</string>
           </resources>
           EOF
 
@@ -783,6 +786,7 @@ jobs:
               <string name="guard_res_fix">ئېنىقلىق تۈزەت، </string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="show_refresh_rate_label">يېڭىلاش دەرىجىسىنى كۆرسەت/يوشۇر</string>
           </resources>
           EOF
 
@@ -886,6 +890,7 @@ jobs:
               <string name="guard_res_fix">解析度校正，</string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="show_refresh_rate_label">顯示/隱藏更新率</string>
           </resources>
           EOF
 
@@ -1300,7 +1305,8 @@ jobs:
                       AutoOverclockManager.stopService(this);
                       return START_NOT_STICKY;
                   }
-
+                  
+                  Context lc = getLocalizedContext(this);
                   startForeground(NOTIFICATION_ID, buildNotification());
 
                   String authMode = intent != null ? intent.getStringExtra("auth_mode") : "";
@@ -1340,12 +1346,23 @@ jobs:
               public IBinder onBind(Intent intent) {
                   return null;
               }
+              
+              private static Context getLocalizedContext(Context ctx) {
+                  try {
+                      SharedPreferences prefs = ctx.getSharedPreferences("s", Context.MODE_PRIVATE);
+                      String lang = prefs.lc.getString("language", "zh");
+                      java.util.Locale locale = "zh-rTW".equals(lang) ? new java.util.Locale("zh", "TW") : new java.util.Locale(lang);
+                      android.content.res.Configuration config = new android.content.res.Configuration(ctx.getResources().getConfiguration());
+                      config.setLocale(locale);
+                      return ctx.createConfigurationContext(config);
+                  } catch (Exception e) { return ctx; }
+              }
 
               private void createNotificationChannel() {
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                       NotificationChannel channel = new NotificationChannel(
                               CHANNEL_ID,
-                              getString(R.string.notification_channel_name),
+                              lc.getString(R.string.notification_channel_name),
                               NotificationManager.IMPORTANCE_LOW
                       );
                       NotificationManager manager = getSystemService(NotificationManager.class);
@@ -1369,15 +1386,16 @@ jobs:
               PendingIntent openPendingIntent = PendingIntent.getActivity(this, 2, openIntent, openFlags);
 
               return new NotificationCompat.Builder(this, CHANNEL_ID)
-                      .setContentTitle(getString(R.string.notification_title))
+                      .setContentTitle(lc.getString(R.string.notification_title))
                       .setContentText(AutoOverclockManager.getLastLog())
                       .setSmallIcon(R.drawable.ic_launcher_foreground)
                       .setContentIntent(openPendingIntent)
-                      .addAction(android.R.drawable.ic_media_pause, getString(R.string.notification_stop), stopPendingIntent)
+                      .addAction(android.R.drawable.ic_media_pause, lc.getString(R.string.notification_stop), stopPendingIntent)
                       .setOngoing(true)
                       .build();
           }
-
+          
+              Context lc = getLocalizedContext(context);
               public static void updateNotification(Context context) {
               NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
               if (nm == null) return;
@@ -1395,11 +1413,11 @@ jobs:
               PendingIntent openPendingIntent = PendingIntent.getActivity(context, 2, openIntent, openFlags);
 
               Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-                      .setContentTitle(context.getString(R.string.notification_title))
+                      .setContentTitle(context.lc.getString(R.string.notification_title))
                       .setContentText(AutoOverclockManager.getLastLog())
                       .setSmallIcon(R.drawable.ic_launcher_foreground)
                       .setContentIntent(openPendingIntent)
-                      .addAction(android.R.drawable.ic_media_pause, context.getString(R.string.notification_stop), stopPendingIntent)
+                      .addAction(android.R.drawable.ic_media_pause, context.lc.getString(R.string.notification_stop), stopPendingIntent)
                       .setOngoing(true)
                       .build();
               nm.notify(NOTIFICATION_ID, notification);
@@ -1490,6 +1508,18 @@ jobs:
               private static volatile String authMode  = "";
               private static Context appContext;
 
+              private static Context getLocalizedContext() {
+                  if (appContext == null) return null;
+                  try {
+                      SharedPreferences prefs = appContext.getSharedPreferences("s", android.content.Context.MODE_PRIVATE);
+                      String lang = prefs.getString("language", "zh");
+                      java.util.Locale locale = "zh-rTW".equals(lang) ? new java.util.Locale("zh", "TW") : new java.util.Locale(lang);
+                      android.content.res.Configuration config = new android.content.res.Configuration(appContext.getResources().getConfiguration());
+                      config.setLocale(locale);
+                      return appContext.createConfigurationContext(config);
+                  } catch (Exception e) { return appContext; }
+              }
+
               public static String getLastLog()  { return lastLog; }
               public static boolean isRunning()  { return running; }
 
@@ -1516,7 +1546,7 @@ jobs:
                   targetW  = tw;
                   targetH  = th;
                   targetHz = hz;
-                  if (appContext != null) lastLog = appContext.getString(R.string.guard_target_updated, tw + "×" + th, hz);
+                  if (appContext != null) lastLog = getLocalizedContext().getString(R.string.guard_target_updated, tw + "×" + th, hz);
                   Log.d(TAG, lastLog);
               }
 
@@ -1528,7 +1558,7 @@ jobs:
                   targetH  = th;
                   targetHz = hz;
                   running  = true;
-                  lastLog  = appContext.getString(R.string.guard_start_format, tw + "×" + th, hz);
+                  lastLog  = getLocalizedContext().getString(R.string.guard_start_format, tw + "×" + th, hz);
 
                   daemonThread = new Thread(() -> {
                       while (running) {
@@ -1544,7 +1574,7 @@ jobs:
                                       filtered.add(m);
                               }
                               if (filtered.isEmpty()) {
-                                  lastLog = appContext.getString(R.string.guard_no_res_format, curTargetW + "×" + curTargetH);
+                                  lastLog = getLocalizedContext().getString(R.string.guard_no_res_format, curTargetW + "×" + curTargetH);
                                   Thread.sleep(POLL_DELAY_MS);
                                   continue;
                               }
@@ -1564,7 +1594,7 @@ jobs:
                               boolean rateOk = (curInt == finalTarget.getRateInt());
 
                               if (resOk && rateOk) {
-                                  lastLog = appContext.getString(R.string.guard_watching_format, finalTarget.getRateInt());
+                                  lastLog = getLocalizedContext().getString(R.string.guard_watching_format, finalTarget.getRateInt());
                                   OverclockService.updateNotification(ctx);
                                   Thread.sleep(POLL_DELAY_MS);
                                   continue;
@@ -1586,15 +1616,15 @@ jobs:
                                           && filtered.get(nextIdx).getRateInt() > finalTarget.getRateInt())
                                       nextIdx--;
                                   next = filtered.get(nextIdx);
-                                  String prefix = !resOk ? appContext.getString(R.string.guard_res_fix) : "";
-                                  lastLog = appContext.getString(R.string.guard_hz_up, prefix, curInt, next.getRateInt());
+                                  String prefix = !resOk ? getLocalizedContext().getString(R.string.guard_res_fix) : "";
+                                  lastLog = getLocalizedContext().getString(R.string.guard_hz_up, prefix, curInt, next.getRateInt());
                               } else {
                                   int nextIdx = Math.max(curIdx - 1, 0);
                                   while (nextIdx > 0
                                           && filtered.get(nextIdx).getRateInt() < finalTarget.getRateInt())
                                       nextIdx++;
                                   next = filtered.get(nextIdx);
-                                  lastLog = appContext.getString(R.string.guard_hz_down, curInt, next.getRateInt());
+                                  lastLog = getLocalizedContext().getString(R.string.guard_hz_down, curInt, next.getRateInt());
                               }
 
                               Log.d(TAG, lastLog);
@@ -1614,7 +1644,7 @@ jobs:
                           }
                       }
                       running = false;
-                      if (appContext != null) lastLog = appContext.getString(R.string.guard_stopped);
+                      if (appContext != null) lastLog = getLocalizedContext().getString(R.string.guard_stopped);
                   });
                   daemonThread.setDaemon(true);
                   daemonThread.start();
@@ -1807,9 +1837,7 @@ jobs:
               private View titleBar;
               private TextView titleText;
               private ImageView btnLanguage;
-              private PopupWindow languagePopup;private TextView tvLiveHz;
-              private android.os.Handler hzHandler;
-              private Runnable hzRunnable;
+              private PopupWindow languagePopup;
 
               @Override public View onCreateView(LayoutInflater inf, ViewGroup c, Bundle s) {
                   View v = inf.inflate(R.layout.fragment_home, c, false);
@@ -1829,23 +1857,6 @@ jobs:
                   prefs = requireActivity().getSharedPreferences("s", Context.MODE_PRIVATE);
                   prefs.registerOnSharedPreferenceChangeListener(this);
                   updateUI();
-                  
-                  tvLiveHz = v.findViewById(R.id.tv_live_hz);
-                  hzHandler = new android.os.Handler(android.os.Looper.getMainLooper());
-                  hzRunnable = new Runnable() {
-                      @Override public void run() {
-                          if (!isAdded() || tvLiveHz == null) return;
-                          try {
-                              android.hardware.display.DisplayManager dm =
-                                  (android.hardware.display.DisplayManager) requireActivity()
-                                  .getSystemService(Context.DISPLAY_SERVICE);
-                              float rate = dm.getDisplay(android.view.Display.DEFAULT_DISPLAY).getRefreshRate();
-                              tvLiveHz.setText(Math.round(rate) + " Hz");
-                          } catch (Exception ignored) {}
-                          hzHandler.postDelayed(this, 1000);
-                      }
-                  };
-                  hzHandler.post(hzRunnable);
 
                   loadData();
                   return v;
@@ -1921,7 +1932,6 @@ jobs:
 
               @Override public void onDestroyView() {
                   super.onDestroyView();
-                  if (hzHandler != null && hzRunnable != null) hzHandler.removeCallbacks(hzRunnable);
                   prefs.unregisterOnSharedPreferenceChangeListener(this);
                   if (languagePopup != null) {
                       languagePopup.dismiss();
@@ -2179,6 +2189,28 @@ jobs:
                   TextView tvA11yStatus = v.findViewById(R.id.tv_accessibility_status);
 
                   updateAccessibilityStatus(tvA11yStatus);
+                  com.google.android.material.switchmaterial.SwitchMaterial switchShowHz =
+                      v.findViewById(R.id.switch_show_refresh_rate);
+                  new Thread(() -> {
+                      boolean cur = getShowRefreshRateState();
+                      if (isAdded() && getActivity() != null)
+                          getActivity().runOnUiThread(() -> switchShowHz.setChecked(cur));
+                  }).start();
+                  switchShowHz.setOnCheckedChangeListener((btn, checked) -> {
+                      String authMode2 = prefs.getString("auth_mode", "");
+                      String cmd = "settings put global show_refresh_rate " + (checked ? "1" : "0");
+                      new Thread(() -> {
+                          try {
+                              if ("root".equals(authMode2)) {
+                                  Process p2 = Runtime.getRuntime().exec("su");
+                                  java.io.DataOutputStream os3 = new java.io.DataOutputStream(p2.getOutputStream());
+                                  os3.writeBytes(cmd + "\nexit\n"); os3.flush(); p2.waitFor();
+                              } else if ("shizuku".equals(authMode2)) {
+                                  com.pmahz.util.ShizukuUtils.execAndRead(cmd);
+                              }
+                          } catch (Exception ignored) {}
+                      }).start();
+                  });
 
                   List<com.pmahz.model.DisplayMode> allModes = AutoOverclockManager.getSupportedModes(requireContext());
 
@@ -2475,6 +2507,24 @@ jobs:
                       TextView tvA11yStatus = v.findViewById(R.id.tv_accessibility_status);
                       updateAccessibilityStatus(tvA11yStatus);
                   }
+              }
+              
+              private boolean getShowRefreshRateState() {
+                  try {
+                      String mode = prefs.getString("auth_mode", "");
+                      String result = "";
+                      if ("root".equals(mode)) {
+                          Process p2 = Runtime.getRuntime().exec("su");
+                          java.io.DataOutputStream os3 = new java.io.DataOutputStream(p2.getOutputStream());
+                          os3.writeBytes("settings get global show_refresh_rate\nexit\n");
+                          os3.flush();
+                          java.io.BufferedReader r2 = new java.io.BufferedReader(new java.io.InputStreamReader(p2.getInputStream()));
+                          result = r2.readLine(); p2.waitFor();
+                      } else if ("shizuku".equals(mode)) {
+                          result = com.pmahz.util.ShizukuUtils.execAndRead("settings get global show_refresh_rate");
+                      }
+                      return "1".equals(result != null ? result.trim() : "");
+                  } catch (Exception e) { return false; }
               }
 
               private boolean isAccessibilityServiceEnabled() {
@@ -2824,23 +2874,6 @@ jobs:
                       android:padding="16dp"
                       android:background="@android:color/transparent"/>
               </LinearLayout>
-              
-              <TextView
-              android:id="@+id/tv_live_hz"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_gravity="top|start"
-              android:layout_marginStart="10dp"
-              android:layout_marginTop="6dp"
-              android:textSize="22sp"
-              android:textStyle="bold"
-              android:textColor="#00E676"
-              android:shadowColor="#000000"
-              android:shadowDx="1"
-              android:shadowDy="1"
-              android:shadowRadius="4"
-              android:elevation="10dp"/>
-              
           </FrameLayout>
           EOF
 
@@ -3003,6 +3036,20 @@ jobs:
                               android:text="@string/guard_disabled" android:textSize="13sp"
                               android:layout_marginTop="8dp"
                               android:textColor="#E74C3C"/>
+                              
+                              <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:orientation="horizontal" android:gravity="center_vertical"
+                              android:layout_marginTop="12dp">
+                              <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                                  android:layout_weight="1"
+                                  android:text="@string/show_refresh_rate_label"
+                                  android:textSize="14sp"
+                                  android:textColor="@color/text_dark"/>
+                              <com.google.android.material.switchmaterial.SwitchMaterial
+                                  android:id="@+id/switch_show_refresh_rate"
+                                  android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"/>
+                          </LinearLayout>
 
                           <TextView android:id="@+id/tv_accessibility_status"
                               android:layout_width="wrap_content" android:layout_height="wrap_content"
