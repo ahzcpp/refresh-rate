@@ -1351,7 +1351,7 @@ jobs:
               private static Context getLocalizedContext(Context ctx) {
                   try {
                       SharedPreferences prefs = ctx.getSharedPreferences("s", Context.MODE_PRIVATE);
-                      String lang = prefs.lc.getString("language", "zh");
+                      String lang = prefs.getString("language", "zh");
                       java.util.Locale locale = "zh-rTW".equals(lang) ? new java.util.Locale("zh", "TW") : new java.util.Locale(lang);
                       android.content.res.Configuration config = new android.content.res.Configuration(ctx.getResources().getConfiguration());
                       config.setLocale(locale);
@@ -1396,8 +1396,8 @@ jobs:
                       .build();
           }
           
-              Context lc = getLocalizedContext(context);
               public static void updateNotification(Context context) {
+              Context lc = getLocalizedContext(context);
               NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
               if (nm == null) return;
 
