@@ -414,7 +414,7 @@ jobs:
               <string name="rate_desc_excellent">高等刷新率，拥有超流畅的画面体验</string>
               <string name="rate_desc_smooth">高的刷新率，画面流畅</string>
               <string name="rate_desc_standard">常规刷新率，延长续航</string>
-              <string name="no_root_toast">未获取root权限</string>
+              <string name="no_root_toast">请授权Root/Shizuku权限</string>
               <string name="switch_success">已切换至 %d Hz</string>
               <string name="switch_fail">切换失败，请检查 Root 授权</string>
               <string name="settings_root_title">授权状态</string>
@@ -490,6 +490,7 @@ jobs:
               <string name="guard_res_fix">分辨率校正，</string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="show_refresh_rate_label">显示/隐藏刷新率</string>
           </resources>
           EOF
 
@@ -517,7 +518,7 @@ jobs:
               <string name="rate_desc_excellent">High refresh, ultra smooth</string>
               <string name="rate_desc_smooth">High refresh, smooth display</string>
               <string name="rate_desc_standard">Standard refresh, long battery life</string>
-              <string name="no_root_toast">No root access</string>
+              <string name="no_root_toast">Please authorize Root/Shizuku</string>
               <string name="switch_success">Switched to %d Hz</string>
               <string name="switch_fail">Switch failed, check root access</string>
               <string name="settings_root_title">Authorization Status</string>
@@ -593,6 +594,7 @@ jobs:
               <string name="guard_res_fix">Resolution fix, </string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="show_refresh_rate_label">Show/Hide Refresh Rate</string>
           </resources>
           EOF
 
@@ -620,7 +622,7 @@ jobs:
               <string name="rate_desc_excellent">高リフレッシュレート、超滑らか</string>
               <string name="rate_desc_smooth">高リフレッシュレート、滑らかな表示</string>
               <string name="rate_desc_standard">通常のリフレッシュレート、長持ちバッテリー</string>
-              <string name="no_root_toast">Root権限がありません</string>
+              <string name="no_root_toast">Root/Shizuku権限を付与してください</string>
               <string name="switch_success">%d Hz に切り替えました</string>
               <string name="switch_fail">切り替えに失敗しました。Root権限を確認してください</string>
               <string name="settings_root_title">認証状態</string>
@@ -696,6 +698,7 @@ jobs:
               <string name="guard_res_fix">解像度修正、</string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="show_refresh_rate_label">リフレッシュレート 表示/非表示</string>
           </resources>
           EOF
 
@@ -723,7 +726,7 @@ jobs:
               <string name="rate_desc_excellent">يۇقىرى يېڭىلاش، ئىنتايىن سىلىق</string>
               <string name="rate_desc_smooth">يۇقىرى يېڭىلاش، سىلىق كۆرۈنۈش</string>
               <string name="rate_desc_standard">ئۆلچەملىك يېڭىلاش، ئۇزۇن باتارېيە</string>
-              <string name="no_root_toast">Root ھوقۇقى يوق</string>
+              <string name="no_root_toast">Root/Shizuku ھوقۇقىنى بېرىڭ</string>
               <string name="switch_success">%d Hz غا ئالماشتۇرۇلدى</string>
               <string name="switch_fail">ئالماشتۇرۇش مەغلۇب بولدى، Root ھوقۇقىنى تەكشۈرۈڭ</string>
               <string name="settings_root_title">ھوقۇق ھالىتى</string>
@@ -799,6 +802,7 @@ jobs:
               <string name="guard_res_fix">ئېنىقلىق تۈزەت، </string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="show_refresh_rate_label">يېڭىلاش دەرىجىسىنى كۆرسەت/يوشۇر</string>
           </resources>
           EOF
 
@@ -826,7 +830,7 @@ jobs:
               <string name="rate_desc_excellent">高等更新率，擁有超流暢的畫面體驗</string>
               <string name="rate_desc_smooth">高的更新率，畫面流暢</string>
               <string name="rate_desc_standard">常規更新率，延長續航</string>
-              <string name="no_root_toast">未取得root權限</string>
+              <string name="no_root_toast">請授權Root/Shizuku權限</string>
               <string name="switch_success">已切換至 %d Hz</string>
               <string name="switch_fail">切換失敗，請檢查 Root 授權</string>
               <string name="settings_root_title">授權狀態</string>
@@ -902,6 +906,7 @@ jobs:
               <string name="guard_res_fix">解析度校正，</string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="show_refresh_rate_label">顯示/隱藏更新率</string>
           </resources>
           EOF
 
@@ -2222,6 +2227,29 @@ jobs:
                   TextView tvA11yStatus = v.findViewById(R.id.tv_accessibility_status);
 
                   updateAccessibilityStatus(tvA11yStatus);
+                  
+                  com.google.android.material.switchmaterial.SwitchMaterial switchShowHz =
+                      v.findViewById(R.id.switch_show_refresh_rate);
+                  switchShowHz.setChecked(prefs.getBoolean("show_hz_overlay", false));
+                  switchShowHz.setOnCheckedChangeListener((btn, checked) -> {
+                      prefs.edit().putBoolean("show_hz_overlay", checked).apply();
+                      String authMode2 = prefs.getString("auth_mode", "");
+                      String cmd = checked
+                          ? "service call SurfaceFlinger 1034 i32 1"
+                          : "service call SurfaceFlinger 1034 i32 0";
+                      new Thread(() -> {
+                          try {
+                              if ("root".equals(authMode2)) {
+                                  Process p2 = Runtime.getRuntime().exec("su");
+                                  java.io.DataOutputStream os3 = new java.io.DataOutputStream(p2.getOutputStream());
+                                  os3.writeBytes(cmd + "\nexit\n");
+                                  os3.flush(); p2.waitFor();
+                              } else if ("shizuku".equals(authMode2)) {
+                                  com.pmahz.util.ShizukuUtils.execAndRead(cmd);
+                              }
+                          } catch (Exception ignored) {}
+                      }).start();
+                  });
 
                   List<com.pmahz.model.DisplayMode> allModes = AutoOverclockManager.getSupportedModes(requireContext());
 
@@ -3077,6 +3105,19 @@ jobs:
                                   <Spinner android:id="@+id/spinner_oc_rate"
                                       android:layout_width="match_parent" android:layout_height="48dp"/>
                               </LinearLayout>
+                          </LinearLayout>
+                          <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:orientation="horizontal" android:gravity="center_vertical"
+                              android:layout_marginTop="12dp">
+                              <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                                  android:layout_weight="1"
+                                  android:text="@string/show_refresh_rate_label"
+                                  android:textSize="14sp"
+                                  android:textColor="@color/text_dark"/>
+                              <com.google.android.material.switchmaterial.SwitchMaterial
+                                  android:id="@+id/switch_show_refresh_rate"
+                                  android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"/>
                           </LinearLayout>
 
                       </LinearLayout>
