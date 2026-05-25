@@ -490,7 +490,6 @@ jobs:
               <string name="guard_res_fix">分辨率校正，</string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
-              <string name="show_refresh_rate_label">显示/隐藏刷新率</string>
           </resources>
           EOF
 
@@ -594,7 +593,6 @@ jobs:
               <string name="guard_res_fix">Resolution fix, </string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
-              <string name="show_refresh_rate_label">Show/Hide Refresh Rate</string>
           </resources>
           EOF
 
@@ -698,7 +696,6 @@ jobs:
               <string name="guard_res_fix">解像度修正、</string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
-              <string name="show_refresh_rate_label">リフレッシュレート 表示/非表示</string>
           </resources>
           EOF
 
@@ -802,7 +799,6 @@ jobs:
               <string name="guard_res_fix">ئېنىقلىق تۈزەت، </string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
-              <string name="show_refresh_rate_label">يېڭىلاش دەرىجىسىنى كۆرسەت/يوشۇر</string>
           </resources>
           EOF
 
@@ -906,7 +902,6 @@ jobs:
               <string name="guard_res_fix">解析度校正，</string>
               <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
               <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
-              <string name="show_refresh_rate_label">顯示/隱藏更新率</string>
           </resources>
           EOF
 
@@ -2227,37 +2222,6 @@ jobs:
                   TextView tvA11yStatus = v.findViewById(R.id.tv_accessibility_status);
 
                   updateAccessibilityStatus(tvA11yStatus);
-                  com.google.android.material.switchmaterial.SwitchMaterial switchShowHz =
-                      v.findViewById(R.id.switch_show_refresh_rate);
-                  new Thread(() -> {
-                      boolean cur = getShowRefreshRateState();
-                      if (isAdded() && getActivity() != null)
-                          getActivity().runOnUiThread(() -> switchShowHz.setChecked(cur));
-                  }).start();
-                  switchShowHz.setOnCheckedChangeListener((btn, checked) -> {
-                      String authMode2 = prefs.getString("auth_mode", "");
-                      String v2 = checked ? "1" : "0";
-                      String cmd =
-                      "settings put global show_refresh_rate " + v2 + " ; " +
-                      "settings put system show_refresh_rate " + v2 + " ; " +
-                      "settings put secure show_refresh_rate " + v2 + " ; " +
-                      "settings put global oplus_show_refresh_rate " + v2 + " ; " +
-                      "settings put system oplus_show_refresh_rate " + v2 + " ; " +
-                      "settings put system oplus_display_refresh_rate_switch " + v2 + " ; " +
-                      "settings put global oneplus_screen_refresh_rate " + v2 + " ; " +
-                      "settings put global realme_show_refresh_rate " + v2 + " ; true";
-                      new Thread(() -> {
-                          try {
-                              if ("root".equals(authMode2)) {
-                                  Process p2 = Runtime.getRuntime().exec("su");
-                                  java.io.DataOutputStream os3 = new java.io.DataOutputStream(p2.getOutputStream());
-                                  os3.writeBytes(cmd + "\nexit\n"); os3.flush(); p2.waitFor();
-                              } else if ("shizuku".equals(authMode2)) {
-                                  com.pmahz.util.ShizukuUtils.execAndRead(cmd);
-                              }
-                          } catch (Exception ignored) {}
-                      }).start();
-                  });
 
                   List<com.pmahz.model.DisplayMode> allModes = AutoOverclockManager.getSupportedModes(requireContext());
 
@@ -2554,38 +2518,6 @@ jobs:
                       TextView tvA11yStatus = v.findViewById(R.id.tv_accessibility_status);
                       updateAccessibilityStatus(tvA11yStatus);
                   }
-              }
-              
-              private boolean getShowRefreshRateState() {
-                  try {
-                      String mode = prefs.getString("auth_mode", "");
-                      String result = "";
-                      if ("root".equals(mode)) {
-                          Process p2 = Runtime.getRuntime().exec("su");
-                          java.io.DataOutputStream os3 = new java.io.DataOutputStream(p2.getOutputStream());
-                          os3.writeBytes(
-                          "v=$(settings get global oneplus_screen_refresh_rate 2>/dev/null); " +
-                          "[ \"$v\" = '1' ] || v=$(settings get global oplus_show_refresh_rate 2>/dev/null); " +
-                          "[ \"$v\" = '1' ] || v=$(settings get system oplus_display_refresh_rate_switch 2>/dev/null); " +
-                          "[ \"$v\" = '1' ] || v=$(settings get global show_refresh_rate 2>/dev/null); " +
-                          "echo $v\nexit\n");
-                          os3.flush();
-                          java.io.BufferedReader r2 = new java.io.BufferedReader(new java.io.InputStreamReader(p2.getInputStream()));
-                          result = r2.readLine(); p2.waitFor();
-                      } else if ("shizuku".equals(mode)) {
-                          String r1 = com.pmahz.util.ShizukuUtils.execAndRead("settings get global oneplus_screen_refresh_rate");
-                          if ("1".equals(r1 != null ? r1.trim() : "")) { result = "1"; }
-                          else {
-                              String r2 = com.pmahz.util.ShizukuUtils.execAndRead("settings get global oplus_show_refresh_rate");
-                              if ("1".equals(r2 != null ? r2.trim() : "")) { result = "1"; }
-                              else {
-                                  String r3 = com.pmahz.util.ShizukuUtils.execAndRead("settings get system oplus_display_refresh_rate_switch");
-                                  result = (r3 != null ? r3.trim() : "");
-                              }
-                          }
-                      }
-                      return "1".equals(result != null ? result.trim() : "");
-                  } catch (Exception e) { return false; }
               }
 
               private boolean isAccessibilityServiceEnabled() {
@@ -3145,20 +3077,6 @@ jobs:
                                   <Spinner android:id="@+id/spinner_oc_rate"
                                       android:layout_width="match_parent" android:layout_height="48dp"/>
                               </LinearLayout>
-                          </LinearLayout>
-
-                          <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                              android:orientation="horizontal" android:gravity="center_vertical"
-                              android:layout_marginTop="12dp">
-                              <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                                  android:layout_weight="1"
-                                  android:text="@string/show_refresh_rate_label"
-                                  android:textSize="14sp"
-                                  android:textColor="@color/text_dark"/>
-                              <com.google.android.material.switchmaterial.SwitchMaterial
-                                  android:id="@+id/switch_show_refresh_rate"
-                                  android:layout_width="wrap_content"
-                                  android:layout_height="wrap_content"/>
                           </LinearLayout>
 
                       </LinearLayout>
