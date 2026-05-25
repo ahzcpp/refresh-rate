@@ -1891,6 +1891,14 @@ jobs:
                   recyclerView.setItemAnimator(null);
                   adapter = new RateAdapter(getContext(), dataItems, this::onRateSelected);
                   recyclerView.setAdapter(adapter);
+                  recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                      @Override public void onScrolled(RecyclerView rv, int dx, int dy) {
+                          if (!(getActivity() instanceof com.pmahz.MainActivity)) return;
+                          com.pmahz.MainActivity ma = (com.pmahz.MainActivity) getActivity();
+                          if (dy > 8) ma.hideBottomNav();
+                          else if (dy < -8) ma.showBottomNav();
+                      }
+                  });
 
                   prefs = requireActivity().getSharedPreferences("s", Context.MODE_PRIVATE);
                   prefs.registerOnSharedPreferenceChangeListener(this);
@@ -2164,8 +2172,8 @@ jobs:
                   TextView rootStatus    = v.findViewById(R.id.tv_root_status);
                   TextView shizukuStatus = v.findViewById(R.id.tv_shizuku_status);
                   Button btnRequestShizuku = v.findViewById(R.id.btn_request_shizuku);
-                  com.google.android.material.switchmaterial.SwitchMaterial switchRoot    = v.findViewById(R.id.switch_root);
-                  com.google.android.material.switchmaterial.SwitchMaterial switchShizuku = v.findViewById(R.id.switch_shizuku);
+                  com.google.android.material.materialswitch.MaterialSwitch switchRoot    = v.findViewById(R.id.switch_root);
+                  com.google.android.material.materialswitch.MaterialSwitch switchShizuku = v.findViewById(R.id.switch_shizuku);
 
                   String savedMode = prefs.getString("auth_mode", "");
                   switchRoot.setChecked("root".equals(savedMode));
@@ -2218,7 +2226,7 @@ jobs:
                   });
 
                   // ── 自动超频开关 + 选择器 ──
-                  com.google.android.material.switchmaterial.SwitchMaterial switchOC =
+                  com.google.android.material.materialswitch.MaterialSwitch switchOC =
                       v.findViewById(R.id.switch_auto_overclock);
                   TextView tvOCStatus = v.findViewById(R.id.tv_overclock_status);
                   TextView tvOCCur    = v.findViewById(R.id.tv_overclock_cur);
@@ -2228,7 +2236,7 @@ jobs:
 
                   updateAccessibilityStatus(tvA11yStatus);
                   
-                  com.google.android.material.switchmaterial.SwitchMaterial switchShowHz =
+                  com.google.android.material.materialswitch.MaterialSwitch switchShowHz =
                       v.findViewById(R.id.switch_show_refresh_rate);
                   switchShowHz.setChecked(prefs.getBoolean("show_hz_overlay", false));
                   switchShowHz.setOnCheckedChangeListener((btn, checked) -> {
@@ -2535,6 +2543,17 @@ jobs:
                       });
                   }
                   
+                  androidx.core.widget.NestedScrollView settingsNsv = v.findViewById(R.id.settings_scroll_view);
+                  if (settingsNsv != null) {
+                      settingsNsv.setOnScrollChangeListener((androidx.core.widget.NestedScrollView.OnScrollChangeListener)
+                          (nsv, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+                              if (!(getActivity() instanceof com.pmahz.MainActivity)) return;
+                              com.pmahz.MainActivity ma = (com.pmahz.MainActivity) getActivity();
+                              if (scrollY > oldScrollY + 8) ma.hideBottomNav();
+                              else if (scrollY < oldScrollY - 8) ma.showBottomNav();
+                          });
+                  }
+                  
                   return v;
               }
 
@@ -2720,6 +2739,8 @@ jobs:
               private ImageView wallpaperView;
               private BottomNavigationView bottomNav;
               private SharedPreferences prefs;
+              private int currentNavId = -1;
+              private boolean navHidden = false;
 
               @Override protected void onCreate(Bundle s) {
                   AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -2742,19 +2763,26 @@ jobs:
                   applyWallpaperAndUI();
 
                   if (s == null) {
+                      currentNavId = R.id.nav_home;
                       loadFragment(new HomeFragment(), false);
                   }
                   bottomNav.setOnItemSelectedListener(item -> {
-                      if (item.getItemId() == R.id.nav_home) {
+                      int id = item.getItemId();
+                      if (id == currentNavId) return true;
+                      showBottomNav();
+                      if (id == R.id.nav_home) {
+                          currentNavId = R.id.nav_home;
                           loadFragment(new HomeFragment(), false);
                           return true;
                       }
-                      if (item.getItemId() == R.id.nav_settings) {
+                      if (id == R.id.nav_settings) {
+                          currentNavId = R.id.nav_settings;
                           loadFragment(new SettingsFragment(), true);
                           return true;
                       }
                       return false;
                   });
+                  bottomNav.setOnItemReselectedListener(item -> {});
               }
 
               private void createNotificationChannel() {
@@ -2818,6 +2846,18 @@ jobs:
                       applyWallpaperAndUI();
                   }
               }
+              
+              public void hideBottomNav() {
+                  if (navHidden) return;
+                  navHidden = true;
+                  bottomNav.animate().translationY(bottomNav.getHeight()).setDuration(220).start();
+              }
+
+              public void showBottomNav() {
+                  if (!navHidden) return;
+                  navHidden = false;
+                  bottomNav.animate().translationY(0).setDuration(220).start();
+              }
 
               @Override protected void onDestroy() {
                   super.onDestroy();
@@ -2848,7 +2888,7 @@ jobs:
                   android:id="@+id/fragment_container"
                   android:layout_width="0dp" android:layout_height="0dp"
                   app:layout_constraintTop_toTopOf="parent"
-                  app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+                  app:layout_constraintBottom_toBottomOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintEnd_toEndOf="parent"
                   android:background="@android:color/transparent"/>
@@ -2860,6 +2900,7 @@ jobs:
                   app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:menu="@menu/bottom_nav_menu"
+                  app:labelVisibilityMode="labeled"
                   android:background="#75FFFFFF"
                   app:itemIconTint="#1976D2"
                   app:itemTextColor="#1976D2"
@@ -2972,11 +3013,14 @@ jobs:
 
           cat > app/src/main/res/layout/fragment_settings.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
-          <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+          <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:id="@+id/settings_scroll_view"
               android:layout_width="match_parent" android:layout_height="match_parent"
               android:background="@android:color/transparent"
-              android:fitsSystemWindows="true">
+              android:fitsSystemWindows="true"
+              android:paddingBottom="72dp"
+              android:clipToPadding="false">
               <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                   android:orientation="vertical" android:padding="16dp">
 
@@ -3006,7 +3050,7 @@ jobs:
                                       android:text="检测中..." android:textSize="12sp"
                                       android:textColor="@color/text_muted"/>
                               </LinearLayout>
-                              <com.google.android.material.switchmaterial.SwitchMaterial
+                              <com.google.android.material.materialswitch.MaterialSwitch
                                   android:id="@+id/switch_root"
                                   android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                           </LinearLayout>
@@ -3029,7 +3073,7 @@ jobs:
                                       android:text="检测中..." android:textSize="12sp"
                                       android:textColor="@color/text_muted"/>
                               </LinearLayout>
-                              <com.google.android.material.switchmaterial.SwitchMaterial
+                              <com.google.android.material.materialswitch.MaterialSwitch
                                   android:id="@+id/switch_shizuku"
                                   android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                           </LinearLayout>
@@ -3067,7 +3111,7 @@ jobs:
                                       android:text="当前刷新率: -- Hz  分辨率: --"
                                       android:textSize="12sp" android:textColor="@color/text_muted"/>
                               </LinearLayout>
-                              <com.google.android.material.switchmaterial.SwitchMaterial
+                              <com.google.android.material.materialswitch.MaterialSwitch
                                   android:id="@+id/switch_auto_overclock"
                                   android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                           </LinearLayout>
@@ -3114,7 +3158,7 @@ jobs:
                                   android:text="@string/show_refresh_rate_label"
                                   android:textSize="14sp"
                                   android:textColor="@color/text_dark"/>
-                              <com.google.android.material.switchmaterial.SwitchMaterial
+                              <com.google.android.material.materialswitch.MaterialSwitch
                                   android:id="@+id/switch_show_refresh_rate"
                                   android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"/>
@@ -3227,7 +3271,7 @@ jobs:
                       style="@style/Widget.MaterialComponents.Button"/>
 
               </LinearLayout>
-          </ScrollView>
+          </androidx.core.widget.NestedScrollView>
           EOF
 
           cat > app/src/main/res/menu/bottom_nav_menu.xml << 'EOF'
@@ -3274,5 +3318,5 @@ jobs:
       - name: 6. 提炼并分发 APK 产物
         uses: actions/upload-artifact@v4
         with:
-          name: RefreshRate-v1.6.1
+          name: RefreshRate-v1.6.3
           path: app/build/outputs/apk/debug/app-debug.apk
