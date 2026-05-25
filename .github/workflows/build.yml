@@ -2238,14 +2238,14 @@ jobs:
                       String authMode2 = prefs.getString("auth_mode", "");
                       String v2 = checked ? "1" : "0";
                       String cmd =
-                          "settings put global show_refresh_rate " + v2 + " ; " +
-                          "settings put system show_refresh_rate " + v2 + " ; " +
-                          "settings put global oplus_show_refresh_rate " + v2 + " ; " +
-                          "settings put system oplus_show_refresh_rate " + v2 + " ; " +
-                          "settings put system oplus_display_refresh_rate_switch " + v2 + " ; " +
-                          "settings put global realme_show_refresh_rate " + v2 + " ; " +
-                          "settings put secure show_refresh_rate " + v2 + " ; " +
-                          "service call SurfaceFlinger 1036 i32 " + v2;
+                      "settings put global show_refresh_rate " + v2 + " ; " +
+                      "settings put system show_refresh_rate " + v2 + " ; " +
+                      "settings put secure show_refresh_rate " + v2 + " ; " +
+                      "settings put global oplus_show_refresh_rate " + v2 + " ; " +
+                      "settings put system oplus_show_refresh_rate " + v2 + " ; " +
+                      "settings put system oplus_display_refresh_rate_switch " + v2 + " ; " +
+                      "settings put global oneplus_screen_refresh_rate " + v2 + " ; " +
+                      "settings put global realme_show_refresh_rate " + v2 + " ; true";
                       new Thread(() -> {
                           try {
                               if ("root".equals(authMode2)) {
@@ -2564,22 +2564,22 @@ jobs:
                           Process p2 = Runtime.getRuntime().exec("su");
                           java.io.DataOutputStream os3 = new java.io.DataOutputStream(p2.getOutputStream());
                           os3.writeBytes(
-                          "v=$(settings get global show_refresh_rate 2>/dev/null); " +
-                          "[ \"$v\" = '1' ] || v=$(settings get system show_refresh_rate 2>/dev/null); " +
-                          "[ \"$v\" = '1' ] || v=$(settings get system oplus_show_refresh_rate 2>/dev/null); " +
+                          "v=$(settings get global oneplus_screen_refresh_rate 2>/dev/null); " +
                           "[ \"$v\" = '1' ] || v=$(settings get global oplus_show_refresh_rate 2>/dev/null); " +
+                          "[ \"$v\" = '1' ] || v=$(settings get system oplus_display_refresh_rate_switch 2>/dev/null); " +
+                          "[ \"$v\" = '1' ] || v=$(settings get global show_refresh_rate 2>/dev/null); " +
                           "echo $v\nexit\n");
                           os3.flush();
                           java.io.BufferedReader r2 = new java.io.BufferedReader(new java.io.InputStreamReader(p2.getInputStream()));
                           result = r2.readLine(); p2.waitFor();
                       } else if ("shizuku".equals(mode)) {
-                          String r1 = com.pmahz.util.ShizukuUtils.execAndRead("settings get global show_refresh_rate");
+                          String r1 = com.pmahz.util.ShizukuUtils.execAndRead("settings get global oneplus_screen_refresh_rate");
                           if ("1".equals(r1 != null ? r1.trim() : "")) { result = "1"; }
                           else {
-                              String r2 = com.pmahz.util.ShizukuUtils.execAndRead("settings get system show_refresh_rate");
+                              String r2 = com.pmahz.util.ShizukuUtils.execAndRead("settings get global oplus_show_refresh_rate");
                               if ("1".equals(r2 != null ? r2.trim() : "")) { result = "1"; }
                               else {
-                                  String r3 = com.pmahz.util.ShizukuUtils.execAndRead("settings get system oplus_show_refresh_rate");
+                                  String r3 = com.pmahz.util.ShizukuUtils.execAndRead("settings get system oplus_display_refresh_rate_switch");
                                   result = (r3 != null ? r3.trim() : "");
                               }
                           }
