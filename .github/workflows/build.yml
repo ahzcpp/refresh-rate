@@ -1871,6 +1871,28 @@ jobs:
                   setContentView(R.layout.activity_appearance);
                   prefs = getSharedPreferences("s", MODE_PRIVATE);
                   
+                  // 加载壁纸
+                  ImageView wp = findViewById(R.id.appearance_wallpaper);
+                  int wpType = prefs.getInt("wallpaper_type", 4);
+                  if (wpType == 3) {
+                      String uriStr = prefs.getString("wallpaper_uri", null);
+                      if (uriStr != null) {
+                          try {
+                              java.io.InputStream is = getContentResolver().openInputStream(android.net.Uri.parse(uriStr));
+                              wp.setImageBitmap(android.graphics.BitmapFactory.decodeStream(is));
+                          } catch (Exception e) { wp.setImageResource(R.drawable.wallpaper_white); }
+                      } else { wp.setImageResource(R.drawable.wallpaper_white); }
+                  } else {
+                      int resId;
+                      if (wpType == 1) resId = R.drawable.wallpaper_gradient_2;
+                      else if (wpType == 2) resId = R.drawable.wallpaper_gradient_3;
+                      else if (wpType == 5) resId = R.drawable.wallpaper_black;
+                      else resId = R.drawable.wallpaper_white;
+                      wp.setImageResource(resId);
+                  }
+                  // 外观页背景改为透明
+                  getWindow().getDecorView().setBackgroundColor(android.graphics.Color.TRANSPARENT);
+                  
                   findViewById(R.id.btn_back).setOnClickListener(v -> finish());
                   setupNavSchemeRow();
                   setupWallpaper();
@@ -2752,7 +2774,14 @@ jobs:
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="#F0F2F8">
+              android:background="@android:color/transparent">
+              
+              <ImageView
+                  android:id="@+id/appearance_wallpaper"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:scaleType="centerCrop"
+                  android:alpha="0.3"/>
 
               <LinearLayout
                   android:id="@+id/appearance_toolbar"
@@ -2762,7 +2791,7 @@ jobs:
                   android:gravity="center_vertical"
                   android:padding="16dp"
                   android:paddingTop="48dp"
-                  android:background="#F0F2F8">
+                  android:background="@android:color/transparent">
                   <ImageView
                       android:id="@+id/btn_back"
                       android:layout_width="36dp"
@@ -3052,6 +3081,7 @@ jobs:
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
+                      app:cardElevation="0dp">
                       <LinearLayout
                           android:id="@+id/row_appearance"
                           android:layout_width="match_parent"
@@ -3098,6 +3128,7 @@ jobs:
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
+                      app:cardElevation="0dp">
                       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                           android:orientation="vertical" android:padding="16dp">
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -3156,6 +3187,7 @@ jobs:
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
+                      app:cardElevation="0dp">
                       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                           android:orientation="vertical" android:padding="16dp">
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -3230,6 +3262,7 @@ jobs:
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp"
                       app:cardBackgroundColor="#AAFFFFFF">
+                      app:cardElevation="0dp">
                       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                           android:orientation="vertical" android:padding="16dp">
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -3254,6 +3287,7 @@ jobs:
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
                       app:cardCornerRadius="12dp"
                       app:cardBackgroundColor="#AAFFFFFF">
+                      app:cardElevation="0dp">
                       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                           android:orientation="vertical" android:padding="16dp">
                           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
