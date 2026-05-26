@@ -79,7 +79,7 @@ jobs:
                   minSdk 24
                   targetSdk 34
                   versionCode 161
-                  versionName "1.6.1"
+                  versionName "1.6.3"
               }
               signingConfigs {
                   debug {
@@ -104,7 +104,7 @@ jobs:
               }
           }
           dependencies {
-              implementation 'androidx.appcompat:appcompat:1.6.1'
+              implementation 'androidx.appcompat:appcompat:1.6.3'
               implementation 'com.google.android.material:material:1.11.0'
               implementation 'androidx.recyclerview:recyclerview:1.3.2'
               implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -471,7 +471,7 @@ jobs:
               <string name="root_running_label">Root 运行</string>
               <string name="shizuku_running_label">Shizuku 运行</string>
               <string name="about_title">关于</string>
-              <string name="version_label">版本: 1.6.1</string>
+              <string name="version_label">版本: 1.6.3</string>
               <string name="generate_log_btn">生成日志</string>
               <string name="language_dialog_title">选择语言</string>
               <string name="language_zh">简体中文</string>
@@ -585,7 +585,7 @@ jobs:
               <string name="root_running_label">Root Running</string>
               <string name="shizuku_running_label">Shizuku Running</string>
               <string name="about_title">About</string>
-              <string name="version_label">Version: 1.6.1</string>
+              <string name="version_label">Version: 1.6.3</string>
               <string name="generate_log_btn">Generate Log</string>
               <string name="language_dialog_title">Choose Language</string>
               <string name="language_zh">简体中文</string>
@@ -2655,7 +2655,7 @@ jobs:
                   bottomNav.setElevation(dpToPx(12));
 
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                      bottomNav.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(18f, 18f, android.graphics.Shader.TileMode.CLAMP));
+                      bottomNav.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(6f, 6f, android.graphics.Shader.TileMode.CLAMP));
                   }
               }
 
@@ -3326,5 +3326,5 @@ jobs:
       - name: 6. 提炼并分发 APK 产物
         uses: actions/upload-artifact@v4
         with:
-          name: RefreshRate-v1.6.1
+          name: RefreshRate-v1.6.3
           path: app/build/outputs/apk/debug/app-debug.apk
