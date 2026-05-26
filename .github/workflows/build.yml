@@ -2639,24 +2639,22 @@ jobs:
 
               private void applyFloatingNav() {
                   android.view.ViewGroup.MarginLayoutParams params = (android.view.ViewGroup.MarginLayoutParams) bottomNav.getLayoutParams();
-                  int margin = dpToPx(16);
-                  params.leftMargin = margin;
-                  params.rightMargin = margin;
-                  params.bottomMargin = dpToPx(20);
+                  params.leftMargin = dpToPx(32);
+                  params.rightMargin = dpToPx(32);
+                  params.bottomMargin = dpToPx(24);
                   bottomNav.setLayoutParams(params);
-                  bottomNav.setBackground(null);
+
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                      bottomNav.setRenderEffect(null);
+                  }
 
                   android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
                   bg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-                  bg.setCornerRadius(dpToPx(32));
-                  bg.setColor(android.graphics.Color.parseColor("#B0FFFFFF"));
-                  bg.setStroke(dpToPx(1), android.graphics.Color.parseColor("#60FFFFFF"));
+                  bg.setCornerRadius(dpToPx(40));
+                  bg.setColor(android.graphics.Color.parseColor("#D8FFFFFF"));
+                  bg.setStroke(dpToPx(1), android.graphics.Color.parseColor("#80FFFFFF"));
                   bottomNav.setBackground(bg);
-                  bottomNav.setElevation(dpToPx(12));
-
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                      bottomNav.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(2f, 2f, android.graphics.Shader.TileMode.CLAMP));
-                  }
+                  bottomNav.setElevation(dpToPx(10));
               }
 
               private void applyClassicNav() {
@@ -3057,7 +3055,7 @@ jobs:
                       <LinearLayout
                           android:id="@+id/row_appearance"
                           android:layout_width="match_parent"
-                          android:layout_height="64dp"
+                          android:layout_height="52dp"
                           android:orientation="horizontal"
                           android:gravity="center_vertical"
                           android:paddingStart="16dp"
