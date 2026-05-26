@@ -2846,7 +2846,7 @@ jobs:
                   <TextView
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:text="@string/nav_style_title"
+                      android:text="@string/nav_scheme_title"
                       android:textSize="13sp"
                       android:textColor="#1976D2"
                       android:textStyle="bold"
@@ -2879,7 +2879,7 @@ jobs:
                                   android:layout_width="0dp"
                                   android:layout_height="wrap_content"
                                   android:layout_weight="1"
-                                  android:text="@string/nav_style_title"
+                                  android:text="@string/nav_scheme_title"
                                   android:textSize="15sp"
                                   android:textColor="#1A1A2E"/>
                               <TextView
