@@ -3133,7 +3133,7 @@ jobs:
 
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
-                      app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
+                      app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF"
                       app:cardElevation="0dp">
                       <LinearLayout
                           android:id="@+id/row_appearance"
@@ -3180,7 +3180,7 @@ jobs:
 
                   <androidx.cardview.widget.CardView android:layout_width="match_parent"
                       android:layout_height="wrap_content" android:layout_marginBottom="16dp"
-                      app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF">
+                      app:cardCornerRadius="12dp" app:cardBackgroundColor="#AAFFFFFF"
                       app:cardElevation="0dp">
                       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                           android:orientation="vertical" android:padding="16dp">
