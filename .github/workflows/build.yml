@@ -516,14 +516,14 @@ jobs:
               <string name="current_rate_format" formatted="false">当前刷新率: %d Hz  分辨率: %s</string>
               <string name="guard_running_format">自动启动守护已开启  %s</string>
               <string name="guard_watching_format">守护中 @ %d Hz</string>
-              <string name="guard_start_format">守护启动，目标：%s @ %d Hz</string>
+              <string name="guard_start_format" formatted="false">守护启动，目标：%s @ %d Hz</string>
               <string name="guard_stopped">守护已停止</string>
               <string name="guard_ready">就绪</string>
               <string name="guard_no_res_format">未找到分辨率 %s</string>
-              <string name="guard_target_updated">目标已更新 → %s @ %d Hz</string>
+              <string name="guard_target_updated" formatted="false">目标已更新 → %s @ %d Hz</string>
               <string name="guard_res_fix">分辨率校正，</string>
-              <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
-              <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="guard_hz_up" formatted="false">%s%d Hz ↑ → %d Hz</string>
+              <string name="guard_hz_down" formatted="false">%d Hz ↓ → %d Hz</string>
               <string name="show_refresh_rate_label">显示/隐藏刷新率</string>
               <string name="appearance_title">外观</string>
               <string name="appearance_desc">壁纸、档位显示、导航方案</string>
@@ -636,8 +636,8 @@ jobs:
               <string name="guard_no_res_format">Resolution not found: %s</string>
               <string name="guard_target_updated">Target updated → %s @ %d Hz</string>
               <string name="guard_res_fix">Resolution fix, </string>
-              <string name="guard_hz_up">%s%d Hz ↑ → %d Hz</string>
-              <string name="guard_hz_down">%d Hz ↓ → %d Hz</string>
+              <string name="guard_hz_up" formatted="false">%s%d Hz ↑ → %d Hz</string>
+              <string name="guard_hz_down" formatted="false">%d Hz ↓ → %d Hz</string>
               <string name="show_refresh_rate_label">Show/Hide Refresh Rate</string>
               <string name="appearance_title">Appearance</string>
               <string name="appearance_desc">Wallpaper, Card, Navigation</string>
@@ -2831,12 +2831,13 @@ jobs:
 
           cat > app/src/main/res/layout/activity_appearance.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
-          <androidx.coordinatorlayout.widget.CoordinatorLayout
-              xmlns:android="http://schemas.android.com/apk/res/android"
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="#FFFFFF"
+              android:orientation="vertical"
+              android:background="#F0F4FF"
+              android:fitsSystemWindows="true">
               
               <ImageView
                   android:id="@+id/appearance_wallpaper"
@@ -3022,7 +3023,7 @@ jobs:
                       </androidx.cardview.widget.CardView>
                   </LinearLayout>
               </androidx.core.widget.NestedScrollView>
-          </androidx.coordinatorlayout.widget.CoordinatorLayout>
+          </LinearLayout>
           EOF
 
           cat > app/src/main/res/layout/fragment_home.xml << 'EOF'
