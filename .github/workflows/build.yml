@@ -1873,7 +1873,8 @@ jobs:
                   prefs = getSharedPreferences("s", MODE_PRIVATE);
                   
                   // 加载壁纸
-                  ImageView wp = findViewById(R.id.appearance_wallpaper);
+                  ImageView wp = applyWallpaper(prefs.getInt("wallpaper_type", 4));
+                  applyCardTextTransparency();
                   int wpType = prefs.getInt("wallpaper_type", 4);
                   if (wpType == 3) {
                       String uriStr = prefs.getString("wallpaper_uri", null);
@@ -1910,7 +1911,7 @@ jobs:
                                   } catch (Exception ignored) {}
                                   prefs.edit().putString("wallpaper_uri", uri.toString()).apply();
                                   RadioGroup rg = findViewById(R.id.rg_wallpaper);
-                                  rg.check(R.id.rb_custom);
+                                  rg.check(R.id.rb_custom);applyWallpaper(3);
                                   Toast.makeText(this, R.string.custom_wallpaper_saved, Toast.LENGTH_SHORT).show();
                               }
                           }
@@ -1963,6 +1964,7 @@ jobs:
                       else if (checkedId == R.id.rb_black) type = 5;
                       else type = 4;
                       prefs.edit().putInt("wallpaper_type", type).apply();
+                      applyWallpaper(type);
                       if (type == 3 && prefs.getString("wallpaper_uri", null) == null) {
                           Toast.makeText(this, R.string.select_custom_image_first, Toast.LENGTH_SHORT).show();
                       }
@@ -1989,7 +1991,8 @@ jobs:
                   sbCard.setProgress(prefs.getInt("card_alpha", 0));
                   sbCard.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                       @Override public void onProgressChanged(SeekBar s, int p, boolean f) {
-                          prefs.edit().putInt("card_alpha", p).apply();
+                          prefs.edit().putInt("card_alpha", p).apply();ImageView wp2 = findViewById(R.id.appearance_wallpaper);
+                          if (wp2 != null) wp2.setAlpha(p / 100f);
                       }
                       @Override public void onStartTrackingTouch(SeekBar s) {}
                       @Override public void onStopTrackingTouch(SeekBar s) {}
@@ -2025,6 +2028,61 @@ jobs:
                           } else {
                               Toast.makeText(this, R.string.need_storage_permission, Toast.LENGTH_SHORT).show();
                           }
+                      }
+                  }
+              }
+              @Override
+              protected void onResume() {
+                  super.onResume();
+                  applyWallpaper(prefs.getInt("wallpaper_type", 4));
+                  applyCardTextTransparency();
+              }
+
+              private void applyWallpaper(int type) {
+                  ImageView wp = findViewById(R.id.appearance_wallpaper);
+                  if (wp == null) return;
+                  wp.setAlpha(prefs.getFloat("wallpaper_alpha", 0.3f));
+                  if (type == 3) {
+                      String uriStr = prefs.getString("wallpaper_uri", null);
+                      if (uriStr != null) {
+                          try {
+                              java.io.InputStream is = getContentResolver().openInputStream(android.net.Uri.parse(uriStr));
+                              wp.setImageBitmap(android.graphics.BitmapFactory.decodeStream(is));
+                              return;
+                          } catch (Exception ignored) {}
+                      }
+                      wp.setImageResource(R.drawable.wallpaper_white);
+                  } else {
+                      int resId;
+                      if (type == 1) resId = R.drawable.wallpaper_gradient_2;
+                      else if (type == 2) resId = R.drawable.wallpaper_gradient_3;
+                      else if (type == 5) resId = R.drawable.wallpaper_black;
+                      else resId = R.drawable.wallpaper_white;
+                      wp.setImageResource(resId);
+                  }
+              }
+
+              private void applyCardTextTransparency() {
+                  int cardAlpha = 255 - (int)(prefs.getInt("setting_card_alpha", 0) / 100f * 255);
+                  int textAlpha = 255 - (int)(prefs.getInt("setting_text_alpha", 0) / 100f * 255);
+                  android.view.ViewGroup root = (android.view.ViewGroup)
+                      ((android.view.ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+                  if (root != null) applyAlphaToGroup(root, cardAlpha, textAlpha);
+              }
+
+              private void applyAlphaToGroup(android.view.ViewGroup parent, int cardAlpha, int textAlpha) {
+                  for (int i = 0; i < parent.getChildCount(); i++) {
+                      android.view.View child = parent.getChildAt(i);
+                      if (child instanceof androidx.cardview.widget.CardView) {
+                          androidx.cardview.widget.CardView cv = (androidx.cardview.widget.CardView) child;
+                          cv.setCardBackgroundColor(android.graphics.Color.argb(cardAlpha, 255, 255, 255));
+                          cv.setCardElevation(0f);
+                          cv.setMaxCardElevation(0f);
+                      } else if (child instanceof android.widget.TextView) {
+                          child.setAlpha(textAlpha / 255f);
+                      }
+                      if (child instanceof android.view.ViewGroup) {
+                          applyAlphaToGroup((android.view.ViewGroup) child, cardAlpha, textAlpha);
                       }
                   }
               }
@@ -2453,7 +2511,10 @@ jobs:
                   for (int i = 0; i < parent.getChildCount(); i++) {
                       View child = parent.getChildAt(i);
                       if (child instanceof CardView) {
-                          ((CardView) child).setCardBackgroundColor(Color.argb(cardAlpha, 255, 255, 255));
+                          CardView cv = (CardView) child;
+                          cv.setCardBackgroundColor(Color.argb(cardAlpha, 255, 255, 255));
+                          cv.setCardElevation(0f);
+                          cv.setMaxCardElevation(0f);
                       } else if (child instanceof TextView) {
                           child.setAlpha(textAlpha / 255f);
                       }
@@ -2775,7 +2836,7 @@ jobs:
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@android:color/transparent">
+              android:background="#FFFFFF"
               
               <ImageView
                   android:id="@+id/appearance_wallpaper"
@@ -2792,7 +2853,7 @@ jobs:
                   android:gravity="center_vertical"
                   android:padding="16dp"
                   android:paddingTop="48dp"
-                  android:background="@android:color/transparent">
+                  android:background="#FFFFFF"
                   <ImageView
                       android:id="@+id/btn_back"
                       android:layout_width="36dp"
