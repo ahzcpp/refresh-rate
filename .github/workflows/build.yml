@@ -2655,7 +2655,7 @@ jobs:
                   bottomNav.setElevation(dpToPx(12));
 
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                      bottomNav.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(6f, 6f, android.graphics.Shader.TileMode.CLAMP));
+                      bottomNav.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(2f, 2f, android.graphics.Shader.TileMode.CLAMP));
                   }
               }
 
