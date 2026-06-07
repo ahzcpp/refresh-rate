@@ -6992,5 +6992,5 @@ jobs:
       - name: 6. 提炼并分发 APK 产物
         uses: actions/upload-artifact@v4
         with:
-          name: RefreshRate-v1.6.4_bate3
+          name: RefreshRate-v1.6.4_bate4
           path: app/build/outputs/apk/debug/app-debug.apk
